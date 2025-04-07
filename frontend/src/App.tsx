@@ -1,33 +1,52 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { useQuery, gql } from '@apollo/client';
+
+const GET_PATTERNS= gql`
+  query GetPatterns {
+    allPatterns {
+      id
+      name
+      description
+    }
+  }
+`
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [pattern, setPattern] = useState<string>('')
+  const { loading, error, data } = useQuery(GET_PATTERNS);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>Imagurumi</h1>
+      <textarea
+        placeholder="Paste Pattern Here"
+        rows={4}
+        cols={50}
+        value={pattern}
+        onChange={(e) => setPattern(e.target.value)}
+      ></textarea>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Pattern ID</th>
+            <th>Pattern Name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading && <tr><td colSpan={3}>Loading...</td></tr>}
+          {error && <tr><td colSpan={3}>Error: {error.message}</td></tr>}
+          {data && data.allPatterns.map((pattern: {id: string, name: string, description: string}) => (
+            <tr key={pattern.id}>
+              <td>{pattern.id}</td>
+              <td>{pattern.name}</td>
+              <td>{pattern.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </>
   )
 }

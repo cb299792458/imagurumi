@@ -11,12 +11,14 @@ export const typeDefs = `#graphql
   type Pattern {
     id: Int
     name: String
+    description: String
     userId: Int
   }
 
   type Project {
     id: Int
     name: String
+    description: String
     userId: Int
   }
 `;
