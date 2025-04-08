@@ -12,6 +12,7 @@ export const typeDefs = `#graphql
     id: Int
     name: String
     description: String
+    text: String
     userId: Int
   }
 

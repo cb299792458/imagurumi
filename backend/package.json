@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "reset": "prisma migrate reset --force",
     "seed": "node prisma/seed.js",
     "dev": "node index.js"
   },

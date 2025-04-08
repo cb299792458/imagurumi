@@ -25,6 +25,7 @@ model Pattern {
   id          Int              @id @default(autoincrement())
   name        String
   description String?
+  text        String           @db.Text
   user        User             @relation(fields: [userId], references: [id])
   userId      Int
   usedIn      ProjectPattern[]
