@@ -14,19 +14,33 @@ export class Pattern {
         return rows.join('\n');
     }
 
+    rowsToPoints = () => {
+        const res: number[][][] = [];
+        for (const row of this.rows) {
+            const { stitches, circumradius, height } = row;
+            const points: number[][] = [];
+            for (let i = 0; i < stitches; i++) {
+                const angle = (i / stitches) * Math.PI * 2;
+                const x = circumradius * Math.cos(angle);
+                const y = circumradius * Math.sin(angle);
+                points.push([ x, y, height ]);  
+            }
+            res.push(points);
+        }
+        return res;
+    }
+
     parse() {
         let color = 'unknown';
         const lines = this.text.split('\n');
         for (const line of lines) {
             const parts = line.trim().split(' ');
-            console.log('parts: ', parts);            
             switch (parts[0]) {
                 case '':
                     break;
                 case '!color':
                     color = parts[1].slice(1);
                     break;
-
                 case '!cut-fill-close':
                     break;
 
@@ -53,7 +67,6 @@ export class Pattern {
                 default:
                     if (!this.rows.length) throw new Error('magic ring should be used to start a pattern');
                     const row = buildRow(line, this.rows[this.rows.length-1] as Row);
-                    console.log('row: ', row, )
                     this.rows.push(row);
             }
         }

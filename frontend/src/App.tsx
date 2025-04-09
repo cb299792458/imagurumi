@@ -2,6 +2,9 @@ import { useState } from 'react'
 import './App.css'
 import { useQuery, gql } from '@apollo/client';
 import { Pattern } from '../../core/Pattern';
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls } from '@react-three/drei';
+import * as THREE from 'three'
 
 const GET_PATTERNS= gql`
     query GetPatterns {
@@ -16,11 +19,31 @@ const GET_PATTERNS= gql`
 
 function App() {
     const [pattern, setPattern] = useState<string>('')
+    const [points, setPoints] = useState<number[][][]>([])
     const { loading, error, data } = useQuery(GET_PATTERNS);
 
     const handleText= (text: string) => {
         const pattern = new Pattern(text);
         console.log(pattern.rowsToString());
+
+        setPoints(pattern.rowsToPoints());
+    }
+
+    const Spheres = ({points}: {points: number[][][]}) => {
+        return (
+            <>
+                {points.map((pointSet, index) => (
+                    <group key={index}>
+                        {pointSet.map((point, i) => (
+                            <mesh key={i} position={new THREE.Vector3(...point)}>
+                                <sphereGeometry args={[0.1, 32, 32]} />
+                                <meshStandardMaterial color="hotpink" />
+                            </mesh>
+                        ))}
+                    </group>
+                ))}
+            </>
+        )
     }
 
     return (<>
@@ -57,7 +80,12 @@ function App() {
             ))}
             </tbody>
         </table>
-        
+
+        <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+            <ambientLight />
+            <Spheres points={points}/>
+            <OrbitControls />
+        </Canvas>
     </>)
 }
 
