@@ -46,7 +46,7 @@ function App() {
 
     return (<>
         <h1>Imagurumi</h1>
-        <div style={{display: 'flex', height: '250px'}}>
+        <div style={{display: 'flex'}}>
             <textarea
                 placeholder="Paste Pattern Here"
                 rows={4}

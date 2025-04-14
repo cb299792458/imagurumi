@@ -20,7 +20,7 @@ const text1 =
 !cut-fill-close [0]`
 
 const text2 =
-`!color #red
+`!color #red [0]
 !mr 6sc [6]
 (inc)x6 [12]
 (1sc,inc)x6 [18]
@@ -59,6 +59,20 @@ const text3 =
 (dec)x6 [6]
 !cut-fill-close [0]`
 
+const text4 = 
+`!color #white [0]
+!mr 6sc [6]
+(inc)x6 [12]
+1sc (inc,2sc)x4 1sc [16]
+(3sc,inc)x4 [20]
+4sc inc 10sc inc 4sc [22]
+22 sc [22]
+4sc dec 10sc dec 4sc [20]
+(dec,3sc) x4 [16]
+1sc (dec,2sc)x4 1sc [12]
+(dec)x6 [6]
+!cut !fill !close [0]`
+
 async function main() {
     const user1 = await prisma.user.create({
         data: {
@@ -91,6 +105,15 @@ async function main() {
             userId: user1.id,
             description: 'changes circumference gradually',
             text: text3
+        }
+    })
+
+    const pattern4 = await prisma.pattern.create({
+        data: {
+            name: 'Ideal Sphere',
+            userId: user1.id,
+            description: 'https://mspremiseconclusion.wordpress.com/wp-content/uploads/2010/03/ideal-sphere3.pdf',
+            text: text4
         }
     })
 
