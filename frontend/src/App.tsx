@@ -18,13 +18,12 @@ const GET_PATTERNS = gql`
 `
 
 function App() {
-    const [pattern, setPattern] = useState<string>('')
+    const [text, setText] = useState<string>('')
     const [points, setPoints] = useState<number[][][]>([])
     const { loading, error, data } = useQuery(GET_PATTERNS);
 
-    const handleText= (text: string) => {
+    const handleText= () => {
         const pattern = new Pattern(text);
-        setPattern(pattern.text);
         setPoints(pattern.rowsToPoints());
     }
 
@@ -51,9 +50,9 @@ function App() {
             <textarea
                 placeholder="Paste Pattern Here"
                 rows={4}
-                cols={50}
-                value={pattern}
-                onChange={(e) => setPattern(e.target.value)}
+                cols={30}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
             />
             <table>
                 <thead>
@@ -69,16 +68,18 @@ function App() {
                 {error && <tr><td colSpan={3}>Error: {error.message}</td></tr>}
                 {data && data.allPatterns.map((pattern: {id: string, name: string, description: string, text: string}) => (
                     <tr key={pattern.id}>
-                    <td>{pattern.id}</td>
-                    <td>{pattern.name}</td>
-                    <td>{pattern.description}</td>
-                    <td>
-                        <button onClick={() => handleText(pattern.text)}>do the thing</button>
-                    </td>
+                        <td>{pattern.id}</td>
+                        <td>{pattern.name}</td>
+                        <td>{pattern.description}</td>
+                        <td>
+                            <button onClick={() => setText(pattern.text)}>load pattern</button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
+
+            <button onClick={handleText}>imagine</button>
 
         </div>
         <div style={{ border: "1px solid red", height: "500px" }}>

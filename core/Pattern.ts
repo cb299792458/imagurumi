@@ -95,6 +95,7 @@ const buildRow = (line: string, lastRow: Row): Row => {
     const circumradius = getCircumradius(stitches);
     const radiusIncrease = circumradius - lastCircumradius;
     if (Math.abs(radiusIncrease) > 1) {
+        console.log(stitches, lastCircumradius, circumradius);
         throw new Error('new row too big/small for last row');
     }
     const height = lastHeight + Math.sqrt(1 - Math.pow(radiusIncrease, 2));

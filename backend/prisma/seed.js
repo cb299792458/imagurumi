@@ -3,6 +3,62 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+const text1 = 
+`!color #white [0]
+!mr 6sc [6]
+(inc)x6 [12]
+(1sc,inc)x6 [18]
+(2sc,inc)x6 [24]
+24sc [24]
+24sc [24]
+24sc [24]
+24sc [24]
+24sc [24]
+(2sc,dec)x6 [18]
+(1sc,dec)x6 [12]
+(dec)x6 [6]
+!cut-fill-close [0]`
+
+const text2 =
+`!color #red
+!mr 6sc [6]
+(inc)x6 [12]
+(1sc,inc)x6 [18]
+(2sc,inc)x6 [24]
+(3sc,inc)x6 [30]
+(4sc,inc)x6 [36]
+36sc [36]
+36sc [36]
+36sc [36]
+36sc [36]
+36sc [36]
+36sc [36]
+36sc [36]
+(4sc,dec)x6 [30]
+(3sc,dec)x6 [24]
+(2sc,dec)x6 [18]
+(1sc,dec)x6 [12]
+(dec)x6 [6]
+!cut !fill !close [0]`
+
+const text3 = 
+`!color #white [0]
+!mr 6sc [6]
+(inc)x6 [12]
+(1sc,inc)x6 [18]
+(2sc,inc)x6 [24]
+(5sc,inc)x4 [28]
+(6sc,inc)x4 [32]
+32sc [32]
+32sc [32]
+32sc [32]
+(6sc,dec)x4 [28]
+(5sc,dec)x4 [24]
+(2sc,dec)x6 [18]
+(1sc,dec)x6 [12]
+(dec)x6 [6]
+!cut-fill-close [0]`
+
 async function main() {
     const user1 = await prisma.user.create({
         data: {
@@ -11,27 +67,12 @@ async function main() {
         }
     });
 
-  const pattern1 = await prisma.pattern.create({
+    const pattern1 = await prisma.pattern.create({
         data: {
             name: 'Small Ball',
             userId: user1.id,
             description: 'A simple small sphere',
-            text: `
-                !color #white [0]
-                !mr 6sc [6]
-                (inc)x6 [12]
-                (1sc,inc)x6 [18]
-                (2sc,inc)x6 [24]
-                24sc [24]
-                24sc [24]
-                24sc [24]
-                24sc [24]
-                24sc [24]
-                (2sc,dec)x6 [18]
-                (1sc,dec)x6 [12]
-                (dec)x6 [6]
-                !cut-fill-close [0]
-            `
+            text: text1
         }
     });
 
@@ -40,28 +81,16 @@ async function main() {
             name: 'Large Ball',
             userId: user1.id,
             description: 'A simple large sphere',
-            text: `
-                !color #red
-                !mr 6sc [6]
-                (inc)x6 [12]
-                (1sc,inc)x6 [18]
-                (2sc,inc)x6 [24]
-                (3sc,inc)x6 [30]
-                (4sc,inc)x6 [36]
-                36sc [36]
-                36sc [36]
-                36sc [36]
-                36sc [36]
-                36sc [36]
-                36sc [36]
-                36sc [36]
-                (4sc,dec)x6 [30]
-                (3sc,dec)x6 [24]
-                (2sc,dec)x6 [18]
-                (1sc,dec)x6 [12]
-                (dec)x6 [6]
-                !cut !fill !close [0]
-            `
+            text: text2
+        }
+    })
+
+    const pattern3 = await prisma.pattern.create({
+        data: {
+            name: 'A Rounder Sphere',
+            userId: user1.id,
+            description: 'changes circumference gradually',
+            text: text3
         }
     })
 
