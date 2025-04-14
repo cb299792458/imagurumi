@@ -3,7 +3,7 @@ export class Pattern {
     rows: Row[] = [];
 
     constructor(text: string) {
-        this.text = text;
+        this.text = text.split(/\r?\n/).map(s => s.trim()).join('\n');
         this.parse();
     }
 
