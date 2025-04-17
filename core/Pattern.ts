@@ -1,3 +1,15 @@
+type Row = {
+    color: string;
+    stitches: number;
+    circumradius: number;
+    height: number;
+}
+
+export type ColoredPoints = {
+    color: string;
+    points: number[][];
+}
+
 export class Pattern {
     text: string;
     rows: Row[] = [];
@@ -14,10 +26,10 @@ export class Pattern {
         return rows.join('\n');
     }
 
-    rowsToPoints = () => {
-        const res: number[][][] = [];
+    rowsToPoints = (): ColoredPoints[] => {
+        const res: ColoredPoints[] = [];
         for (const row of this.rows) {
-            const { stitches, circumradius, height } = row;
+            const { stitches, circumradius, height, color } = row;
             const points: number[][] = [];
             for (let i = 0; i < stitches; i++) {
                 const angle = (i / stitches) * Math.PI * 2;
@@ -25,7 +37,7 @@ export class Pattern {
                 const y = circumradius * Math.sin(angle);
                 points.push([ x, y, height ]);  
             }
-            res.push(points);
+            res.push({color, points});
         }
         return res;
     }
@@ -78,13 +90,6 @@ const readInt = (s: string) => {
     return digits ? parseInt(digits.join('')) : 0;
 }
 
-type Row = {
-    color: string;
-    stitches: number;
-    circumradius: number;
-    height: number;
-}
-
 const buildRow = (line: string, lastRow: Row): Row => {
     const { color, circumradius: lastCircumradius, height: lastHeight } = lastRow;
     const parts = line.split(' ');
@@ -95,7 +100,6 @@ const buildRow = (line: string, lastRow: Row): Row => {
     const circumradius = getCircumradius(stitches);
     const radiusIncrease = circumradius - lastCircumradius;
     if (Math.abs(radiusIncrease) > 1) {
-        console.log(stitches, lastCircumradius, circumradius);
         throw new Error('new row too big/small for last row');
     }
     const height = lastHeight + Math.sqrt(1 - Math.pow(radiusIncrease, 2));

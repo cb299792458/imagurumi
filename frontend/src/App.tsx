@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { useQuery, gql } from '@apollo/client';
-import { Pattern } from '../../core/Pattern';
+import { ColoredPoints, Pattern } from '../../core/Pattern';
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three'
@@ -19,23 +19,23 @@ const GET_PATTERNS = gql`
 
 function App() {
     const [text, setText] = useState<string>('')
-    const [points, setPoints] = useState<number[][][]>([])
+    const [coloredPoints, setColoredPoints] = useState<ColoredPoints[]>([])
     const { loading, error, data } = useQuery(GET_PATTERNS);
 
     const handleText= () => {
         const pattern = new Pattern(text);
-        setPoints(pattern.rowsToPoints());
+        setColoredPoints(pattern.rowsToPoints());
     }
 
-    const Spheres = ({points}: {points: number[][][]}) => {
+    const Spheres = ({coloredPoints}: {coloredPoints: ColoredPoints[]}) => {
         return (
             <>
-                {points.map((pointSet, index) => (
+                {coloredPoints.map(({color, points}, index) => (
                     <group key={index}>
-                        {pointSet.map((point, i) => (
+                        {points.map((point, i) => (
                             <mesh key={i} position={new THREE.Vector3(...point)}>
-                                <sphereGeometry args={[0.1, 32, 32]} />
-                                <meshStandardMaterial color="hotpink" />
+                                <sphereGeometry args={[0.25, 32, 32]} />
+                                <meshStandardMaterial color={color} />
                             </mesh>
                         ))}
                     </group>
@@ -85,7 +85,7 @@ function App() {
         <div style={{ border: "1px solid red", height: "500px" }}>
             <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <ambientLight />
-                <Spheres points={points}/>
+                <Spheres coloredPoints={coloredPoints}/>
                 <OrbitControls />
             </Canvas>
         </div>
