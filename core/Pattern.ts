@@ -40,7 +40,7 @@ export class Pattern {
         return rows.join('\n');
     }
 
-    rowsToPoints = (): ModelRow[] => {
+    rowsToPoints = (): ModelRows => {
         const res: ModelRow[] = [];
         for (const row of this.rows) {
             const { stitches, circumradius, height, color } = row;

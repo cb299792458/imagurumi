@@ -18,7 +18,7 @@ const GET_PATTERNS = gql`
     }
 `
 
-const Spheres = ({modelRows}: {modelRows: ModelRows}) => {
+export const ThreeModel = ({modelRows}: {modelRows: ModelRows}) => {
     return (
         <>
             {modelRows.map(({color, points}, index) => (
@@ -86,7 +86,7 @@ const PatternPage = () => {
         <div style={{ border: "1px solid red", height: "500px" }}>
             <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <ambientLight />
-                <Spheres modelRows={modelRows}/>
+                <ThreeModel modelRows={modelRows}/>
                 <OrbitControls />
             </Canvas>
         </div>
