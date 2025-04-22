@@ -5,9 +5,23 @@ type Row = {
     height: number;
 }
 
-export type ColoredPoints = {
+export type ModelRow = {
     color: string;
     points: number[][];
+}
+
+export type ModelRows = ModelRow[]
+
+export type TransformedModel = {
+    modelRows: ModelRows;
+    transform: {
+        x: number;
+        y: number;
+        z: number;
+        rotX: number;
+        rotY: number;
+        rotZ: number;
+    }
 }
 
 export class Pattern {
@@ -26,8 +40,8 @@ export class Pattern {
         return rows.join('\n');
     }
 
-    rowsToPoints = (): ColoredPoints[] => {
-        const res: ColoredPoints[] = [];
+    rowsToPoints = (): ModelRow[] => {
+        const res: ModelRow[] = [];
         for (const row of this.rows) {
             const { stitches, circumradius, height, color } = row;
             const points: number[][] = [];
@@ -114,4 +128,10 @@ const buildRow = (line: string, lastRow: Row): Row => {
 
 const getCircumradius = (stitches: number) => {
     return 1 / (2 * Math.sin(Math.PI / stitches));
+}
+
+export type PatternFrontend = Pattern & {
+    id: number;
+    name: string;
+    description: string;
 }
