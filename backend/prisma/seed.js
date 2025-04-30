@@ -73,6 +73,31 @@ const text4 =
 (dec)x6 [6]
 !cut !fill !close [0]`
 
+const text5 = 
+`!color #white [0]
+!mr 6sc [6]
+(inc)x6 [12]
+(1sc,inc)x6 [18]
+sc inc 2sc inc 3sc inc 2sc inc 3sc inc 2sc [23]
+inc 4sc inc 3sc inc 4sc inc 3sc inc 4sc [28]
+3sc (inc,6sc)x3 inc 3sc [32]
+5sc (inc,9sc)x2 inc 6sc [35]
+3sc inc 10sc inc 11sc inc 8sc [38]
+12sc inc 25sc [39]
+inc 38sc [40]
+40sc [40]
+38sc dec [39]
+25sc dec 12sc [38]
+8sc dec 11sc dec 10sc dec 3sc [35]
+6sc dec 9sc dec 3sc dec 5sc [32]
+3sc (dec,6sc)x3 dec 3sc [28]
+4sc dec 3sc dec 4sc dec 3sc dec 4sc dec [23]
+2sc dec 3sc dec 2sc dec 3sc dec 2sc dec 1sc [18]
+(1sc,dec)x6 [12]
+(dec)x6 [6]
+!cut-fill-close [0]
+`
+
 async function main() {
     const user1 = await prisma.user.create({
         data: {
@@ -81,68 +106,76 @@ async function main() {
         }
     });
 
-    const pattern1 = await prisma.pattern.create({
-        data: {
-            name: 'Small Ball',
-            userId: user1.id,
-            description: 'A simple small sphere',
-            text: text1
-        }
-    });
+    // const pattern1 = await prisma.pattern.create({
+    //     data: {
+    //         name: 'Small Ball',
+    //         userId: user1.id,
+    //         description: 'A simple small sphere',
+    //         text: text1
+    //     }
+    // });
 
-    const pattern2 = await prisma.pattern.create({
-        data: {
-            name: 'Large Ball',
-            userId: user1.id,
-            description: 'A simple large sphere',
-            text: text2
-        }
-    })
+    // const pattern2 = await prisma.pattern.create({
+    //     data: {
+    //         name: 'Large Ball',
+    //         userId: user1.id,
+    //         description: 'A simple large sphere',
+    //         text: text2
+    //     }
+    // })
 
-    const pattern3 = await prisma.pattern.create({
-        data: {
-            name: 'A Rounder Sphere',
-            userId: user1.id,
-            description: 'changes circumference gradually',
-            text: text3
-        }
-    })
+    // const pattern3 = await prisma.pattern.create({
+    //     data: {
+    //         name: 'A Rounder Sphere',
+    //         userId: user1.id,
+    //         description: 'changes circumference gradually',
+    //         text: text3
+    //     }
+    // })
 
     const pattern4 = await prisma.pattern.create({
         data: {
-            name: 'Ideal Sphere',
+            name: 'Ideal Sphere (small)',
             userId: user1.id,
             description: 'https://mspremiseconclusion.wordpress.com/wp-content/uploads/2010/03/ideal-sphere3.pdf',
             text: text4
         }
     })
-
-    const project1 = await prisma.project.create({
+    const pattern5 = await prisma.pattern.create({
         data: {
-            name: 'Water Molecule',
+            name: 'Ideal Sphere (large)',
             userId: user1.id,
-            description: 'A simple water molecule model',
-            }
-        });
+            description: 'https://mspremiseconclusion.wordpress.com/wp-content/uploads/2010/03/ideal-sphere3.pdf',
+            text: text5
+        }
+    })
 
-    const projectPattern1 = await prisma.projectPattern.create({
-        data: {
-        projectId: project1.id,
-        patternId: pattern1.id,
-        }
-    });
-    const projectPattern2 = await prisma.projectPattern.create({
-        data: {
-        projectId: project1.id,
-        patternId: pattern2.id,
-        }
-    });
-    const projectPattern3 = await prisma.projectPattern.create({
-        data: {
-        projectId: project1.id,
-        patternId: pattern1.id,
-        }
-    });
+    // const project1 = await prisma.project.create({
+    //     data: {
+    //         name: 'Water Molecule',
+    //         userId: user1.id,
+    //         description: 'A simple water molecule model',
+    //         }
+    //     });
+
+    // const projectPattern1 = await prisma.projectPattern.create({
+    //     data: {
+    //     projectId: project1.id,
+    //     patternId: pattern1.id,
+    //     }
+    // });
+    // const projectPattern2 = await prisma.projectPattern.create({
+    //     data: {
+    //     projectId: project1.id,
+    //     patternId: pattern2.id,
+    //     }
+    // });
+    // const projectPattern3 = await prisma.projectPattern.create({
+    //     data: {
+    //     projectId: project1.id,
+    //     patternId: pattern1.id,
+    //     }
+    // });
 
     console.log('Seed data created.');
 }

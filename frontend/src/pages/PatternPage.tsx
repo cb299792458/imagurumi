@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, gql } from '@apollo/client';
 import { ModelRows, Pattern, PatternFrontend } from '../../../core/Pattern';
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls } from "@react-three/drei";
 import * as THREE from 'three'
 
 const GET_PATTERNS = gql`
@@ -16,22 +16,36 @@ const GET_PATTERNS = gql`
     }
 `;
 const CREATE_PATTERN = gql`
-  mutation CreatePattern($name: String!, $description: String, $text: String!, $userId: Int!) {
-    createPattern(name: $name, description: $description, text: $text, userId: $userId) {
-      id
-      name
+    mutation CreatePattern($name: String!, $description: String, $text: String!, $userId: Int!) {
+        createPattern(name: $name, description: $description, text: $text, userId: $userId) {
+            id
+            name
+        }
     }
-  }
 `;
+type Transform = {
+    x: number;
+    y: number;
+    z: number;
+    rotX: number;
+    rotY: number;
+    rotZ: number;
+}
 
-export const ThreeModel = ( {modelRows }: { modelRows: ModelRows }) => {
+export const ThreeModel = ( { modelRows, transform={x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0} }: { modelRows: ModelRows, transform?: Transform }) => {
     return (
         <>
             {modelRows.map(({color, points}, index) => (
-                <group key={index}>
+                <group 
+                    key={index}
+                    position={[transform.x, transform.y, transform.z]}
+                    rotation={
+                        ([transform.rotX, transform.rotY, transform.rotZ].map(r => r * Math.PI / 180) as [number, number, number])
+                      }
+                >
                     {points.map((point, i) => (
                         <mesh key={i} position={new THREE.Vector3(...point)}>
-                            <sphereGeometry args={[0.25, 32, 32]} />
+                            <sphereGeometry args={[0.75, 32, 32]} />
                             <meshStandardMaterial color={color} />
                         </mesh>
                     ))}
@@ -41,16 +55,17 @@ export const ThreeModel = ( {modelRows }: { modelRows: ModelRows }) => {
     )
 }
 
-const CreatePatternForm = ({ text }: { text: string }) =>{
+const CreatePatternForm = ({ text, refetch }: { text: string, refetch: () => void }) =>{
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const userId = 1; // TODO: get userId from context or props
   
     const [createPattern, { data, loading, error }] = useMutation(CREATE_PATTERN);
   
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
-        createPattern({ variables: { name, description, text, userId } });
+        await createPattern({ variables: { name, description, text, userId } });
+        refetch();
     };
   
     return (
@@ -69,16 +84,16 @@ const CreatePatternForm = ({ text }: { text: string }) =>{
 const PatternPage = () => {
     const [text, setText] = useState<string>('')
     const [modelRows, setModelRows] = useState<ModelRows>([])
-    const { loading, error, data } = useQuery(GET_PATTERNS);
+    const { loading, error, data, refetch } = useQuery(GET_PATTERNS);
 
     const handleText= () => {
         const pattern = new Pattern(text);
         setModelRows(pattern.rowsToPoints());
     }
 
-
     return <>
         <h1>Pattern Page</h1>
+        <a href="/project">Go to Project Page</a>
         <div style={{display: 'flex'}}>
             <textarea
                 placeholder="Paste Pattern Here"
@@ -117,12 +132,13 @@ const PatternPage = () => {
         </div>
         <div style={{ border: "1px solid red", height: "500px" }}>
             <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+                <axesHelper />
                 <ambientLight />
                 <ThreeModel modelRows={modelRows}/>
                 <OrbitControls />
             </Canvas>
         </div>
-        <CreatePatternForm text={text} />
+        <CreatePatternForm text={text} refetch={refetch}/>
     </>
 }
 

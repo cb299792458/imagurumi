@@ -22,7 +22,6 @@ const ProjectPage = () => {
     const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
     const [transformedModels, setTransformedModels] = useState<TransformedModel[]>([]);
 
-
     // blargh
     useEffect(() => {
         setTransformedModels(newProject.map((pattern) => {
@@ -45,7 +44,7 @@ const ProjectPage = () => {
 
     return <>
         <h1>Project Page</h1>
-
+        <a href="/pattern">Go to Pattern Page</a>
         <table>
             <thead>
                 <tr>
@@ -88,6 +87,9 @@ const ProjectPage = () => {
                                 Remove
                             </button>
                         </td>
+                        <td>
+                            <PatternTransformer index={index} transformedModels={transformedModels} setTransformedModels={setTransformedModels}/>
+                        </td>                      
                     </tr>
                 ))}
             </tbody>
@@ -95,13 +97,38 @@ const ProjectPage = () => {
         <div style={{ border: "1px solid red", height: "500px" }}>
             <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <ambientLight />
+                <axesHelper />
                 {transformedModels.map((model, index) => (
-                    <ThreeModel key={index} modelRows={model.modelRows} />
+                    <ThreeModel key={index} modelRows={model.modelRows} transform={model.transform}/>
                 ))}
                 <OrbitControls />
             </Canvas>
         </div>
     </>
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const PatternTransformer = ({index, transformedModels, setTransformedModels}: {index: number, transformedModels: TransformedModel[], setTransformedModels: any}) => {
+    const transforms = ['x', 'y', 'z', 'rotX', 'rotY', 'rotZ'];
+
+    return (
+        <div style={{ display: 'flex' }}>
+        {transforms.map((transform: string) => (
+                <div key={transform}>
+                    <label>{transform}</label>
+                    <input type="number" onChange={(e) => {
+                        const newTransform = { ...transformedModels[index].transform, [transform]: parseFloat(e.target.value) };
+                        setTransformedModels((prev: TransformedModel[]) => {
+                            const newModels = [...prev];
+                            newModels[index] = { ...newModels[index], transform: newTransform };
+                            return newModels;
+                        });
+                    }} />
+                </div>
+            ))
+        }
+        </div>
+    )
 }
 
 export default ProjectPage;
