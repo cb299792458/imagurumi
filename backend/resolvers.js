@@ -1,10 +1,19 @@
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 const resolvers = {
   Query: {
-    // Example query to get all patterns
-    patterns: async () => {
+    allPatterns: async () => {
       return await prisma.pattern.findMany();
     },
-    // Example query to get a specific project by ID
+    allProjects: async () => {
+      return await prisma.project.findMany();
+    },
+    pattern: async (_, { id }) => {
+      return await prisma.pattern.findUnique({
+        where: { id },
+      });
+    },
     project: async (_, { id }) => {
       return await prisma.project.findUnique({
         where: { id },
@@ -12,16 +21,29 @@ const resolvers = {
     },
   },
   Mutation: {
-    // Example mutation to create a new pattern
-    createPattern: async (_, { input }) => {
+    createPattern: async (_, { name, description, text, userId }) => {
       return await prisma.pattern.create({
-        data: input,
+        data: {
+          name,
+          description,
+          text,
+          userId,
+        }
       });
     },
-    // Example mutation to create a new project
-    createProject: async (_, { input }) => {
-      return await prisma.project.create({
-        data: input,
+    updatePattern: async (_, { id, name, description, text }) => {
+      return await prisma.pattern.update({
+        where: { id },
+        data: {
+          name,
+          description,
+          text,
+        }
+      });
+    },
+    deletePattern: async (_, { id }) => {
+      return await prisma.pattern.delete({
+        where: { id },
       });
     },
   },

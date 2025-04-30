@@ -81,7 +81,6 @@ export class Pattern {
                     }
 
                     const circumradius = getCircumradius(stitches);
-
                     this.rows.push({
                         color,
                         stitches,
@@ -92,7 +91,7 @@ export class Pattern {
                 
                 default:
                     if (!this.rows.length) throw new Error('magic ring should be used to start a pattern');
-                    const row = buildRow(line, this.rows[this.rows.length-1] as Row);
+                    const row = buildRow(line, this.rows[this.rows.length-1] as Row, color);
                     this.rows.push(row);
             }
         }
@@ -104,8 +103,8 @@ const readInt = (s: string) => {
     return digits ? parseInt(digits.join('')) : 0;
 }
 
-const buildRow = (line: string, lastRow: Row): Row => {
-    const { color, circumradius: lastCircumradius, height: lastHeight } = lastRow;
+const buildRow = (line: string, lastRow: Row, color: string): Row => {
+    const { circumradius: lastCircumradius, height: lastHeight } = lastRow;
     const parts = line.split(' ');
     
     // TODO: count stitches instead of shortcut

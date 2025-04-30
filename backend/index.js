@@ -9,20 +9,7 @@ const prisma = new PrismaClient();
 // Create Apollo Server instance
 const server = new ApolloServer({
   typeDefs,
-  resolvers: {
-    ...resolvers,
-    Query: {
-      allPatterns: async () => await prisma.pattern.findMany(),
-      allProjects: async () => await prisma.project.findMany(),
-    },
-    Mutation: {
-      createPattern: async (_, { name, userId }) => {
-        return await prisma.pattern.create({
-          data: { name, userId },
-        });
-      },
-    },
-  },
+  resolvers,
 });
 
 // Start the server

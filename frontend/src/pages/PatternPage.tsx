@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { useQuery, gql } from '@apollo/client';
-
+import { useQuery, useMutation, gql } from '@apollo/client';
 import { ModelRows, Pattern, PatternFrontend } from '../../../core/Pattern';
-
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three'
@@ -16,9 +14,17 @@ const GET_PATTERNS = gql`
             text   
         }
     }
-`
+`;
+const CREATE_PATTERN = gql`
+  mutation CreatePattern($name: String!, $description: String, $text: String!, $userId: Int!) {
+    createPattern(name: $name, description: $description, text: $text, userId: $userId) {
+      id
+      name
+    }
+  }
+`;
 
-export const ThreeModel = ({modelRows}: {modelRows: ModelRows}) => {
+export const ThreeModel = ( {modelRows }: { modelRows: ModelRows }) => {
     return (
         <>
             {modelRows.map(({color, points}, index) => (
@@ -35,6 +41,31 @@ export const ThreeModel = ({modelRows}: {modelRows: ModelRows}) => {
     )
 }
 
+const CreatePatternForm = ({ text }: { text: string }) =>{
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const userId = 1; // TODO: get userId from context or props
+  
+    const [createPattern, { data, loading, error }] = useMutation(CREATE_PATTERN);
+  
+    const handleSubmit = (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+        createPattern({ variables: { name, description, text, userId } });
+    };
+  
+    return (
+        <form onSubmit={handleSubmit}>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
+            <button type="submit">Create Pattern With Current Text</button>
+    
+            {loading && <p>Submitting...</p>}
+            {error && <p>Error: {error.message}</p>}
+            {data && <p>Created pattern: {data.createPattern.name}</p>}
+        </form>
+    );
+  }
+
 const PatternPage = () => {
     const [text, setText] = useState<string>('')
     const [modelRows, setModelRows] = useState<ModelRows>([])
@@ -44,6 +75,7 @@ const PatternPage = () => {
         const pattern = new Pattern(text);
         setModelRows(pattern.rowsToPoints());
     }
+
 
     return <>
         <h1>Pattern Page</h1>
@@ -90,6 +122,7 @@ const PatternPage = () => {
                 <OrbitControls />
             </Canvas>
         </div>
+        <CreatePatternForm text={text} />
     </>
 }
 
