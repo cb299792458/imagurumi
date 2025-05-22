@@ -22,25 +22,28 @@ const ProjectPage = () => {
     const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
     const [transformedModels, setTransformedModels] = useState<TransformedModel[]>([]);
 
-    // blargh
+    // load a new pattern into project
     useEffect(() => {
-        setTransformedModels(newProject.map((pattern) => {
-            const patternInstance = new Pattern(pattern.text);
-            const modelRows = patternInstance.rowsToPoints();
-            const transform = {
-                x: 0,
-                y: 0,
-                z: 0,
-                rotX: 0,
-                rotY: 0,
-                rotZ: 0,
-            }
-            return {
-                modelRows,
-                transform,
-            }
-        }))
+        setTransformedModels((prev) =>
+            newProject.map((pattern) => {
+                const existing = prev.find((_, i) => newProject[i].id === pattern.id);
+                const patternInstance = new Pattern(pattern.text);
+                const modelRows = patternInstance.rowsToPoints();
+                return {
+                    modelRows,
+                    transform: existing?.transform || {
+                        x: 0,
+                        y: 0,
+                        z: 0,
+                        rotX: 0,
+                        rotY: 0,
+                        rotZ: 0,
+                    },
+                };
+            })
+        );
     }, [newProject]);
+
 
     return <>
         <h1>Project Page</h1>
