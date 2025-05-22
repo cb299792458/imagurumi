@@ -56,7 +56,39 @@ export class Pattern {
         return res;
     }
 
-    parse() {
+    parse() { // simple version that just takes colors and numbers
+        let color = 'unknown';
+        let height = 0;
+        const lines = this.text.split('\n');
+        for (const line of lines) {
+            const isNumeric = /^\d+$/.test(line);
+            if (isNumeric) {
+                const stitches = parseInt(line);
+                const circumradius = getCircumradius(stitches);
+                if (this.rows.length) {
+                    const lastRow = this.rows[this.rows.length - 1];
+                    const lastCircumradius = lastRow.circumradius;
+                    const radiusIncrease = circumradius - lastCircumradius;
+                    if (Math.abs(radiusIncrease) > 1) {
+                        throw new Error('new row too big/small for last row');
+                    }
+                    height = lastRow.height + Math.sqrt(1 - Math.pow(radiusIncrease, 2));
+                }
+
+                const row = {
+                    color,
+                    stitches,
+                    circumradius, 
+                    height,
+                }
+                this.rows.push(row);
+            } else {
+                color = line.trim();
+            }
+        }
+    }
+
+    oldParse() {
         let color = 'unknown';
         const lines = this.text.split('\n');
         for (const line of lines) {

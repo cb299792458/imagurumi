@@ -45,7 +45,7 @@ export const ThreeModel = ( { modelRows, transform={x: 0, y: 0, z: 0, rotX: 0, r
                 >
                     {points.map((point, i) => (
                         <mesh key={i} position={new THREE.Vector3(...point)}>
-                            <sphereGeometry args={[0.75, 32, 32]} />
+                            <sphereGeometry args={[0.25, 32, 32]} />
                             <meshStandardMaterial color={color} />
                         </mesh>
                     ))}

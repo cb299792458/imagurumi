@@ -106,14 +106,14 @@ async function main() {
         }
     });
 
-    // const pattern1 = await prisma.pattern.create({
-    //     data: {
-    //         name: 'Small Ball',
-    //         userId: user1.id,
-    //         description: 'A simple small sphere',
-    //         text: text1
-    //     }
-    // });
+    const pattern1 = await prisma.pattern.create({
+        data: {
+            name: 'Small Ball',
+            userId: user1.id,
+            description: 'A simple small sphere',
+            text: text1
+        }
+    });
 
     // const pattern2 = await prisma.pattern.create({
     //     data: {
@@ -133,22 +133,22 @@ async function main() {
     //     }
     // })
 
-    const pattern4 = await prisma.pattern.create({
-        data: {
-            name: 'Ideal Sphere (small)',
-            userId: user1.id,
-            description: 'https://mspremiseconclusion.wordpress.com/wp-content/uploads/2010/03/ideal-sphere3.pdf',
-            text: text4
-        }
-    })
-    const pattern5 = await prisma.pattern.create({
-        data: {
-            name: 'Ideal Sphere (large)',
-            userId: user1.id,
-            description: 'https://mspremiseconclusion.wordpress.com/wp-content/uploads/2010/03/ideal-sphere3.pdf',
-            text: text5
-        }
-    })
+    // const pattern4 = await prisma.pattern.create({
+    //     data: {
+    //         name: 'Ideal Sphere (small)',
+    //         userId: user1.id,
+    //         description: 'https://mspremiseconclusion.wordpress.com/wp-content/uploads/2010/03/ideal-sphere3.pdf',
+    //         text: text4
+    //     }
+    // })
+    // const pattern5 = await prisma.pattern.create({
+    //     data: {
+    //         name: 'Ideal Sphere (large)',
+    //         userId: user1.id,
+    //         description: 'https://mspremiseconclusion.wordpress.com/wp-content/uploads/2010/03/ideal-sphere3.pdf',
+    //         text: text5
+    //     }
+    // })
 
     // const project1 = await prisma.project.create({
     //     data: {

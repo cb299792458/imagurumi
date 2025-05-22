@@ -48,4 +48,10 @@ model ProjectPattern {
   projectId Int
   pattern   Pattern @relation(fields: [patternId], references: [id])
   patternId Int
+  x     Float
+  y     Float
+  z     Float
+  rotX  Float
+  rotY  Float
+  rotZ  Float
 }
