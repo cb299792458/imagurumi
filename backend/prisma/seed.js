@@ -4,20 +4,32 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const text1 = 
-`!color #white [0]
-!mr 6sc [6]
-(inc)x6 [12]
-(1sc,inc)x6 [18]
-(2sc,inc)x6 [24]
-24sc [24]
-24sc [24]
-24sc [24]
-24sc [24]
-24sc [24]
-(2sc,dec)x6 [18]
-(1sc,dec)x6 [12]
-(dec)x6 [6]
-!cut-fill-close [0]`
+`white
+6
+12
+16
+20
+22
+22
+20
+16
+12
+6
+`
+// `!color #white [0]
+// !mr 6sc [6]
+// (inc)x6 [12]
+// (1sc,inc)x6 [18]
+// (2sc,inc)x6 [24]
+// 24sc [24]
+// 24sc [24]
+// 24sc [24]
+// 24sc [24]
+// 24sc [24]
+// (2sc,dec)x6 [18]
+// (1sc,dec)x6 [12]
+// (dec)x6 [6]
+// !cut-fill-close [0]`
 
 const text2 =
 `!color #red [0]

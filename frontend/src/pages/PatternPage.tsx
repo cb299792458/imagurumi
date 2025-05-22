@@ -15,6 +15,7 @@ const GET_PATTERNS = gql`
         }
     }
 `;
+
 const CREATE_PATTERN = gql`
     mutation CreatePattern($name: String!, $description: String, $text: String!, $userId: Int!) {
         createPattern(name: $name, description: $description, text: $text, userId: $userId) {
@@ -23,6 +24,7 @@ const CREATE_PATTERN = gql`
         }
     }
 `;
+
 type Transform = {
     x: number;
     y: number;
