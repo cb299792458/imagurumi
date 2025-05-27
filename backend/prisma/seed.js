@@ -3,8 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const text1 = 
-`white
+const colorlessBall = `
 6
 12
 16
@@ -16,6 +15,8 @@ const text1 =
 12
 6
 `
+
+// const text1 = 
 // `!color #white [0]
 // !mr 6sc [6]
 // (inc)x6 [12]
@@ -31,84 +32,84 @@ const text1 =
 // (dec)x6 [6]
 // !cut-fill-close [0]`
 
-const text2 =
-`!color #red [0]
-!mr 6sc [6]
-(inc)x6 [12]
-(1sc,inc)x6 [18]
-(2sc,inc)x6 [24]
-(3sc,inc)x6 [30]
-(4sc,inc)x6 [36]
-36sc [36]
-36sc [36]
-36sc [36]
-36sc [36]
-36sc [36]
-36sc [36]
-36sc [36]
-(4sc,dec)x6 [30]
-(3sc,dec)x6 [24]
-(2sc,dec)x6 [18]
-(1sc,dec)x6 [12]
-(dec)x6 [6]
-!cut !fill !close [0]`
+// const text2 =
+// `!color #red [0]
+// !mr 6sc [6]
+// (inc)x6 [12]
+// (1sc,inc)x6 [18]
+// (2sc,inc)x6 [24]
+// (3sc,inc)x6 [30]
+// (4sc,inc)x6 [36]
+// 36sc [36]
+// 36sc [36]
+// 36sc [36]
+// 36sc [36]
+// 36sc [36]
+// 36sc [36]
+// 36sc [36]
+// (4sc,dec)x6 [30]
+// (3sc,dec)x6 [24]
+// (2sc,dec)x6 [18]
+// (1sc,dec)x6 [12]
+// (dec)x6 [6]
+// !cut !fill !close [0]`
 
-const text3 = 
-`!color #white [0]
-!mr 6sc [6]
-(inc)x6 [12]
-(1sc,inc)x6 [18]
-(2sc,inc)x6 [24]
-(5sc,inc)x4 [28]
-(6sc,inc)x4 [32]
-32sc [32]
-32sc [32]
-32sc [32]
-(6sc,dec)x4 [28]
-(5sc,dec)x4 [24]
-(2sc,dec)x6 [18]
-(1sc,dec)x6 [12]
-(dec)x6 [6]
-!cut-fill-close [0]`
+// const text3 = 
+// `!color #white [0]
+// !mr 6sc [6]
+// (inc)x6 [12]
+// (1sc,inc)x6 [18]
+// (2sc,inc)x6 [24]
+// (5sc,inc)x4 [28]
+// (6sc,inc)x4 [32]
+// 32sc [32]
+// 32sc [32]
+// 32sc [32]
+// (6sc,dec)x4 [28]
+// (5sc,dec)x4 [24]
+// (2sc,dec)x6 [18]
+// (1sc,dec)x6 [12]
+// (dec)x6 [6]
+// !cut-fill-close [0]`
 
-const text4 = 
-`!color #white [0]
-!mr 6sc [6]
-(inc)x6 [12]
-1sc (inc,2sc)x4 1sc [16]
-(3sc,inc)x4 [20]
-4sc inc 10sc inc 4sc [22]
-22 sc [22]
-4sc dec 10sc dec 4sc [20]
-(dec,3sc) x4 [16]
-1sc (dec,2sc)x4 1sc [12]
-(dec)x6 [6]
-!cut !fill !close [0]`
+// const text4 = 
+// `!color #white [0]
+// !mr 6sc [6]
+// (inc)x6 [12]
+// 1sc (inc,2sc)x4 1sc [16]
+// (3sc,inc)x4 [20]
+// 4sc inc 10sc inc 4sc [22]
+// 22 sc [22]
+// 4sc dec 10sc dec 4sc [20]
+// (dec,3sc) x4 [16]
+// 1sc (dec,2sc)x4 1sc [12]
+// (dec)x6 [6]
+// !cut !fill !close [0]`
 
-const text5 = 
-`!color #white [0]
-!mr 6sc [6]
-(inc)x6 [12]
-(1sc,inc)x6 [18]
-sc inc 2sc inc 3sc inc 2sc inc 3sc inc 2sc [23]
-inc 4sc inc 3sc inc 4sc inc 3sc inc 4sc [28]
-3sc (inc,6sc)x3 inc 3sc [32]
-5sc (inc,9sc)x2 inc 6sc [35]
-3sc inc 10sc inc 11sc inc 8sc [38]
-12sc inc 25sc [39]
-inc 38sc [40]
-40sc [40]
-38sc dec [39]
-25sc dec 12sc [38]
-8sc dec 11sc dec 10sc dec 3sc [35]
-6sc dec 9sc dec 3sc dec 5sc [32]
-3sc (dec,6sc)x3 dec 3sc [28]
-4sc dec 3sc dec 4sc dec 3sc dec 4sc dec [23]
-2sc dec 3sc dec 2sc dec 3sc dec 2sc dec 1sc [18]
-(1sc,dec)x6 [12]
-(dec)x6 [6]
-!cut-fill-close [0]
-`
+// const text5 = 
+// `!color #white [0]
+// !mr 6sc [6]
+// (inc)x6 [12]
+// (1sc,inc)x6 [18]
+// sc inc 2sc inc 3sc inc 2sc inc 3sc inc 2sc [23]
+// inc 4sc inc 3sc inc 4sc inc 3sc inc 4sc [28]
+// 3sc (inc,6sc)x3 inc 3sc [32]
+// 5sc (inc,9sc)x2 inc 6sc [35]
+// 3sc inc 10sc inc 11sc inc 8sc [38]
+// 12sc inc 25sc [39]
+// inc 38sc [40]
+// 40sc [40]
+// 38sc dec [39]
+// 25sc dec 12sc [38]
+// 8sc dec 11sc dec 10sc dec 3sc [35]
+// 6sc dec 9sc dec 3sc dec 5sc [32]
+// 3sc (dec,6sc)x3 dec 3sc [28]
+// 4sc dec 3sc dec 4sc dec 3sc dec 4sc dec [23]
+// 2sc dec 3sc dec 2sc dec 3sc dec 2sc dec 1sc [18]
+// (1sc,dec)x6 [12]
+// (dec)x6 [6]
+// !cut-fill-close [0]
+// `
 
 async function main() {
     const user1 = await prisma.user.create({
@@ -120,30 +121,30 @@ async function main() {
 
     const pattern1 = await prisma.pattern.create({
         data: {
-            name: 'Small Ball',
+            name: 'Red Ball',
             userId: user1.id,
             description: 'A simple small sphere',
-            text: text1
+            text: 'red' + colorlessBall
         }
     });
 
-    // const pattern2 = await prisma.pattern.create({
-    //     data: {
-    //         name: 'Large Ball',
-    //         userId: user1.id,
-    //         description: 'A simple large sphere',
-    //         text: text2
-    //     }
-    // })
+    const pattern2 = await prisma.pattern.create({
+        data: {
+            name: 'Green Ball',
+            userId: user1.id,
+            description: 'A simple small sphere',
+            text: 'green' + colorlessBall
+        }
+    })
 
-    // const pattern3 = await prisma.pattern.create({
-    //     data: {
-    //         name: 'A Rounder Sphere',
-    //         userId: user1.id,
-    //         description: 'changes circumference gradually',
-    //         text: text3
-    //     }
-    // })
+    const pattern3 = await prisma.pattern.create({
+        data: {
+            name: 'A Blue Sphere',
+            userId: user1.id,
+            description: 'A simple small sphere',
+            text: 'blue' + colorlessBall
+        }
+    })
 
     // const pattern4 = await prisma.pattern.create({
     //     data: {
@@ -162,32 +163,50 @@ async function main() {
     //     }
     // })
 
-    // const project1 = await prisma.project.create({
-    //     data: {
-    //         name: 'Water Molecule',
-    //         userId: user1.id,
-    //         description: 'A simple water molecule model',
-    //         }
-    //     });
+    const project1 = await prisma.project.create({
+        data: {
+                name: 'Three Balls',
+                userId: user1.id,
+                description: 'A simple water molecule model',
+            }
+        });
 
-    // const projectPattern1 = await prisma.projectPattern.create({
-    //     data: {
-    //     projectId: project1.id,
-    //     patternId: pattern1.id,
-    //     }
-    // });
-    // const projectPattern2 = await prisma.projectPattern.create({
-    //     data: {
-    //     projectId: project1.id,
-    //     patternId: pattern2.id,
-    //     }
-    // });
-    // const projectPattern3 = await prisma.projectPattern.create({
-    //     data: {
-    //     projectId: project1.id,
-    //     patternId: pattern1.id,
-    //     }
-    // });
+    const projectPattern1 = await prisma.projectPattern.create({
+        data: {
+            projectId: project1.id,
+            patternId: pattern1.id,
+            x: 1,
+            y: 0,
+            z: 0,
+            rotX: 0,
+            rotY: 0,
+            rotZ: 0,
+        }
+    });
+    const projectPattern2 = await prisma.projectPattern.create({
+        data: {
+            projectId: project1.id,
+            patternId: pattern2.id,
+            x: 0,
+            y: 1,
+            z: 0,
+            rotX: 0,
+            rotY: 0,
+            rotZ: 0,
+        }
+    });
+    const projectPattern3 = await prisma.projectPattern.create({
+        data: {
+            projectId: project1.id,
+            patternId: pattern3.id,
+            x: 0,
+            y: 0,
+            z: 1,
+            rotX: 0,
+            rotY: 0,
+            rotZ: 0,
+        }
+    });
 
     console.log('Seed data created.');
 }

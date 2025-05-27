@@ -1,52 +1,63 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
-
 const resolvers = {
   Query: {
-    allPatterns: async () => {
-      return await prisma.pattern.findMany();
+    users: async (_parent, _args, context) => {
+      return await context.prisma.user.findMany();
     },
-    allProjects: async () => {
-      return await prisma.project.findMany();
+    allPatterns: async (_parent, _args, context) => {
+      return await context.prisma.pattern.findMany();
     },
-    pattern: async (_, { id }) => {
-      return await prisma.pattern.findUnique({
+    allProjects: async (_parent, _args, context) => {
+      return await context.prisma.project.findMany();
+    },
+    pattern: async (_parent, { id }, context) => {
+      return await context.prisma.pattern.findUnique({
         where: { id },
       });
     },
-    project: async (_, { id }) => {
-      return await prisma.project.findUnique({
+    project: async (_parent, { id }, context) => {
+      return await context.prisma.project.findUnique({
         where: { id },
       });
     },
   },
+
   Mutation: {
-    createPattern: async (_, { name, description, text, userId }) => {
-      return await prisma.pattern.create({
+    createPattern: async (_parent, { name, description, text, userId }, context) => {
+      return await context.prisma.pattern.create({
         data: {
           name,
           description,
           text,
           userId,
-        }
+        },
       });
     },
-    updatePattern: async (_, { id, name, description, text }) => {
-      return await prisma.pattern.update({
-        where: { id },
-        data: {
-          name,
-          description,
-          text,
-        }
-      });
-    },
-    deletePattern: async (_, { id }) => {
-      return await prisma.pattern.delete({
-        where: { id },
-      });
-    },
+    // updatePattern: async (_parent, { id, name, description, text }, context) => {
+    //   return await context.prisma.pattern.update({
+    //     where: { id },
+    //     data: {
+    //       name,
+    //       description,
+    //       text,
+    //     },
+    //   });
+    // },
+    // deletePattern: async (_parent, { id }, context) => {
+    //   return await context.prisma.pattern.delete({
+    //     where: { id },
+    //   });
+    // },
   },
+
+  Project: {
+    projectPatterns: async (parent, _args, context) => {
+      return await context.prisma.projectPattern.findMany({
+        where: { projectId: parent.id },
+        include: { pattern: true },
+      }) || [];
+    }
+  },
+
 };
 
 export { resolvers };
