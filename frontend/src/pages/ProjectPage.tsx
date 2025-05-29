@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { ThreeModel } from "./PatternPage";
+import { useParams } from "react-router-dom";
 
 const GET_PATTERNS = gql`
     query GetPatterns {
@@ -15,12 +16,83 @@ const GET_PATTERNS = gql`
         }
     }
 `
+const GET_PROJECT = gql`
+    query GetProject($id: Int!) {
+        project(id: $id) {
+            id
+            name
+            description
+            projectPatterns {
+                id
+                x
+                y
+                z
+                rotX
+                rotY
+                rotZ
+                pattern {
+                    id
+                    name
+                    description
+                    text
+                }
+            }
+        }
+    }
+`
+
+type Project = {
+    id: number;
+    name: string;
+    description: string;
+    projectPatterns: ProjectPattern[];
+}
+
+type ProjectPattern = {
+    id: number;
+    x: number;
+    y: number;
+    z: number;
+    rotX: number;
+    rotY: number;
+    rotZ: number;
+    pattern: PatternFrontend;
+}
+
+const objectToProject = (project: Project) => {
+    return project.projectPatterns.map((projectPattern: ProjectPattern) => {
+        const { pattern, x, y, z, rotX, rotY, rotZ } = projectPattern;
+        const patternInstance = new Pattern(pattern.text);
+        const modelRows = patternInstance.rowsToPoints();
+        return {
+            modelRows,
+            transform: {
+                x,
+                y,
+                z,
+                rotX,
+                rotY,
+                rotZ,
+            }
+        }
+    });
+}
 
 const ProjectPage = () => {
-    const { loading, error, data } = useQuery(GET_PATTERNS);
+    const { id } = useParams<{ id: string }>();
+    const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_PATTERNS);
+    const { loading: projectLoading, error: projectError, data: projectData } = useQuery(GET_PROJECT, { variables: {id: parseInt(id || '')} });
     const [newProject, setNewProject] = useState<PatternFrontend[]>([]);
     const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
     const [transformedModels, setTransformedModels] = useState<TransformedModel[]>([]);
+
+    // load project data into newProject
+    useEffect(() => {
+        if (projectData?.project) {
+            const projectPatterns = objectToProject(projectData.project);
+            setTransformedModels(projectPatterns);
+        }
+    }, [projectData]);
 
     // load a new pattern into project
     useEffect(() => {
@@ -44,9 +116,8 @@ const ProjectPage = () => {
         );
     }, [newProject]);
 
-
     return <>
-        <h1>Project Page</h1>
+        <h1>Project: {projectData?.project?.name}</h1>
         <a href="/pattern">Go to Pattern Page</a>
         <table>
             <thead>
@@ -58,9 +129,9 @@ const ProjectPage = () => {
                 </tr>
             </thead>
             <tbody>
-                {loading && <tr><td colSpan={4}>Loading...</td></tr>}
-                {error && <tr><td colSpan={4}>Error: {error.message}</td></tr>}
-                {data?.allPatterns.map((pattern: PatternFrontend) => (
+                {patternLoading && <tr><td colSpan={4}>Loading...</td></tr>}
+                {patternError && <tr><td colSpan={4}>Error: {patternError.message}</td></tr>}
+                {patternData?.allPatterns.map((pattern: PatternFrontend) => (
                     <tr key={pattern.id}>
                         <td>{pattern.id}</td>
                         <td>{pattern.name}</td>
@@ -97,6 +168,8 @@ const ProjectPage = () => {
                 ))}
             </tbody>
         </table>
+        {projectLoading && <p>Loading project...</p>}
+        {projectError && <p>Error: {projectError.message}</p>}
         <div style={{ border: "1px solid red", height: "500px" }}>
             <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <ambientLight />

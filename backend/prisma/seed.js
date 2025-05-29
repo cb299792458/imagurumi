@@ -167,7 +167,7 @@ async function main() {
         data: {
                 name: 'Three Balls',
                 userId: user1.id,
-                description: 'A simple water molecule model',
+                description: 'Three colored balls arranged in a triangle',
             }
         });
 
@@ -175,7 +175,7 @@ async function main() {
         data: {
             projectId: project1.id,
             patternId: pattern1.id,
-            x: 1,
+            x: 5,
             y: 0,
             z: 0,
             rotX: 0,
@@ -188,7 +188,7 @@ async function main() {
             projectId: project1.id,
             patternId: pattern2.id,
             x: 0,
-            y: 1,
+            y: 5,
             z: 0,
             rotX: 0,
             rotY: 0,
@@ -201,7 +201,7 @@ async function main() {
             patternId: pattern3.id,
             x: 0,
             y: 0,
-            z: 1,
+            z: 5,
             rotX: 0,
             rotY: 0,
             rotZ: 0,
