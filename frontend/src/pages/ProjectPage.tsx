@@ -91,6 +91,7 @@ const ProjectPage = () => {
         if (projectData?.project) {
             const projectPatterns = objectToProject(projectData.project);
             setTransformedModels(projectPatterns);
+            setNewProject(projectData.project.projectPatterns.map((pp: ProjectPattern) => pp.pattern));
         }
     }, [projectData]);
 
@@ -183,16 +184,18 @@ const ProjectPage = () => {
     </>
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PatternTransformer = ({index, transformedModels, setTransformedModels}: {index: number, transformedModels: TransformedModel[], setTransformedModels: any}) => {
-    const transforms = ['x', 'y', 'z', 'rotX', 'rotY', 'rotZ'];
+const PatternTransformer = ({index, transformedModels, setTransformedModels}: {index: number, transformedModels: TransformedModel[], setTransformedModels: React.Dispatch<React.SetStateAction<TransformedModel[]>>;}) => {
+    type TransformKey = 'x' | 'y' | 'z' | 'rotX' | 'rotY' | 'rotZ';
+    const transforms: TransformKey[] = ['x', 'y', 'z', 'rotX', 'rotY', 'rotZ'];
 
     return (
         <div style={{ display: 'flex' }}>
-        {transforms.map((transform: string) => (
+        {transforms.map((transform: TransformKey) => (
                 <div key={transform}>
                     <label>{transform}</label>
-                    <input type="number" onChange={(e) => {
+                    <input type="number" 
+                      value={transformedModels[index]?.transform?.[transform] ?? 0}
+                    onChange={(e) => {
                         const newTransform = { ...transformedModels[index].transform, [transform]: parseFloat(e.target.value) };
                         setTransformedModels((prev: TransformedModel[]) => {
                             const newModels = [...prev];
