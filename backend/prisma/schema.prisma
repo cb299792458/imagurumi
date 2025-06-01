@@ -38,7 +38,7 @@ model Project {
   description String?
   user        User             @relation(fields: [userId], references: [id])
   userId      Int
-  patterns    ProjectPattern[]
+  projectPatterns    ProjectPattern[]
   createdAt   DateTime         @default(now())
 }
 

@@ -17,7 +17,7 @@ const NavBar = () => {
       <ul style={{ listStyle: 'none' }}>
         <NavBarItem to="/" name="Home" />
         <NavBarItem to="/pattern" name="Patterns" />
-        <NavBarItem to="/all-projects" name="Projects" />
+        <NavBarItem to="/all-projects" name="All Projects" />
         <NavBarItem to="/project" name="New Project" />
       </ul>
     </nav>
