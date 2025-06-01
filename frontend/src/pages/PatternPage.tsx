@@ -1,30 +1,11 @@
 import { useState } from 'react'
-import { useQuery, useMutation, gql } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { ModelRows, Pattern, PatternFrontend } from '../../../core/Pattern';
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from 'three'
 import NavBar from '../components/NavBar';
-
-const GET_PATTERNS = gql`
-    query GetPatterns {
-        allPatterns {
-            id
-            name
-            description
-            text   
-        }
-    }
-`;
-
-const CREATE_PATTERN = gql`
-    mutation CreatePattern($name: String!, $description: String, $text: String!, $userId: Int!) {
-        createPattern(name: $name, description: $description, text: $text, userId: $userId) {
-            id
-            name
-        }
-    }
-`;
+import { CREATE_PATTERN, GET_PATTERNS } from '../utilities/gql';
 
 type Transform = {
     x: number;
@@ -82,7 +63,7 @@ const CreatePatternForm = ({ text, refetch }: { text: string, refetch: () => voi
             {data && <p>Created pattern: {data.createPattern.name}</p>}
         </form>
     );
-  }
+}
 
 const PatternPage = () => {
     const [text, setText] = useState<string>('')

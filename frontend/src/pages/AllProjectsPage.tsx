@@ -1,15 +1,6 @@
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import NavBar from '../components/NavBar';
-
-const GET_PROJECTS = gql`
-    query GetProjects {
-        allProjects {
-            id
-            name
-            description
-        }
-    }
-`
+import { GET_PROJECTS } from '../utilities/gql';
 
 const AllProjectsPage = () => {
     const { loading, error, data } = useQuery(GET_PROJECTS);

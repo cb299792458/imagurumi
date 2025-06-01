@@ -13,6 +13,7 @@ export type ModelRow = {
 export type ModelRows = ModelRow[]
 
 export type TransformedModel = {
+    patternId: number;
     modelRows: ModelRows;
     transform: {
         x: number;

@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Pattern, PatternFrontend, TransformedModel } from "../../../core/Pattern";
 import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
@@ -6,41 +6,7 @@ import { OrbitControls } from "@react-three/drei";
 import { ThreeModel } from "./PatternPage";
 import { useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
-
-const GET_PATTERNS = gql`
-    query GetPatterns {
-        allPatterns {
-            id
-            name
-            description
-            text   
-        }
-    }
-`
-const GET_PROJECT = gql`
-    query GetProject($id: Int!) {
-        project(id: $id) {
-            id
-            name
-            description
-            projectPatterns {
-                id
-                x
-                y
-                z
-                rotX
-                rotY
-                rotZ
-                pattern {
-                    id
-                    name
-                    description
-                    text
-                }
-            }
-        }
-    }
-`
+import { GET_PATTERNS, GET_PROJECT } from "../utilities/gql";
 
 type Project = {
     id: number;
@@ -50,7 +16,7 @@ type Project = {
 }
 
 type ProjectPattern = {
-    id: number;
+    patternId: number;
     x: number;
     y: number;
     z: number;
@@ -66,6 +32,7 @@ const objectToProject = (project: Project) => {
         const patternInstance = new Pattern(pattern.text);
         const modelRows = patternInstance.rowsToPoints();
         return {
+            patternId: pattern.id,
             modelRows,
             transform: {
                 x,
@@ -104,6 +71,7 @@ const ProjectPage = () => {
                 const patternInstance = new Pattern(pattern.text);
                 const modelRows = patternInstance.rowsToPoints();
                 return {
+                    patternId: pattern.id,
                     modelRows,
                     transform: existing?.transform || {
                         x: 0,
@@ -185,7 +153,7 @@ const ProjectPage = () => {
     </>
 }
 
-const PatternTransformer = ({index, transformedModels, setTransformedModels}: {index: number, transformedModels: TransformedModel[], setTransformedModels: React.Dispatch<React.SetStateAction<TransformedModel[]>>;}) => {
+export const PatternTransformer = ({index, transformedModels, setTransformedModels}: {index: number, transformedModels: TransformedModel[], setTransformedModels: React.Dispatch<React.SetStateAction<TransformedModel[]>>;}) => {
     type TransformKey = 'x' | 'y' | 'z' | 'rotX' | 'rotY' | 'rotZ';
     const transforms: TransformKey[] = ['x', 'y', 'z', 'rotX', 'rotY', 'rotZ'];
 
