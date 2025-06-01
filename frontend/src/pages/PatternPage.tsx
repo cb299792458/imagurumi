@@ -4,6 +4,7 @@ import { ModelRows, Pattern, PatternFrontend } from '../../../core/Pattern';
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from 'three'
+import NavBar from '../components/NavBar';
 
 const GET_PATTERNS = gql`
     query GetPatterns {
@@ -94,8 +95,8 @@ const PatternPage = () => {
     }
 
     return <>
+        <NavBar />
         <h1>Pattern Page</h1>
-        <a href="/project">Go to Project Page</a>
         <div style={{display: 'flex'}}>
             <textarea
                 placeholder="Paste Pattern Here"

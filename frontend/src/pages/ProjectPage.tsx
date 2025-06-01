@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { ThreeModel } from "./PatternPage";
 import { useParams } from "react-router-dom";
+import NavBar from "../components/NavBar";
 
 const GET_PATTERNS = gql`
     query GetPatterns {
@@ -118,8 +119,8 @@ const ProjectPage = () => {
     }, [newProject]);
 
     return <>
+        <NavBar />
         <h1>Project: {projectData?.project?.name}</h1>
-        <a href="/pattern">Go to Pattern Page</a>
         <table>
             <thead>
                 <tr>
