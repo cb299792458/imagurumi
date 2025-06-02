@@ -1,4 +1,4 @@
-export const colorlessBall = `
+export const smallColorlessBall = `
 6
 12
 16
@@ -9,6 +9,44 @@ export const colorlessBall = `
 16
 12
 6
+`
+
+export const largeColorlessBall = `
+6
+12
+18
+23
+28
+32
+35
+38
+39
+39
+38
+35
+32
+28
+23
+18
+12
+6
+`
+
+export const dangoStick = `
+tan
+6
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
 `
 
 export const pokeballBody = `

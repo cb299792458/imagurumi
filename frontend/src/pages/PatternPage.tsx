@@ -116,7 +116,7 @@ const PatternPage = () => {
         </div>
         <div style={{ border: "1px solid red", height: "500px" }}>
             <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
-                <axesHelper />
+                <axesHelper args={[50]}/>
                 <ambientLight />
                 <ThreeModel modelRows={modelRows}/>
                 <OrbitControls />
