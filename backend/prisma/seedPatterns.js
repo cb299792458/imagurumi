@@ -11,7 +11,7 @@ export const smallColorlessBall = `
 6
 `
 
-export const largeColorlessBall = `
+export const mediumColorlessBall = `
 6
 12
 18
@@ -26,6 +26,37 @@ export const largeColorlessBall = `
 35
 32
 28
+23
+18
+12
+6
+`
+
+export const largeColorlessBall = `
+6
+12
+18
+23
+29
+34
+39
+43
+47
+50
+53
+56
+58
+59
+59
+58
+56
+53
+50
+47
+43
+39
+34
+29
 23
 18
 12

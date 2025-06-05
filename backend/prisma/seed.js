@@ -2,6 +2,8 @@
 import { PrismaClient } from '@prisma/client';
 import {
     dangoStick,
+    smallColorlessBall,
+    mediumColorlessBall,
     largeColorlessBall,
     minionArm,
     minionBody,
@@ -20,12 +22,30 @@ async function main() {
         }
     });
 
+    const smallBall = await prisma.pattern.create({
+        data: {
+            name: 'Small Ball',
+            userId: user1.id,
+            description: 'A simple small sphere',
+            text: 'white' + smallColorlessBall,
+        }
+    });
+
+    const largeBall = await prisma.pattern.create({
+        data: {
+            name: 'Large Ball',
+            userId: user1.id,
+            description: 'A large colorless sphere',
+            text: 'white' + largeColorlessBall,
+        }
+    });
+
     const pattern1 = await prisma.pattern.create({
         data: {
             name: 'Pink Ball',
             userId: user1.id,
             description: 'A simple small sphere',
-            text: 'pink' + largeColorlessBall
+            text: 'pink' + mediumColorlessBall
         }
     });
 
@@ -34,7 +54,7 @@ async function main() {
             name: 'White Ball',
             userId: user1.id,
             description: 'A simple small sphere',
-            text: 'white' + largeColorlessBall
+            text: 'white' + mediumColorlessBall
         }
     })
 
@@ -43,7 +63,7 @@ async function main() {
             name: 'Green Ball',
             userId: user1.id,
             description: 'A simple small sphere',
-            text: 'lightgreen' + largeColorlessBall
+            text: 'lightgreen' + mediumColorlessBall
         }
     })
 
