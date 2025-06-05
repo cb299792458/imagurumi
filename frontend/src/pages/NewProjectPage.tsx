@@ -28,7 +28,7 @@ const NewProjectPage = () => {
     useEffect(() => {
         setTransformedModels((prev) =>
             newProject.map((pattern, i) => {
-                const existing = i === newProject.length - 1 ? undefined : prev[i];
+                const existing = prev[i];
                 const patternInstance = new Pattern(pattern.text);
                 const modelRows = patternInstance.rowsToPoints();
                 return {

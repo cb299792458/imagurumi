@@ -3,6 +3,10 @@ import { PrismaClient } from '@prisma/client';
 import {
     dangoStick,
     largeColorlessBall,
+    minionArm,
+    minionBody,
+    minionEye,
+    minionLeg,
     pokeballBody,
     pokeballButton,
 } from './seedPatterns.js';
@@ -154,6 +158,119 @@ async function main() {
             z: 6.4,
             rotX: 0,
             rotY: 270,
+            rotZ: 0,
+        }
+    });
+
+    const minionBodyPattern = await prisma.pattern.create({
+        data: {
+            name: 'Minion Body',
+            userId: user1.id,
+            description: 'The body of a Minion',
+            text: minionBody,
+        }
+    });
+    const minionEyePattern = await prisma.pattern.create({
+        data: {
+            name: 'Minion Eye',
+            userId: user1.id,
+            description: 'The eye of a Minion',
+            text: minionEye
+        }
+    });
+    const minionArmPattern = await prisma.pattern.create({
+        data: {
+            name: 'Minion Arm',
+            userId: user1.id,
+            description: 'The arm of a Minion',
+            text: minionArm,
+        }
+    });
+    const minionLegPattern = await prisma.pattern.create({
+        data: {
+            name: 'Minion Leg',
+            userId: user1.id,
+            description: 'The leg of a Minion',
+            text: minionLeg,
+        }
+    });
+
+    const minionProject = await prisma.project.create({
+        data: {
+            name: 'Minion',
+            userId: user1.id,
+            description: 'A small yellow creature from the Despicable Me franchise',
+        }
+    });
+    await prisma.projectPattern.create({
+        data: {
+            projectId: minionProject.id,
+            patternId: minionBodyPattern.id,
+            x: 0,
+            y: 0,
+            z: 0,
+            rotX: 0,
+            rotY: 0,
+            rotZ: 0,
+        }
+    });
+    await prisma.projectPattern.create({
+        data: {
+            projectId: minionProject.id,
+            patternId: minionEyePattern.id,
+            x: 0,
+            y: 10,
+            z: 8.5,
+            rotX: 80,
+            rotY: 0,
+            rotZ: 0,
+        }
+    });
+    await prisma.projectPattern.create({
+        data: {
+            projectId: minionProject.id,
+            patternId: minionArmPattern.id,
+            x: 22,
+            y: 0,
+            z: 15,
+            rotX: 0,
+            rotY: 270,
+            rotZ: 0,
+        }
+    });
+    await prisma.projectPattern.create({
+        data: {
+            projectId: minionProject.id,
+            patternId: minionArmPattern.id,
+            x: -22,
+            y: 0,
+            z: 15,
+            rotX: 0,
+            rotY: 90,
+            rotZ: 0,
+        }
+    });
+    await prisma.projectPattern.create({
+        data: {
+            projectId: minionProject.id,
+            patternId: minionLegPattern.id,
+            x: 4,
+            y: 0,
+            z: 36,
+            rotX: 0,
+            rotY: 180,
+            rotZ: 0,
+        }
+    });
+    await prisma.projectPattern.create({
+        data: {
+            projectId: minionProject.id,
+            patternId: minionLegPattern.id,
+            x: -4,
+            y: 0,
+            z: 36,
+            rotX: 0,
+            rotY: 180,
             rotZ: 0,
         }
     });
