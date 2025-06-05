@@ -66,8 +66,8 @@ const ProjectPage = () => {
     // load a new pattern into project
     useEffect(() => {
         setTransformedModels((prev) =>
-            newProject.map((pattern) => {
-                const existing = prev.find((_, i) => newProject[i].id === pattern.id);
+            newProject.map((pattern, i) => {
+                const existing = i === newProject.length - 1 ? undefined : prev[i];
                 const patternInstance = new Pattern(pattern.text);
                 const modelRows = patternInstance.rowsToPoints();
                 return {
