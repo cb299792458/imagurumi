@@ -1,33 +1,15 @@
 import { useQuery } from "@apollo/client";
-import { Pattern, PatternFrontend, TransformedModel } from "../../../core/Pattern";
 import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { ThreeModel } from "./PatternPage";
 import { useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
-import { GET_PATTERNS, GET_PROJECT } from "../utilities/gql";
+import { GET_PROJECT } from "../utilities/gql";
+import { ProjectRecord, ProjectPatternRecord, Pattern, Project, PatternRecord, Transform } from "../utilities/types";
 
-type Project = {
-    id: number;
-    name: string;
-    description: string;
-    projectPatterns: ProjectPattern[];
-}
-
-type ProjectPattern = {
-    patternId: number;
-    x: number;
-    y: number;
-    z: number;
-    rotX: number;
-    rotY: number;
-    rotZ: number;
-    pattern: PatternFrontend;
-}
-
-const objectToProject = (project: Project) => {
-    return project.projectPatterns.map((projectPattern: ProjectPattern) => {
+const recordToProject = (project: ProjectRecord): Project => {
+    return project.projectPatterns.map((projectPattern: ProjectPatternRecord) => {
         const { pattern, x, y, z, rotX, rotY, rotZ } = projectPattern;
         const patternInstance = new Pattern(pattern.text);
         const modelRows = patternInstance.rowsToPoints();
@@ -48,25 +30,25 @@ const objectToProject = (project: Project) => {
 
 const ProjectPage = () => {
     const { id } = useParams<{ id: string }>();
-    const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_PATTERNS);
+    // const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_PATTERNS);
     const { loading: projectLoading, error: projectError, data: projectData } = useQuery(GET_PROJECT, { variables: {id: parseInt(id || '')} });
-    const [newProject, setNewProject] = useState<PatternFrontend[]>([]);
-    const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
-    const [transformedModels, setTransformedModels] = useState<TransformedModel[]>([]);
+    const [newProject, setNewProject] = useState<PatternRecord[]>([]);
+    const [transformedModels, setTransformedModels] = useState<Project>([]);
+    // const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
 
     // load project data into newProject
     useEffect(() => {
         if (projectData?.project) {
-            const projectPatterns = objectToProject(projectData.project);
+            const projectPatterns = recordToProject(projectData.project);
             setTransformedModels(projectPatterns);
-            setNewProject(projectData.project.projectPatterns.map((pp: ProjectPattern) => pp.pattern));
+            setNewProject(projectData.project.projectPatterns.map((pp: ProjectPatternRecord) => pp.pattern));
         }
     }, [projectData]);
 
     // load a new pattern into project
     useEffect(() => {
         setTransformedModels((prev) =>
-            newProject.map((pattern, i) => {
+            newProject.map((pattern: PatternRecord, i: number) => {
                 const existing = prev[i];
                 const patternInstance = new Pattern(pattern.text);
                 const modelRows = patternInstance.rowsToPoints();
@@ -89,7 +71,7 @@ const ProjectPage = () => {
     return <>
         <NavBar />
         <h1>Project: {projectData?.project?.name}</h1>
-        <table>
+        {/* <table>
             <thead>
                 <tr>
                     <th>Pattern ID</th>
@@ -101,18 +83,18 @@ const ProjectPage = () => {
             <tbody>
                 {patternLoading && <tr><td colSpan={4}>Loading...</td></tr>}
                 {patternError && <tr><td colSpan={4}>Error: {patternError.message}</td></tr>}
-                {patternData?.allPatterns.map((pattern: PatternFrontend) => (
+                {patternData?.allPatterns.map((pattern: PatternRecord) => (
                     <tr key={pattern.id}>
                         <td>{pattern.id}</td>
                         <td>{pattern.name}</td>
                         <td>{pattern.description}</td>
-                        <td><button onClick={() => setNewProject([...newProject, pattern])}>Add Pattern to Project</button></td>
+                        <td><button onClick={() => setNewProject([...newProject, { patternId: pattern.id, pattern }])}>Add Pattern to Project</button></td>
                     </tr>
                 ))}
             </tbody>
-        </table>
+        </table> */}
 
-        <table>
+        {/* <table>
             <thead>
                 <tr>
                     <th>Pattern ID</th>
@@ -121,7 +103,7 @@ const ProjectPage = () => {
                 </tr>
             </thead>
             <tbody>
-                {newProject.map((pattern: PatternFrontend, index: number) => (
+                {newProject.map((pattern: PatternRecord, index: number) => (
                     <tr key={index} style={{ fontWeight: selectedPatternIndex === index ? 'bold' : 'normal' }} onClick={() => setSelectedPatternIndex(index)}>
                         <td>{pattern.id}</td>
                         <td>{index+1}</td>
@@ -137,7 +119,7 @@ const ProjectPage = () => {
                     </tr>
                 ))}
             </tbody>
-        </table>
+        </table> */}
         {projectLoading && <p>Loading project...</p>}
         {projectError && <p>Error: {projectError.message}</p>}
         <div style={{ border: "1px solid red", height: "500px" }}>
@@ -145,7 +127,7 @@ const ProjectPage = () => {
                 <ambientLight />
                 <axesHelper args={[50]} />
                 {transformedModels.map((model, index) => (
-                    <ThreeModel key={index} modelRows={model.modelRows} transform={model.transform}/>
+                    <ThreeModel key={index} transformedPattern={model}/>
                 ))}
                 <OrbitControls />
             </Canvas>
@@ -153,7 +135,7 @@ const ProjectPage = () => {
     </>
 }
 
-export const PatternTransformer = ({index, transformedModels, setTransformedModels}: {index: number, transformedModels: TransformedModel[], setTransformedModels: React.Dispatch<React.SetStateAction<TransformedModel[]>>;}) => {
+export const PatternTransformer = ({index, transformedModels, setTransformedModels}: {index: number, transformedModels: Project, setTransformedModels: React.Dispatch<React.SetStateAction<Project>>;}) => {
     type TransformKey = 'x' | 'y' | 'z' | 'rotX' | 'rotY' | 'rotZ';
     const transforms: TransformKey[] = ['x', 'y', 'z', 'rotX', 'rotY', 'rotZ'];
 
@@ -166,9 +148,9 @@ export const PatternTransformer = ({index, transformedModels, setTransformedMode
                       value={transformedModels[index]?.transform?.[transform] ?? 0}
                     onChange={(e) => {
                         const newTransform = { ...transformedModels[index].transform, [transform]: parseFloat(e.target.value) };
-                        setTransformedModels((prev: TransformedModel[]) => {
+                        setTransformedModels((prev: Project) => {
                             const newModels = [...prev];
-                            newModels[index] = { ...newModels[index], transform: newTransform };
+                            newModels[index] = { ...newModels[index], transform: newTransform as Transform};
                             return newModels;
                         });
                     }} />

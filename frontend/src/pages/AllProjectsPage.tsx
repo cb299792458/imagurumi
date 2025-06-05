@@ -19,7 +19,7 @@ const AllProjectsPage = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {loading && <tr> <td colSpan={4}>Loading...</td></tr>}
+                    {loading && <tr><td colSpan={4}>Loading...</td></tr>}
                     {error && <tr><td colSpan={4}>Error: {error.message}</td></tr>}
                     {data?.allProjects.map((project: { id: string; name: string; description: string }) => (
                         <tr key={project.id}>

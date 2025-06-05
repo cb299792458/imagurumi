@@ -2,32 +2,22 @@ import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_PROJECT, GET_PATTERNS } from "../utilities/gql";
-import { Pattern, PatternFrontend, TransformedModel } from "../../../core/Pattern";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { ThreeModel } from "./PatternPage";
 import { PatternTransformer } from "./ProjectPage";
-
-type ProjectPattern = {
-    patternId: number;
-    x: number;
-    y: number;
-    z: number;
-    rotX: number;
-    rotY: number;
-    rotZ: number;
-}
+import { Pattern, PatternRecord, Project } from "../utilities/types";
 
 const NewProjectPage = () => {
     const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_PATTERNS);
-    const [newProject, setNewProject] = useState<PatternFrontend[]>([]);
+    const [newProject, setNewProject] = useState<PatternRecord[]>([]);
+    const [transformedModels, setTransformedModels] = useState<Project>([]);
     const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
-    const [transformedModels, setTransformedModels] = useState<TransformedModel[]>([]);
 
     // load a new pattern into project
     useEffect(() => {
         setTransformedModels((prev) =>
-            newProject.map((pattern, i) => {
+            newProject.map((pattern: PatternRecord, i: number) => {
                 const existing = prev[i];
                 const patternInstance = new Pattern(pattern.text);
                 const modelRows = patternInstance.rowsToPoints();
@@ -63,7 +53,7 @@ const NewProjectPage = () => {
                 <tbody>
                     {patternLoading && <tr><td colSpan={4}>Loading...</td></tr>}
                     {patternError && <tr><td colSpan={4}>Error: {patternError.message}</td></tr>}
-                    {patternData?.allPatterns.map((pattern: PatternFrontend) => (
+                    {patternData?.allPatterns.map((pattern: PatternRecord) => (
                         <tr key={pattern.id}>
                             <td>{pattern.id}</td>
                             <td>{pattern.name}</td>
@@ -83,7 +73,7 @@ const NewProjectPage = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {newProject.map((pattern: PatternFrontend, index: number) => (
+                    {newProject.map((pattern: PatternRecord, index: number) => (
                         <tr key={index} style={{ fontWeight: selectedPatternIndex === index ? 'bold' : 'normal' }} onClick={() => setSelectedPatternIndex(index)}>
                             <td>{pattern.id}</td>
                             <td>{index+1}</td>
@@ -105,18 +95,18 @@ const NewProjectPage = () => {
                     <ambientLight />
                     <axesHelper args={[50]}/>
                     {transformedModels.map((model, index) => (
-                        <ThreeModel key={index} modelRows={model.modelRows} transform={model.transform}/>
+                        <ThreeModel key={index} transformedPattern={model}/>
                     ))}
                     <OrbitControls />
                 </Canvas>
             </div>
             
-            <CreateProjectForm projectPatterns={transformedModels.map((model) => ({patternId: model.patternId, ...model.transform}))} />
+            <CreateProjectForm project={transformedModels} />
         </>
     );
 }
 
-const CreateProjectForm = ({ projectPatterns }: { projectPatterns: ProjectPattern[] }) =>{
+const CreateProjectForm = ({ project }: { project: Project }) =>{
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const userId = 1; // TODO: get userId from context or props
@@ -125,7 +115,8 @@ const CreateProjectForm = ({ projectPatterns }: { projectPatterns: ProjectPatter
   
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
-        await createProject({ variables: { name, description, userId, projectPatterns } });
+        const projectPatterns = project.map((p) => ({patternId: p.patternId, ...p.transform}));
+        await createProject({ variables: { name, description, userId, projectPatterns }});
     };
   
     return (

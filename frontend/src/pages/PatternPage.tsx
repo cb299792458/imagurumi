@@ -1,30 +1,23 @@
 import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client';
-import { ModelRows, Pattern, PatternFrontend } from '../../../core/Pattern';
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from 'three'
 import NavBar from '../components/NavBar';
 import { CREATE_PATTERN, GET_PATTERNS } from '../utilities/gql';
+import { Pattern, PatternRecord, PatternThreeDPoints, TransformedPattern } from '../utilities/types';
 
-type Transform = {
-    x: number;
-    y: number;
-    z: number;
-    rotX: number;
-    rotY: number;
-    rotZ: number;
-}
-
-export const ThreeModel = ( { modelRows, transform={x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0} }: { modelRows: ModelRows, transform?: Transform }) => {
+export const ThreeModel = ( {transformedPattern}: {transformedPattern: TransformedPattern}) => {
+    const { modelRows, transform } = transformedPattern;
+    const { x, y, z, rotX, rotY, rotZ } = transform || { x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0 };
     return (
         <>
             {modelRows.map(({color, points}, index) => (
                 <group 
                     key={index}
-                    position={[transform.x, transform.y, transform.z]}
+                    position={[x, y, z]}
                     rotation={
-                        ([transform.rotX, transform.rotY, transform.rotZ].map(r => r * Math.PI / 180) as [number, number, number])
+                        ([rotX, rotY, rotZ].map(r => r * Math.PI / 180) as [number, number, number])
                       }
                 >
                     {points.map((point, i) => (
@@ -67,7 +60,7 @@ const CreatePatternForm = ({ text, refetch }: { text: string, refetch: () => voi
 
 const PatternPage = () => {
     const [text, setText] = useState<string>('')
-    const [modelRows, setModelRows] = useState<ModelRows>([])
+    const [modelRows, setModelRows] = useState<PatternThreeDPoints>([])
     const { loading, error, data, refetch } = useQuery(GET_PATTERNS);
 
     const handleText= () => {
@@ -98,7 +91,7 @@ const PatternPage = () => {
                 <tbody>
                     {loading && <tr><td colSpan={4}>Loading...</td></tr>}
                     {error && <tr><td colSpan={4}>Error: {error.message}</td></tr>}
-                    {data && data.allPatterns.map((pattern: PatternFrontend) => (
+                    {data && data.allPatterns.map((pattern: PatternRecord) => (
                         <tr key={pattern.id}>
                             <td>{pattern.id}</td>
                             <td>{pattern.name}</td>
@@ -118,7 +111,7 @@ const PatternPage = () => {
             <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <axesHelper args={[50]}/>
                 <ambientLight />
-                <ThreeModel modelRows={modelRows}/>
+                <ThreeModel transformedPattern={{modelRows}}/>
                 <OrbitControls />
             </Canvas>
         </div>
