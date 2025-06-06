@@ -5,13 +5,14 @@ export type Row = {
     height: number;
 }
 
-export type RowThreeDPoints = {
+export type ColoredPoints = {
     color: string;
     points: number[][];
 }
+export type PatternPoints = ColoredPoints[]
 
-export type PatternThreeDPoints = RowThreeDPoints[]
-
+export type TransformKey = 'x' | 'y' | 'z' | 'rotX' | 'rotY' | 'rotZ';
+export const transforms: TransformKey[] = ['x', 'y', 'z', 'rotX', 'rotY', 'rotZ'];
 export type Transform = {
     x: number;
     y: number;
@@ -23,10 +24,9 @@ export type Transform = {
 
 export type TransformedPattern = {
     patternId?: number;
-    modelRows: PatternThreeDPoints;
+    patternPoints: PatternPoints;
     transform?: Transform;
 }
-
 export type Project = TransformedPattern[];
 
 export type PatternRecord = {

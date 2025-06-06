@@ -1,22 +1,21 @@
 import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import { ThreeModel } from "./PatternPage";
 import { useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import { GET_PROJECT } from "../utilities/gql";
-import { ProjectRecord, ProjectPatternRecord, Project, PatternRecord, Transform } from "../utilities/types";
+import { ProjectRecord, ProjectPatternRecord, Project, PatternRecord, Transform, transforms, TransformKey } from "../utilities/types";
 import { Pattern } from "../utilities/Pattern";
+import { ThreeCanvas } from "../components/ThreeCanvas";
 
 const recordToProject = (project: ProjectRecord): Project => {
     return project.projectPatterns.map((projectPattern: ProjectPatternRecord) => {
         const { pattern, x, y, z, rotX, rotY, rotZ } = projectPattern;
         const patternInstance = new Pattern(pattern.text);
-        const modelRows = patternInstance.rowsToPoints();
+        const patternPoints = patternInstance.toPatternPoints();
+
         return {
             patternId: pattern.id,
-            modelRows,
+            patternPoints,
             transform: {
                 x,
                 y,
@@ -32,28 +31,28 @@ const recordToProject = (project: ProjectRecord): Project => {
 const ProjectPage = () => {
     const { id } = useParams<{ id: string }>();
     const { loading: projectLoading, error: projectError, data: projectData } = useQuery(GET_PROJECT, { variables: {id: parseInt(id || '')} });
-    const [newProject, setNewProject] = useState<PatternRecord[]>([]);
-    const [transformedModels, setTransformedModels] = useState<Project>([]);
+    const [patterns, setPatterns] = useState<PatternRecord[]>([]);
+    const [project, setProject] = useState<Project>([]);
 
     // load project data into newProject
     useEffect(() => {
         if (projectData?.project) {
             const projectPatterns = recordToProject(projectData.project);
-            setTransformedModels(projectPatterns);
-            setNewProject(projectData.project.projectPatterns.map((pp: ProjectPatternRecord) => pp.pattern));
+            setProject(projectPatterns);
+            setPatterns(projectData.project.projectPatterns.map((pp: ProjectPatternRecord) => pp.pattern));
         }
     }, [projectData]);
 
     // load a new pattern into project
     useEffect(() => {
-        setTransformedModels((prev) =>
-            newProject.map((pattern: PatternRecord, i: number) => {
+        setProject((prev) =>
+            patterns.map((pattern: PatternRecord, i: number) => {
                 const existing = prev[i];
                 const patternInstance = new Pattern(pattern.text);
-                const modelRows = patternInstance.rowsToPoints();
+                const patternPoints = patternInstance.toPatternPoints();
                 return {
                     patternId: pattern.id,
-                    modelRows,
+                    patternPoints,
                     transform: existing?.transform || {
                         x: 0,
                         y: 0,
@@ -65,29 +64,26 @@ const ProjectPage = () => {
                 };
             })
         );
-    }, [newProject]);
+    }, [patterns]);
 
     return <>
         <NavBar />
         <h1>Project: {projectData?.project?.name}</h1>
         {projectLoading && <p>Loading project...</p>}
         {projectError && <p>Error: {projectError.message}</p>}
-        <div style={{ border: "1px solid red", height: "500px" }}>
-            <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
-                <ambientLight />
-                <axesHelper args={[50]} />
-                {transformedModels.map((model, index) => (
-                    <ThreeModel key={index} transformedPattern={model}/>
-                ))}
-                <OrbitControls />
-            </Canvas>
-        </div>
+        <ThreeCanvas project={project} />
     </>
 }
 
-export const PatternTransformer = ({index, transformedModels, setTransformedModels}: {index: number, transformedModels: Project, setTransformedModels: React.Dispatch<React.SetStateAction<Project>>;}) => {
-    type TransformKey = 'x' | 'y' | 'z' | 'rotX' | 'rotY' | 'rotZ';
-    const transforms: TransformKey[] = ['x', 'y', 'z', 'rotX', 'rotY', 'rotZ'];
+export const PatternTransformer = ({
+    index, 
+    project, 
+    setProject
+}: {
+    index: number, 
+    project: Project, 
+    setProject: React.Dispatch<React.SetStateAction<Project>>
+}) => {
 
     return (
         <div style={{ display: 'flex' }}>
@@ -95,15 +91,16 @@ export const PatternTransformer = ({index, transformedModels, setTransformedMode
                 <div key={transform}>
                     <label>{transform}</label>
                     <input type="number" 
-                      value={transformedModels[index]?.transform?.[transform] ?? 0}
-                    onChange={(e) => {
-                        const newTransform = { ...transformedModels[index].transform, [transform]: parseFloat(e.target.value) };
-                        setTransformedModels((prev: Project) => {
-                            const newModels = [...prev];
-                            newModels[index] = { ...newModels[index], transform: newTransform as Transform};
-                            return newModels;
-                        });
-                    }} />
+                        value={project[index]?.transform?.[transform] ?? 0}
+                        onChange={(e) => {
+                            const newTransform = { ...project[index].transform, [transform]: parseFloat(e.target.value) };
+                            setProject((prev: Project) => {
+                                const newModels = [...prev];
+                                newModels[index] = { ...newModels[index], transform: newTransform as Transform};
+                                return newModels;
+                            });
+                        }} 
+                    />
                 </div>
             ))
         }

@@ -2,29 +2,27 @@ import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_PROJECT, GET_PATTERNS } from "../utilities/gql";
-import { OrbitControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { ThreeModel } from "./PatternPage";
 import { PatternTransformer } from "./ProjectPage";
 import { PatternRecord, Project } from "../utilities/types";
 import { Pattern } from "../utilities/Pattern";
+import { ThreeCanvas } from "../components/ThreeCanvas";
 
 const NewProjectPage = () => {
     const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_PATTERNS);
-    const [newProject, setNewProject] = useState<PatternRecord[]>([]);
-    const [transformedModels, setTransformedModels] = useState<Project>([]);
+    const [patterns, setPatterns] = useState<PatternRecord[]>([]);
+    const [project, setProject] = useState<Project>([]);
     const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
 
     // load a new pattern into project
     useEffect(() => {
-        setTransformedModels((prev) =>
-            newProject.map((pattern: PatternRecord, i: number) => {
+        setProject((prev) =>
+            patterns.map((pattern: PatternRecord, i: number) => {
                 const existing = prev[i];
                 const patternInstance = new Pattern(pattern.text);
-                const modelRows = patternInstance.rowsToPoints();
+                const patternPoints = patternInstance.toPatternPoints();
                 return {
                     patternId: pattern.id,
-                    modelRows,
+                    patternPoints,
                     transform: existing?.transform || {
                         x: 0,
                         y: 0,
@@ -36,7 +34,7 @@ const NewProjectPage = () => {
                 };
             })
         );
-    }, [newProject]);
+    }, [patterns]);
 
     return (
         <>
@@ -59,7 +57,7 @@ const NewProjectPage = () => {
                             <td>{pattern.id}</td>
                             <td>{pattern.name}</td>
                             <td>{pattern.description}</td>
-                            <td><button onClick={() => setNewProject([...newProject, pattern])}>Add Pattern to Project</button></td>
+                            <td><button onClick={() => setPatterns([...patterns, pattern])}>Add Pattern to Project</button></td>
                         </tr>
                     ))}
                 </tbody>
@@ -74,35 +72,26 @@ const NewProjectPage = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {newProject.map((pattern: PatternRecord, index: number) => (
+                    {patterns.map((pattern: PatternRecord, index: number) => (
                         <tr key={index} style={{ fontWeight: selectedPatternIndex === index ? 'bold' : 'normal' }} onClick={() => setSelectedPatternIndex(index)}>
                             <td>{pattern.id}</td>
                             <td>{index+1}</td>
                             <td>{pattern.name}</td>
                             <td>
-                                <button onClick={(e) => {setNewProject(newProject.filter((_, i) => i !== index)); setSelectedPatternIndex(-1); e.stopPropagation()}}>
+                                <button onClick={(e) => {setPatterns(patterns.filter((_, i) => i !== index)); setSelectedPatternIndex(-1); e.stopPropagation()}}>
                                     Remove
                                 </button>
                             </td>
                             <td>
-                                <PatternTransformer index={index} transformedModels={transformedModels} setTransformedModels={setTransformedModels}/>
+                                <PatternTransformer index={index} project={project} setProject={setProject}/>
                             </td>                      
                         </tr>
                     ))}
                 </tbody>
             </table>
-            <div style={{ border: "1px solid red", height: "500px" }}>
-                <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
-                    <ambientLight />
-                    <axesHelper args={[50]}/>
-                    {transformedModels.map((model, index) => (
-                        <ThreeModel key={index} transformedPattern={model}/>
-                    ))}
-                    <OrbitControls />
-                </Canvas>
-            </div>
+            <ThreeCanvas project={project} />
             
-            <CreateProjectForm project={transformedModels} />
+            <CreateProjectForm project={project} />
         </>
     );
 }

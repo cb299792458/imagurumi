@@ -1,37 +1,10 @@
 import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client';
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from "@react-three/drei";
-import * as THREE from 'three'
 import NavBar from '../components/NavBar';
 import { CREATE_PATTERN, GET_PATTERNS } from '../utilities/gql';
-import { PatternRecord, PatternThreeDPoints, TransformedPattern } from '../utilities/types';
+import { PatternRecord, PatternPoints } from '../utilities/types';
 import { Pattern } from '../utilities/Pattern';
-
-export const ThreeModel = ( {transformedPattern}: {transformedPattern: TransformedPattern}) => {
-    const { modelRows, transform } = transformedPattern;
-    const { x, y, z, rotX, rotY, rotZ } = transform || { x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0 };
-    return (
-        <>
-            {modelRows.map(({color, points}, index) => (
-                <group 
-                    key={index}
-                    position={[x, y, z]}
-                    rotation={
-                        ([rotX, rotY, rotZ].map(r => r * Math.PI / 180) as [number, number, number])
-                      }
-                >
-                    {points.map((point, i) => (
-                        <mesh key={i} position={new THREE.Vector3(...point)}>
-                            <sphereGeometry args={[0.75, 32, 32]} />
-                            <meshStandardMaterial color={color}/>
-                        </mesh>
-                    ))}
-                </group>
-            ))}
-        </>
-    )
-}
+import { ThreeCanvas } from '../components/ThreeCanvas';
 
 const CreatePatternForm = ({ text, refetch }: { text: string, refetch: () => void }) =>{
     const [name, setName] = useState('');
@@ -61,12 +34,12 @@ const CreatePatternForm = ({ text, refetch }: { text: string, refetch: () => voi
 
 const PatternPage = () => {
     const [text, setText] = useState<string>('')
-    const [modelRows, setModelRows] = useState<PatternThreeDPoints>([])
+    const [patternPoints, setPatternPoints] = useState<PatternPoints>([])
     const { loading, error, data, refetch } = useQuery(GET_PATTERNS);
 
     const handleText= () => {
         const pattern = new Pattern(text);
-        setModelRows(pattern.rowsToPoints());
+        setPatternPoints(pattern.toPatternPoints());
     }
 
     return <>
@@ -108,14 +81,7 @@ const PatternPage = () => {
             <button onClick={handleText}>imagine</button>
 
         </div>
-        <div style={{ border: "1px solid red", height: "500px" }}>
-            <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
-                <axesHelper args={[50]}/>
-                <ambientLight />
-                <ThreeModel transformedPattern={{modelRows}}/>
-                <OrbitControls />
-            </Canvas>
-        </div>
+        <ThreeCanvas project={[{patternPoints}]} />
         <CreatePatternForm text={text} refetch={refetch}/>
     </>
 }

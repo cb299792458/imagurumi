@@ -1,4 +1,4 @@
-import { PatternThreeDPoints, Row } from "./types";
+import { PatternPoints, Row } from "./types";
 
 export class Pattern {
     text: string;
@@ -16,8 +16,8 @@ export class Pattern {
         return rows.join('\n');
     }
 
-    rowsToPoints = (): PatternThreeDPoints => {
-        const res: PatternThreeDPoints = [];
+    toPatternPoints = (): PatternPoints => {
+        const res: PatternPoints = [];
         for (const row of this.rows) {
             const { stitches, circumradius, height, color } = row;
             const points: number[][] = [];
