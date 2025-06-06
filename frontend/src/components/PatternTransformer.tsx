@@ -13,9 +13,10 @@ export const PatternTransformer = ({
     return (
         <div style={{ display: 'flex' }}>
             {transforms.map((transform: TransformKey) => (
-                <div key={transform}>
-                    <label>{transform}</label>
+                <div key={transform} style={{ marginRight: '10px' }}>
+                    <label>{transform.length === 1 ? transform.toUpperCase() : transform}</label>
                     <input type="number" 
+                        style={{ width: '60px', marginLeft: '5px' }}
                         value={project[index]?.transform?.[transform] ?? 0}
                         onChange={(e) => {
                             const newTransform = { ...project[index].transform, [transform]: parseFloat(e.target.value) };

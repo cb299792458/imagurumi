@@ -1,13 +1,12 @@
 import { useQuery } from '@apollo/client';
-import NavBar from '../components/NavBar';
 import { GET_PROJECTS } from '../utilities/gql';
+import Layout from './Layout';
 
 const AllProjectsPage = () => {
     const { loading, error, data } = useQuery(GET_PROJECTS);
 
     return (
-        <>
-            <NavBar />
+        <Layout>
             <h1 >All Projects</h1>
             <table>
                 <thead>
@@ -33,7 +32,7 @@ const AllProjectsPage = () => {
                     ))}
                 </tbody>
             </table>
-        </>
+        </Layout>
     );
 }
 export default AllProjectsPage;

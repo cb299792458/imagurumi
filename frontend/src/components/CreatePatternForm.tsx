@@ -17,6 +17,7 @@ export const CreatePatternForm = ({ text, refetch }: { text: string, refetch: ()
   
     return (
         <form onSubmit={handleSubmit}>
+            <h2>Create Pattern</h2>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
             <button type="submit">Create Pattern With Current Text</button>

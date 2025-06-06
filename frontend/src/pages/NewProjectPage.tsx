@@ -1,33 +1,12 @@
 import { useEffect, useState } from "react";
-import NavBar from "../components/NavBar";
 import { useQuery } from "@apollo/client";
 import { GET_PATTERNS } from "../utilities/gql";
 import { PatternRecord, Project } from "../utilities/types";
-import { Pattern } from "../utilities/Pattern";
 import { ThreeCanvas } from "../components/ThreeCanvas";
 import { PatternTransformer } from "../components/PatternTransformer";
 import { CreateProjectForm } from "../components/CreateProjectForm";
-
-const patternRecordsToProject = (prev: Project, patterns: PatternRecord[]): Project => {
-    return patterns.map((pattern: PatternRecord, i: number) => {
-        const existing = prev[i];
-        const patternInstance = new Pattern(pattern.text);
-        const patternPoints = patternInstance.toPatternPoints();
-
-        return {
-            patternId: pattern.id,
-            patternPoints,
-            transform: existing?.transform || {
-                x: 0,
-                y: 0,
-                z: 0,
-                rotX: 0,
-                rotY: 0,
-                rotZ: 0,
-            },
-        };
-    })
-}
+import Layout from "./Layout";
+import { patternRecordsToProject } from "../utilities/converters";
 
 const NewProjectPage = () => {
     const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_PATTERNS);
@@ -42,9 +21,11 @@ const NewProjectPage = () => {
     }, [patterns]);
 
     return (
-        <>
-            <NavBar />
+        <Layout>
             <h1>Create a New Project</h1>
+
+            <h2>Add a Pattern</h2>
+            <p>Choose patterns from the list below to add to your project.</p>
             <table>
                 <thead>
                     <tr>
@@ -68,28 +49,31 @@ const NewProjectPage = () => {
                 </tbody>
             </table>
 
+            <h2>Current Patterns in Project</h2>
+            <p>Click on a pattern to select it. Use the transformations to modify the pattern. Click "Remove" to delete a pattern from the project.</p>
+            <p>Patterns can be moved along the X (red), Y (green), or Z (blue) axes. Rotations are counter-clockwise around the indicated axis. </p>
             <table>
                 <thead>
                     <tr>
                         <th>Pattern ID</th>
-                        <th>Index</th>
                         <th>Pattern Name</th>
+                        <th>Transformations</th>
+                        <th>Remove Pattern</th>
                     </tr>
                 </thead>
                 <tbody>
                     {patterns.map((pattern: PatternRecord, index: number) => (
                         <tr key={index} style={{ fontWeight: selectedPatternIndex === index ? 'bold' : 'normal' }} onClick={() => setSelectedPatternIndex(index)}>
                             <td>{pattern.id}</td>
-                            <td>{index+1}</td>
                             <td>{pattern.name}</td>
+                            <td>
+                                <PatternTransformer index={index} project={project} setProject={setProject}/>
+                            </td>                      
                             <td>
                                 <button onClick={(e) => {setPatterns(patterns.filter((_, i) => i !== index)); setSelectedPatternIndex(-1); e.stopPropagation()}}>
                                     Remove
                                 </button>
                             </td>
-                            <td>
-                                <PatternTransformer index={index} project={project} setProject={setProject}/>
-                            </td>                      
                         </tr>
                     ))}
                 </tbody>
@@ -97,7 +81,7 @@ const NewProjectPage = () => {
 
             <ThreeCanvas project={project} />
             <CreateProjectForm project={project} />
-        </>
+        </Layout>
     );
 }
 

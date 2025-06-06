@@ -18,6 +18,8 @@ export const CreateProjectForm = ({ project }: { project: Project }) =>{
   
     return (
         <form onSubmit={handleSubmit}>
+            <h2>Save Project</h2>
+            <p>Add a name and description, then save your project. Your project will be viewable in the All Projects page.</p>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
             <button type="submit">Save Project</button>
