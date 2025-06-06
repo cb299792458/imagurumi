@@ -6,7 +6,8 @@ import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { ThreeModel } from "./PatternPage";
 import { PatternTransformer } from "./ProjectPage";
-import { Pattern, PatternRecord, Project } from "../utilities/types";
+import { PatternRecord, Project } from "../utilities/types";
+import { Pattern } from "../utilities/Pattern";
 
 const NewProjectPage = () => {
     const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_PATTERNS);

@@ -6,7 +6,8 @@ import { ThreeModel } from "./PatternPage";
 import { useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import { GET_PROJECT } from "../utilities/gql";
-import { ProjectRecord, ProjectPatternRecord, Pattern, Project, PatternRecord, Transform } from "../utilities/types";
+import { ProjectRecord, ProjectPatternRecord, Project, PatternRecord, Transform } from "../utilities/types";
+import { Pattern } from "../utilities/Pattern";
 
 const recordToProject = (project: ProjectRecord): Project => {
     return project.projectPatterns.map((projectPattern: ProjectPatternRecord) => {
@@ -71,55 +72,6 @@ const ProjectPage = () => {
     return <>
         <NavBar />
         <h1>Project: {projectData?.project?.name}</h1>
-        {/* <table>
-            <thead>
-                <tr>
-                    <th>Pattern ID</th>
-                    <th>Pattern Name</th>
-                    <th>Description</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {patternLoading && <tr><td colSpan={4}>Loading...</td></tr>}
-                {patternError && <tr><td colSpan={4}>Error: {patternError.message}</td></tr>}
-                {patternData?.allPatterns.map((pattern: PatternRecord) => (
-                    <tr key={pattern.id}>
-                        <td>{pattern.id}</td>
-                        <td>{pattern.name}</td>
-                        <td>{pattern.description}</td>
-                        <td><button onClick={() => setNewProject([...newProject, { patternId: pattern.id, pattern }])}>Add Pattern to Project</button></td>
-                    </tr>
-                ))}
-            </tbody>
-        </table> */}
-
-        {/* <table>
-            <thead>
-                <tr>
-                    <th>Pattern ID</th>
-                    <th>Index</th>
-                    <th>Pattern Name</th>
-                </tr>
-            </thead>
-            <tbody>
-                {newProject.map((pattern: PatternRecord, index: number) => (
-                    <tr key={index} style={{ fontWeight: selectedPatternIndex === index ? 'bold' : 'normal' }} onClick={() => setSelectedPatternIndex(index)}>
-                        <td>{pattern.id}</td>
-                        <td>{index+1}</td>
-                        <td>{pattern.name}</td>
-                        <td>
-                            <button onClick={(e) => {setNewProject(newProject.filter((_, i) => i !== index)); setSelectedPatternIndex(-1); e.stopPropagation()}}>
-                                Remove
-                            </button>
-                        </td>
-                        <td>
-                            <PatternTransformer index={index} transformedModels={transformedModels} setTransformedModels={setTransformedModels}/>
-                        </td>                      
-                    </tr>
-                ))}
-            </tbody>
-        </table> */}
         {projectLoading && <p>Loading project...</p>}
         {projectError && <p>Error: {projectError.message}</p>}
         <div style={{ border: "1px solid red", height: "500px" }}>

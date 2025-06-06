@@ -5,7 +5,8 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from 'three'
 import NavBar from '../components/NavBar';
 import { CREATE_PATTERN, GET_PATTERNS } from '../utilities/gql';
-import { Pattern, PatternRecord, PatternThreeDPoints, TransformedPattern } from '../utilities/types';
+import { PatternRecord, PatternThreeDPoints, TransformedPattern } from '../utilities/types';
+import { Pattern } from '../utilities/Pattern';
 
 export const ThreeModel = ( {transformedPattern}: {transformedPattern: TransformedPattern}) => {
     const { modelRows, transform } = transformedPattern;
