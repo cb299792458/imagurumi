@@ -31,11 +31,9 @@ const recordToProject = (project: ProjectRecord): Project => {
 
 const ProjectPage = () => {
     const { id } = useParams<{ id: string }>();
-    // const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_PATTERNS);
     const { loading: projectLoading, error: projectError, data: projectData } = useQuery(GET_PROJECT, { variables: {id: parseInt(id || '')} });
     const [newProject, setNewProject] = useState<PatternRecord[]>([]);
     const [transformedModels, setTransformedModels] = useState<Project>([]);
-    // const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
 
     // load project data into newProject
     useEffect(() => {
