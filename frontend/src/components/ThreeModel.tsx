@@ -19,10 +19,17 @@ export const ThreeModel = ({transformedPattern}: {transformedPattern: Transforme
                     }
                 >
                     {points.map((point, i) => (
-                        <mesh key={i} position={new THREE.Vector3(...point)}>
-                            <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
-                            <meshStandardMaterial color={color}/>
-                        </mesh>
+                        <group key={`${index}-${i}`}>
+                            
+                            <mesh scale={1.05} position={new THREE.Vector3(...point)}>
+                                <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
+                                <meshStandardMaterial color={"black"} side={THREE.BackSide} />
+                            </mesh>
+                            <mesh position={new THREE.Vector3(...point)}>
+                                <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
+                                <meshStandardMaterial color={color}/>
+                            </mesh>
+                        </group>
                     ))}
                 </group>
             ))}
