@@ -11,6 +11,7 @@ import {
     minionLeg,
     pokeballBody,
     pokeballButton,
+    flag,
 } from './seedPatterns.js';
 const prisma = new PrismaClient();
 
@@ -73,6 +74,15 @@ async function main() {
             userId: user1.id,
             description: 'A stick for holding dango',
             text: dangoStick,
+        }
+    });
+
+    const pattern5 = await prisma.pattern.create({
+        data: {
+            name: 'flag',
+            userId: user1.id,
+            description: 'A simple flag pattern',
+            text: flag,
         }
     });
 

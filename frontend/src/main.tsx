@@ -5,9 +5,9 @@ import { ApolloProvider } from '@apollo/client'
 import client from './apolloClient.ts'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ApolloProvider client={client}>
-      <App />
-    </ApolloProvider>  
-  </StrictMode>,
+    <StrictMode>
+        <ApolloProvider client={client}>
+            <App />
+        </ApolloProvider>  
+    </StrictMode>,
 )

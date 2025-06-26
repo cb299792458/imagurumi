@@ -1,7 +1,7 @@
 export type Row = {
     color: string;
     stitches: number;
-    circumradius: number;
+    circumradius?: number;
     height: number;
 }
 

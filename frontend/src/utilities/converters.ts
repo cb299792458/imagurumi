@@ -1,10 +1,12 @@
-import { Pattern } from "./Pattern";
+import { Pattern, FlatPattern, SpiralPattern } from "./Pattern";
 import { PatternRecord, Project, ProjectPatternRecord, ProjectRecord } from "./types";
 
 export const projectRecordToProject = (project: ProjectRecord): Project => {
     return project.projectPatterns.map((projectPattern: ProjectPatternRecord) => {
         const { pattern, x, y, z, rotX, rotY, rotZ } = projectPattern;
-        const patternInstance = new Pattern(pattern.text);
+        const { text } = pattern;
+
+        const patternInstance: Pattern = textToPatternInstance(text);
         const patternPoints = patternInstance.toPatternPoints();
 
         return {
@@ -25,7 +27,7 @@ export const projectRecordToProject = (project: ProjectRecord): Project => {
 export const patternRecordsToProject = (prev: Project, patterns: PatternRecord[]): Project => {
     return patterns.map((pattern: PatternRecord, i: number) => {
         const existing = prev[i];
-        const patternInstance = new Pattern(pattern.text);
+        const patternInstance: Pattern = textToPatternInstance(pattern.text);
         const patternPoints = patternInstance.toPatternPoints();
 
         return {
@@ -41,4 +43,24 @@ export const patternRecordsToProject = (prev: Project, patterns: PatternRecord[]
             },
         };
     })
+}
+
+export const textToPatternInstance = (text: string): Pattern => {
+    const patternType = text.split('\n')[0].trim();
+    let patternInstance;
+
+    switch (patternType) {
+        case '@crochet-spiral':
+            patternInstance = new SpiralPattern(text);
+            break;
+        case '@crochet-flat':
+            patternInstance = new FlatPattern(text);
+            break;
+        case '@crochet-simple':
+        default:
+            patternInstance = new SpiralPattern(text);
+            break;
+    }
+
+    return patternInstance;
 }

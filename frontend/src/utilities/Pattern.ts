@@ -1,6 +1,58 @@
 import { PatternPoints, Row } from "./types";
 
-export class Pattern {
+export type Pattern = SpiralPattern | FlatPattern;
+
+export class FlatPattern {
+    text: string;
+    rows: Row[] = [];
+
+    constructor(text: string) {
+        this.text = text.split(/\r?\n/).map(s => s.trim()).join('\n');
+        this.parse();
+    }
+
+    parse = () => {
+        let color = 'unknown';
+        let height = 0;
+        const lines = this.text.split('\n');
+        for (const line of lines) {
+            if (['@', '#'].includes(line[0])) continue;
+            
+            const isNumeric = /^\d+$/.test(line);
+            if (isNumeric) {
+                const row = {
+                    color,
+                    stitches: parseInt(line),
+                    height,
+                }
+
+                this.rows.push(row);
+                height += 1;
+            } else {
+                color = line.trim();
+            }
+        }
+    }
+
+    toPatternPoints = (): PatternPoints => {
+        const res: PatternPoints = [];
+        for (const row of this.rows) {
+            const { stitches, height, color } = row;
+            const points: number[][] = [];
+
+            for (let i = 0; i < stitches; i++) {
+                const x = i - (stitches - 1) / 2; // center the row
+                points.push([ x, height, 0 ]); // z is always 0 for flat patterns
+            }
+
+            res.push({ color, points });
+        }
+
+        return res;
+    }
+}
+
+export class SpiralPattern {
     text: string;
     rows: Row[] = [];
 
@@ -19,31 +71,35 @@ export class Pattern {
     toPatternPoints = (): PatternPoints => {
         const res: PatternPoints = [];
         for (const row of this.rows) {
-            const { stitches, circumradius, height, color } = row;
+            const { stitches, circumradius = 0, height, color } = row;
             const points: number[][] = [];
+            
             for (let i = 0; i < stitches; i++) {
                 const angle = (i / stitches) * Math.PI * 2;
                 const x = circumradius * Math.cos(angle);
                 const y = circumradius * Math.sin(angle);
                 points.push([ x, y, height ]);  
             }
+
             res.push({color, points});
         }
         return res;
     }
 
-    parse() { // simple version that just takes colors and numbers
+    parse = () => { // simple version that just takes colors and numbers
         let color = 'unknown';
         let height = 0;
         const lines = this.text.split('\n');
         for (const line of lines) {
+            if (['@', '#'].includes(line[0])) continue;
+            
             const isNumeric = /^\d+$/.test(line);
             if (isNumeric) {
                 const stitches = parseInt(line);
                 const circumradius = getCircumradius(stitches);
                 if (this.rows.length) {
                     const lastRow = this.rows[this.rows.length - 1];
-                    const lastCircumradius = lastRow.circumradius;
+                    const lastCircumradius = lastRow.circumradius || 0;
                     const radiusIncrease = circumradius - lastCircumradius;
                     if (Math.abs(radiusIncrease) > 1) {
                         throw new Error('new row too big/small for last row');
@@ -120,7 +176,7 @@ const buildRow = (line: string, lastRow: Row, color: string): Row => {
     // TODO: count stitches instead of shortcut
     const stitches = readInt(parts[parts.length - 1]);
     const circumradius = getCircumradius(stitches);
-    const radiusIncrease = circumradius - lastCircumradius;
+    const radiusIncrease = circumradius - (lastCircumradius || 0);
     if (Math.abs(radiusIncrease) > 1) {
         throw new Error('new row too big/small for last row');
     }

@@ -1,5 +1,5 @@
-export const smallColorlessBall = `
-6
+export const smallColorlessBall = 
+`6
 12
 16
 20
@@ -11,8 +11,8 @@ export const smallColorlessBall = `
 6
 `
 
-export const mediumColorlessBall = `
-6
+export const mediumColorlessBall = 
+`6
 12
 18
 23
@@ -32,8 +32,8 @@ export const mediumColorlessBall = `
 6
 `
 
-export const largeColorlessBall = `
-6
+export const largeColorlessBall = 
+`6
 12
 18
 23
@@ -63,8 +63,8 @@ export const largeColorlessBall = `
 6
 `
 
-export const dangoStick = `
-tan
+export const dangoStick = 
+`tan
 6
 12
 12
@@ -80,7 +80,8 @@ tan
 12
 `
 
-export const pokeballBody = `
+export const pokeballBody = 
+`@crochet-simple
 white
 6
 12
@@ -104,15 +105,16 @@ red
 12
 6`
 
-export const pokeballButton = `
+export const pokeballButton = 
+`# attach to front of pokeball, on top of black horizontal stripe
 white
 6
 black
 12
 `
 
-export const minionBody = `
-yellow
+export const minionBody = 
+`yellow
 6
 12
 18
@@ -157,8 +159,8 @@ blue
 6
 `
 
-export const minionEye = `
-brown
+export const minionEye = 
+`brown
 6
 white
 12
@@ -167,8 +169,8 @@ gray
 24
 `
 
-export const minionArm = `
-black
+export const minionArm = 
+`black
 6
 12
 15
@@ -186,8 +188,8 @@ yellow
 12
 `
 
-export const minionLeg = `
-black
+export const minionLeg = 
+`black
 6
 12
 18
@@ -205,6 +207,17 @@ blue
 12
 `
 
+export const flag =
+`@crochet-flat
+yellow
+12
+12
+12
+blue
+12
+12
+12
+`
 
 // const text1 = 
 // `!color #white [0]

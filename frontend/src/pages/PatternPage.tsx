@@ -6,6 +6,7 @@ import { Pattern } from '../utilities/Pattern';
 import { ThreeCanvas } from '../components/ThreeCanvas';
 import { CreatePatternForm } from '../components/CreatePatternForm';
 import Layout from './Layout';
+import { textToPatternInstance } from '../utilities/converters';
 
 const PatternPage = () => {
     const [text, setText] = useState<string>('')
@@ -15,7 +16,7 @@ const PatternPage = () => {
 
     const handleText = () => {
         try {
-            const pattern = new Pattern(text);
+            const pattern: Pattern = textToPatternInstance(text);
             setPatternPoints(pattern.toPatternPoints());
         } catch (error) {
             if (error instanceof Error) {
