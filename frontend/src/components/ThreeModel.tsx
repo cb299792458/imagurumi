@@ -1,8 +1,9 @@
 import * as THREE from 'three'
 import { TransformedPattern } from '../utilities/types';
 
-const SPHERE_RADIUS = 0.75;
+const SPHERE_RADIUS = 0.65;
 const SPHERE_SEGMENTS = 32;
+const SHADOW_SCALE = 1.05;
 
 export const ThreeModel = ({transformedPattern}: {transformedPattern: TransformedPattern}) => {
     const { patternPoints, transform } = transformedPattern;
@@ -20,10 +21,9 @@ export const ThreeModel = ({transformedPattern}: {transformedPattern: Transforme
                 >
                     {points.map((point, i) => (
                         <group key={`${index}-${i}`}>
-                            
-                            <mesh scale={1.05} position={new THREE.Vector3(...point)}>
+                            <mesh scale={SHADOW_SCALE} position={new THREE.Vector3(...point)}>
                                 <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
-                                <meshStandardMaterial color={"black"} side={THREE.BackSide} />
+                                <meshStandardMaterial color={color === "black" ? "white" : "black"} side={THREE.BackSide} />
                             </mesh>
                             <mesh position={new THREE.Vector3(...point)}>
                                 <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
