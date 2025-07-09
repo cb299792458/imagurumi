@@ -210,13 +210,40 @@ blue
 export const flag =
 `@crochet-flat
 yellow
-12
-12
-12
+14
+14
+14
+14
 blue
-12
-12
-12
+14
+14
+14
+14
+`
+
+export const beeWing =
+`@crochet-flat
+white
+11
+13
+13
+15
+15
+15
+15
+15
+15
+13
+13
+11
+9
+5
+`
+
+export const beeStinger =
+`@crochet-flat
+black
+10
 `
 
 // const text1 = 

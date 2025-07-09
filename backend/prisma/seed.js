@@ -12,6 +12,8 @@ import {
     pokeballBody,
     pokeballButton,
     flag,
+    beeWing,
+    beeStinger,
 } from './seedPatterns.js';
 const prisma = new PrismaClient();
 
@@ -28,7 +30,7 @@ async function main() {
             name: 'Small Ball',
             userId: user1.id,
             description: 'A simple small sphere',
-            text: 'white' + smallColorlessBall,
+            text: 'white\n' + smallColorlessBall,
         }
     });
 
@@ -37,7 +39,7 @@ async function main() {
             name: 'Large Ball',
             userId: user1.id,
             description: 'A large colorless sphere',
-            text: 'white' + largeColorlessBall,
+            text: 'white\n' + largeColorlessBall,
         }
     });
 
@@ -46,7 +48,7 @@ async function main() {
             name: 'Pink Ball',
             userId: user1.id,
             description: 'A simple small sphere',
-            text: 'pink' + mediumColorlessBall
+            text: 'pink\n' + mediumColorlessBall
         }
     });
 
@@ -55,7 +57,7 @@ async function main() {
             name: 'White Ball',
             userId: user1.id,
             description: 'A simple small sphere',
-            text: 'white' + mediumColorlessBall
+            text: 'white\n' + mediumColorlessBall
         }
     })
 
@@ -64,7 +66,7 @@ async function main() {
             name: 'Green Ball',
             userId: user1.id,
             description: 'A simple small sphere',
-            text: 'lightgreen' + mediumColorlessBall
+            text: 'lightgreen\n' + mediumColorlessBall
         }
     })
 
@@ -83,6 +85,24 @@ async function main() {
             userId: user1.id,
             description: 'A simple flag pattern',
             text: flag,
+        }
+    });
+
+    const pattern6 = await prisma.pattern.create({
+        data: {
+            name: 'Bee Wing',
+            userId: user1.id,
+            description: 'A simple bee wing pattern',
+            text: beeWing,
+        }
+    });
+
+    const pattern7 = await prisma.pattern.create({
+        data: {
+            name: 'Bee Stinger',
+            userId: user1.id,
+            description: 'A simple bee stinger pattern',
+            text: beeStinger,
         }
     });
 
