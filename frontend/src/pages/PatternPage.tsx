@@ -18,6 +18,7 @@ const PatternPage = () => {
         try {
             const pattern: Pattern = textToPatternInstance(text);
             setPatternPoints(pattern.toPatternPoints());
+            console.log(pattern.toString());
         } catch (error) {
             if (error instanceof Error) {
                 setErrorMessage(error.message);

@@ -34,6 +34,10 @@ export class FlatPattern {
         }
     }
 
+    toString = () => {
+        return 'WIP'
+    }
+
     toPatternPoints = (): PatternPoints => {
         const res: PatternPoints = [];
         for (const row of this.rows) {
@@ -60,32 +64,7 @@ export class SpiralPattern {
         this.text = text.split(/\r?\n/).map(s => s.trim()).join('\n');
         this.parse();
     }
-
-    rowsToString = () => {
-        const rows = this.rows.map((row) => {
-            return `${row.color} ${row.stitches} ${row.circumradius} ${row.height}`;
-        });
-        return rows.join('\n');
-    }
-
-    toPatternPoints = (): PatternPoints => {
-        const res: PatternPoints = [];
-        for (const row of this.rows) {
-            const { stitches, circumradius = 0, height, color } = row;
-            const points: number[][] = [];
-            
-            for (let i = 0; i < stitches; i++) {
-                const angle = (i / stitches) * Math.PI * 2;
-                const x = circumradius * Math.cos(angle);
-                const y = circumradius * Math.sin(angle);
-                points.push([ x, y, height ]);  
-            }
-
-            res.push({color, points});
-        }
-        return res;
-    }
-
+    
     parse = () => { // simple version that just takes colors and numbers
         let color = 'unknown';
         let height = 0;
@@ -118,6 +97,68 @@ export class SpiralPattern {
                 color = line.trim();
             }
         }
+    }
+
+    toString = () => {
+        let currentColor: string = 'unknown';
+        let lastStitches: number = 0;
+        const lines: string[] = []
+        
+        this.rows.forEach((row, index) => {
+            const { stitches, color } = row;
+            if (currentColor !== color) {
+                currentColor = color;
+                lines.push(`in ${color}`);
+            }
+
+            if (index === 0) {
+                lines.push(`${stitches} sc in magic ring`);
+            } else {
+                const increases = stitches - lastStitches;
+                if (increases === 0) {
+                    lines.push(`${stitches} sc`);
+                } else if (increases >= 0) {
+                    const singles = lastStitches - increases;
+                    if (singles < 0) throw new Error('too many increases?');
+
+                    const singlesPerIncrease = Math.floor(singles / increases);
+                    const remainder = singles % increases;
+
+                    lines.push(`(${singlesPerIncrease ? singlesPerIncrease + ' sc, ' : ''}inc) x ${increases}${remainder ? ', ' + remainder + ' sc' : ''}`);
+                } else {
+                    const decreases = -increases;
+                    const singles = lastStitches - decreases;
+                    if (singles < 0) throw new Error('too many decreases?');
+
+                    const singlesPerDecrease = Math.floor(singles / decreases);
+                    const remainder = singles % decreases;
+
+                    lines.push(`(${singlesPerDecrease ? singlesPerDecrease + ' sc, ' : ''}inc) x ${decreases}${remainder ? ', ' + remainder + ' sc' : ''}`);
+                }
+            }
+            lastStitches = stitches;
+        });
+        lines.push('cut yarn and fasten off');
+
+        return lines.join('\n');
+    }
+
+    toPatternPoints = (): PatternPoints => {
+        const res: PatternPoints = [];
+        for (const row of this.rows) {
+            const { stitches, circumradius = 0, height, color } = row;
+            const points: number[][] = [];
+            
+            for (let i = 0; i < stitches; i++) {
+                const angle = (i / stitches) * Math.PI * 2;
+                const x = circumradius * Math.cos(angle);
+                const y = circumradius * Math.sin(angle);
+                points.push([ x, y, height ]);  
+            }
+
+            res.push({color, points});
+        }
+        return res;
     }
 
     oldParse() {
