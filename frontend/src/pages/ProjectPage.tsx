@@ -21,6 +21,7 @@ const ProjectPage = () => {
 
     return <Layout>
         <h1>Project: {projectData?.project?.name}</h1>
+        <a href={`/instructions/project/${id}`} className="btn btn-primary">View Instructions</a>
         {projectLoading && <p>Loading project...</p>}
         {projectError && <p>Error: {projectError.message}</p>}
         <ThreeCanvas project={project} />

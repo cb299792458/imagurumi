@@ -60,6 +60,7 @@ const InstructionsPage = () => {
     }, [data]);
 
     return <Layout>
+        <a href={`/project/${id}`}>View Project</a>
         <h1>Instructions</h1>
         {projectName && <h2>{projectName}</h2>}
         {projectDescription && <p>{projectDescription}</p>}
