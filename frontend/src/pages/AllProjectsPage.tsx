@@ -15,6 +15,7 @@ const AllProjectsPage = () => {
                         <th>Project Name</th>
                         <th>Description</th>
                         <th>Link</th>
+                        <th>Instructions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,6 +28,9 @@ const AllProjectsPage = () => {
                             <td>{project.description}</td>
                             <td>
                                 <a href={`/project/${project.id}`}>View Project</a>
+                            </td>
+                            <td>
+                                <a href={`/instructions/project/${project.id}`}>View Instructions</a>
                             </td>
                         </tr>
                     ))}

@@ -10,7 +10,7 @@ import { projectRecordToProject } from "../utilities/converters";
 const ProjectPage = () => {
     const { id } = useParams<{ id: string }>();
     const { loading: projectLoading, error: projectError, data: projectData } = useQuery(GET_PROJECT, { variables: {id: parseInt(id || '')} });
-    const [project, setProject] = useState<Project>([]);
+    const [ project, setProject ] = useState<Project>([]);
 
     // load project data into newProject
     useEffect(() => {

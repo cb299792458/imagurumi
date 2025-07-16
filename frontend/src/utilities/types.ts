@@ -49,3 +49,10 @@ export type ProjectRecord = {
     description: string;
     projectPatterns: ProjectPatternRecord[];
 }
+
+export type ProjectPattern = {
+    id: number;
+    name: string;
+    text: string;
+    count: number;
+}

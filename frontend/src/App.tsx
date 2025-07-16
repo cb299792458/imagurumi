@@ -3,6 +3,7 @@ import PatternPage from './pages/PatternPage';
 import ProjectPage from './pages/ProjectPage';
 import AllProjectsPage from './pages/AllProjectsPage';
 import NewProjectPage from './pages/NewProjectPage';
+import InstructionsPage from './pages/InstructionsPage';
 import NavBar from './components/NavBar';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
             <Route path="/pattern" element={<PatternPage />} />
             <Route path="/project" element={<NewProjectPage />} />
             <Route path="/project/:id" element={<ProjectPage />} />
+            <Route path="/instructions/:type/:id" element={<InstructionsPage />} />
             <Route path="/all-projects" element={<AllProjectsPage />} />
 
             <Route path="*" element={<h1>404 Not Found</h1>} />
