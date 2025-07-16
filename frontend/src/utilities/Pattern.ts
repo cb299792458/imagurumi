@@ -35,7 +35,49 @@ export class FlatPattern {
     }
 
     toString = () => {
-        return 'WIP'
+        let currentColor: string = 'unknown';
+        let lastStitches: number = 0;
+        let rows: number = 0;
+        const lines: string[] = []
+        
+        this.rows.forEach((row, index) => {
+            const { stitches, color } = row;
+            if (currentColor !== color) {
+                currentColor = color;
+                lines.push(`in ${color}`);
+            }
+
+            rows++;
+            if (index === 0) {
+                lines.push(`Row 1: chain ${stitches}`);
+            } else {
+                const increases = stitches - lastStitches;
+                if (increases === 0) {
+                    lines.push(`Row ${rows}: ${stitches} sc`);
+                } else if (increases >= 0) {
+                    const singles = lastStitches - increases;
+                    if (singles < 0) throw new Error('too many increases?');
+
+                    const singlesPerIncrease = Math.floor(singles / increases);
+                    const remainder = singles % increases;
+
+                    lines.push(`Row ${rows}: (${singlesPerIncrease ? singlesPerIncrease + ' sc, ' : ''}2 sc in next st) x ${increases}${remainder ? ', ' + remainder + ' sc' : ''}`);
+                } else {
+                    const decreases = -increases;
+                    const singles = lastStitches - decreases;
+                    if (singles < 0) throw new Error('too many decreases?');
+
+                    const singlesPerDecrease = Math.floor(singles / decreases);
+                    const remainder = singles % decreases;
+
+                    lines.push(`Row ${rows}: (${singlesPerDecrease ? singlesPerDecrease + ' sc, ' : ''}sc2tog) x ${decreases}${remainder ? ', ' + remainder + ' sc' : ''}`);
+                }
+            }
+            lastStitches = stitches;
+        });
+        lines.push('cut yarn and fasten');
+
+        return lines.join('\n');
     }
 
     toPatternPoints = (): PatternPoints => {
@@ -102,6 +144,7 @@ export class SpiralPattern {
     toString = () => {
         let currentColor: string = 'unknown';
         let lastStitches: number = 0;
+        let rows: number = 0;
         const lines: string[] = []
         
         this.rows.forEach((row, index) => {
@@ -111,12 +154,13 @@ export class SpiralPattern {
                 lines.push(`in ${color}`);
             }
 
+            rows++;
             if (index === 0) {
-                lines.push(`${stitches} sc in magic ring`);
+                lines.push(`Row 1: ${stitches} sc in magic ring`);
             } else {
                 const increases = stitches - lastStitches;
                 if (increases === 0) {
-                    lines.push(`${stitches} sc`);
+                    lines.push(`Row ${rows}: ${stitches} sc`);
                 } else if (increases >= 0) {
                     const singles = lastStitches - increases;
                     if (singles < 0) throw new Error('too many increases?');
@@ -124,7 +168,7 @@ export class SpiralPattern {
                     const singlesPerIncrease = Math.floor(singles / increases);
                     const remainder = singles % increases;
 
-                    lines.push(`(${singlesPerIncrease ? singlesPerIncrease + ' sc, ' : ''}inc) x ${increases}${remainder ? ', ' + remainder + ' sc' : ''}`);
+                    lines.push(`Row ${rows}: (${singlesPerIncrease ? singlesPerIncrease + ' sc, ' : ''}inc) x ${increases}${remainder ? ', ' + remainder + ' sc' : ''}`);
                 } else {
                     const decreases = -increases;
                     const singles = lastStitches - decreases;
@@ -133,12 +177,12 @@ export class SpiralPattern {
                     const singlesPerDecrease = Math.floor(singles / decreases);
                     const remainder = singles % decreases;
 
-                    lines.push(`(${singlesPerDecrease ? singlesPerDecrease + ' sc, ' : ''}inc) x ${decreases}${remainder ? ', ' + remainder + ' sc' : ''}`);
+                    lines.push(`Row ${rows}: (${singlesPerDecrease ? singlesPerDecrease + ' sc, ' : ''}inc) x ${decreases}${remainder ? ', ' + remainder + ' sc' : ''}`);
                 }
             }
             lastStitches = stitches;
         });
-        lines.push('cut yarn and fasten off');
+        lines.push('cut yarn and fasten');
 
         return lines.join('\n');
     }
