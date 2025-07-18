@@ -5,7 +5,7 @@ const NavBarItem = ({ to, name }: { to: string, name: string }) => {
     const isActive = location.pathname === to;
     
     return <li style={ isActive ? { color: 'gray', cursor: 'default', pointerEvents: 'none' } : {color: 'black'} }>
-        <NavLink to={to} className={isActive ? 'active' : ''}>
+        <NavLink to={to} className={isActive ? 'active' : ''} style={isActive ? {color: 'black', fontWeight: 'bold', textDecoration: 'none'} : {}}>
             {name}
         </NavLink>
     </li>

@@ -6,11 +6,10 @@ import { useEffect, useState } from "react";
 import { ProjectPattern, ProjectPatternRecord } from "../utilities/types";
 import { textToPatternInstance } from "../utilities/converters";
 
-
 const InstructionsPage = () => {
     const [ projectName, setProjectName ] = useState<string>('');
     const [ projectDescription, setProjectDescription ] = useState<string>('');
-    const [ instructions, setInstructions ] = useState<string>('');
+    const [ instructions, setInstructions ] = useState<string[]>([]);
     const [ loadingIndex, setLoadingIndex ] = useState<number>(0);
     const { type, id } = useParams<{ type: string, id: string }>();
     const { loading, error, data } = useQuery(
@@ -51,11 +50,11 @@ const InstructionsPage = () => {
                 }, {}
             );
             
-            setInstructions(Object.values(projectPatterns).reduce((acc: string, pattern: ProjectPattern) => {
+            setInstructions(Object.values(projectPatterns).reduce((acc: string[], pattern: ProjectPattern) => {
                 const { name, text, count } = pattern;
                 const patternInstance = textToPatternInstance(text);
-                return acc + `${count > 1 ? name + ' x ' + count + '\n' : name + '\n'}\n` + patternInstance.toString() + '\n';
-            }, ''));
+                return [...acc, `${count > 1 ? name + ' x ' + count + '\n' : name + '\n'}\n` + patternInstance.toString() + '\n'];
+            }, []));
         }
     }, [data]);
 
@@ -66,7 +65,15 @@ const InstructionsPage = () => {
         {projectDescription && <p>{projectDescription}</p>}
         {loading && <p>Loading instructions{['.', '..', '...'][loadingIndex]}</p>}
         {error && <p>Error: {error.message}</p>}
-        {instructions && instructions.split('\n').map((line, index) => <p key={index} style={{margin: '0'}}>{line}</p>)}
+        {instructions?.map((piece, i) => (
+            <section key={i} style={{ marginBottom: '1em' }}>
+                {piece.split('\n').map((line, j) => (
+                    <p key={j} style={{ margin: 0 }}>
+                        {line}
+                    </p>
+                ))}
+            </section>
+        ))}
     </Layout>
 }
 
