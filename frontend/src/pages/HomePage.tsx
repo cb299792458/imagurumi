@@ -1,29 +1,103 @@
 import Layout from "./Layout"
+import styles from './HomePage.module.css';
 
 const HomePage = () => {
-    return <Layout>
-        <h1>Welcome to VisuWOOLizer</h1>
-        <p>This app is designed to allow the visualization of amigurumi patterns in 3D as they are written.</p>
-        <p>Please be advised that with app is a work in progress.</p>
+    return (
+        <Layout>
+            <div className={styles.hero}>
+                <div className={styles.heroContent}>
+                    <h1 className={styles.heroTitle}>Welcome to VisuWOOLizer</h1>
+                    <p className={styles.heroSubtitle}>
+                        Transform your yarn crafting patterns into stunning 3D visualizations. 
+                        See your amigurumi come to life before you even pick up your hook.
+                    </p>
+                    <span className={styles.heroBadge}>🚀 Work in Progress</span>
+                </div>
+            </div>
 
-        <h4>How To</h4>
-        <ul>
-            <li>For each piece, create a Pattern on the Patterns Page</li>
-            <li>Patterns should start with an indicator of their style, i.e., @crochet-flat or @crochet-spiral</li>
-            <li>Each line in the pattern should be a number of stitches in that row, or a change in yarn color</li>
-            <li>More styles are planned to be implements soon. Comments can be made, starting with the # character</li>
-            <li>Once each pattern is completed, save the pattern with a name and description at the bottom of the page</li>
-            <br />
-            <li>Once you have created all the patterns for your project, go to the New Project Page</li>
-            <li>Add each pattern to the projects, and transform them until they look just right</li>
-            <li>Each Pattern can be added to the same Project multiple times and transformed independently</li>
-            <li>Once the Project looks good, save it with a name and description at the bottom of the page</li>
-            <li>Finally, find the Project in the All Projects Page, and navigate to the Instructions Page to see all patterns compiled in written form</li>
-            <br />
-        </ul>
+            <div className={styles.container}>
+                <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>How It Works</h2>
+                    <div className={styles.featureGrid}>
+                        <div className={styles.featureCard}>
+                            <div className={styles.featureIcon}>📝</div>
+                            <h3 className={styles.featureTitle}>Create Patterns</h3>
+                            <p className={styles.featureDescription}>
+                                Write your crochet or knitting patterns with special indicators like @crochet-flat or @crochet-spiral
+                            </p>
+                        </div>
+                        
+                        <div className={styles.featureCard}>
+                            <div className={styles.featureIcon}>🎨</div>
+                            <h3 className={styles.featureTitle}>Build Projects</h3>
+                            <p className={styles.featureDescription}>
+                                Combine multiple patterns into 3D projects and transform them until they look perfect
+                            </p>
+                        </div>
+                        
+                        <div className={styles.featureCard}>
+                            <div className={styles.featureIcon}>📖</div>
+                            <h3 className={styles.featureTitle}>Get Instructions</h3>
+                            <p className={styles.featureDescription}>
+                                Generate complete written instructions for your finished 3D projects
+                            </p>
+                        </div>
+                    </div>
+                </section>
 
-        <h2>Thank you for trying my app!</h2>
-    </Layout>
+                <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>Step-by-Step Guide</h2>
+                    <div className={styles.howToSection}>
+                        <ol className={styles.howToList}>
+                            <li className={styles.howToItem}>
+                                <div className={styles.stepNumber}>1</div>
+                                <p className={styles.stepText}>
+                                    <strong>Create Patterns:</strong> For each piece, create a Pattern on the Patterns Page. 
+                                    Patterns should start with an indicator of their style, i.e., @crochet-flat or @crochet-spiral
+                                </p>
+                            </li>
+                            <li className={styles.howToItem}>
+                                <div className={styles.stepNumber}>2</div>
+                                <p className={styles.stepText}>
+                                    <strong>Write Your Pattern:</strong> Each line should contain the number of stitches in that row, 
+                                    or a change in yarn color. Comments can be made starting with the # character
+                                </p>
+                            </li>
+                            <li className={styles.howToItem}>
+                                <div className={styles.stepNumber}>3</div>
+                                <p className={styles.stepText}>
+                                    <strong>Save Your Pattern:</strong> Once completed, save the pattern with a name and description 
+                                    at the bottom of the page
+                                </p>
+                            </li>
+                            <li className={styles.howToItem}>
+                                <div className={styles.stepNumber}>4</div>
+                                <p className={styles.stepText}>
+                                    <strong>Build Your Project:</strong> Go to the New Project Page and add each pattern to your project. 
+                                    Transform them until they look just right
+                                </p>
+                            </li>
+                            <li className={styles.howToItem}>
+                                <div className={styles.stepNumber}>5</div>
+                                <p className={styles.stepText}>
+                                    <strong>Generate Instructions:</strong> Find your project in the All Projects Page, then navigate 
+                                    to the Instructions Page to see all patterns compiled in written form
+                                </p>
+                            </li>
+                        </ol>
+                    </div>
+                </section>
+
+                <div className={styles.thankYou}>
+                    <h2 className={styles.thankYouTitle}>Thank you for trying my app!</h2>
+                    <p className={styles.thankYouText}>
+                        More styles and features are planned to be implemented soon. 
+                        Happy crafting! 🧶✨
+                    </p>
+                </div>
+            </div>
+        </Layout>
+    )
 }
 
 export default HomePage;

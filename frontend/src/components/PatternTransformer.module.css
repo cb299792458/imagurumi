@@ -1,0 +1,85 @@
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.transformGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 60px;
+}
+
+.transformLabel {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--neutral-700);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.transformInput {
+  width: 60px;
+  padding: var(--space-xs);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  text-align: center;
+  transition: border-color var(--transition-fast);
+}
+
+.transformInput:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 2px rgb(14 165 233 / 0.1);
+}
+
+.transformInput:hover {
+  border-color: var(--neutral-400);
+}
+
+/* Axis-specific colors */
+.transformInput[data-axis="x"] {
+  border-left: 3px solid #ef4444;
+}
+
+.transformInput[data-axis="y"] {
+  border-left: 3px solid #10b981;
+}
+
+.transformInput[data-axis="z"] {
+  border-left: 3px solid #3b82f6;
+}
+
+.transformInput[data-axis="rotX"] {
+  border-left: 3px solid #f59e0b;
+}
+
+.transformInput[data-axis="rotY"] {
+  border-left: 3px solid #8b5cf6;
+}
+
+.transformInput[data-axis="rotZ"] {
+  border-left: 3px solid #ec4899;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    gap: var(--space-xs);
+  }
+  
+  .transformGroup {
+    min-width: 50px;
+  }
+  
+  .transformInput {
+    width: 50px;
+    font-size: var(--font-size-xs);
+  }
+}
+
+

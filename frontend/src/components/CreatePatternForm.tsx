@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useMutation } from '@apollo/client';
 import { CREATE_PATTERN } from '../utilities/gql';
+import styles from './CreatePatternForm.module.css';
+import sharedStyles from '../styles/components.module.css';
 
 export const CreatePatternForm = ({ text, refetch }: { text: string, refetch: () => void }) =>{
     const [name, setName] = useState('');
@@ -16,15 +18,43 @@ export const CreatePatternForm = ({ text, refetch }: { text: string, refetch: ()
     };
   
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Create Pattern</h2>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
-            <button type="submit">Create Pattern With Current Text</button>
+        <form onSubmit={handleSubmit} className={styles.form}>
+            <h2 className={styles.title}>Create Pattern</h2>
+            
+            <div className={styles.formContent}>
+                <div className={sharedStyles.formGroupCompact}>
+                    <label htmlFor="name" className={sharedStyles.formLabel}>Pattern Name</label>
+                    <input 
+                        id="name"
+                        type="text"
+                        value={name} 
+                        onChange={(e) => setName(e.target.value)} 
+                        placeholder="Enter pattern name" 
+                        required 
+                        className={sharedStyles.formInput}
+                    />
+                </div>
+                
+                <div className={sharedStyles.formGroupCompact}>
+                    <label htmlFor="description" className={sharedStyles.formLabel}>Description</label>
+                    <textarea 
+                        id="description"
+                        value={description} 
+                        onChange={(e) => setDescription(e.target.value)} 
+                        placeholder="Describe your pattern" 
+                        className={sharedStyles.formTextarea}
+                        rows={2}
+                    />
+                </div>
+                
+                <button type="submit" className={styles.submitButton}>
+                    💾 Save Pattern
+                </button>
+            </div>
     
-            {loading && <p>Submitting...</p>}
-            {error && <p>Error: {error.message}</p>}
-            {data && <p>Created pattern: {data.createPattern.name}</p>}
+            {loading && <p className={styles.loadingText}>Saving...</p>}
+            {error && <p className={styles.errorText}>Error: {error.message}</p>}
+            {data && <p className={styles.successText}>Saved: {data.createPattern.name}</p>}
         </form>
     );
 }

@@ -1,0 +1,57 @@
+.form {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-xl);
+  max-width: 500px;
+  margin: 0 auto;
+  border: 1px solid var(--neutral-200);
+}
+
+.title {
+  margin: 0 0 var(--space-lg) 0;
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--neutral-900);
+  text-align: center;
+}
+
+.description {
+  text-align: center;
+  color: var(--neutral-600);
+  margin: 0 0 var(--space-lg) 0;
+  line-height: 1.6;
+}
+
+.submitButton {
+  composes: buttonPrimary buttonLarge from '../styles/components.module.css';
+  width: 100%;
+  margin-top: var(--space-md);
+}
+
+.loadingText {
+  text-align: center;
+  color: var(--neutral-600);
+  font-style: italic;
+  margin-top: var(--space-md);
+}
+
+.errorText {
+  text-align: center;
+  color: var(--error);
+  background: rgb(239 68 68 / 0.1);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-md);
+}
+
+.successText {
+  text-align: center;
+  color: var(--success);
+  background: rgb(16 185 129 / 0.1);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-md);
+}
+
+

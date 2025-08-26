@@ -1,0 +1,80 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--neutral-50);
+}
+
+.main {
+  flex: 1;
+  padding: 0;
+  margin: 0;
+}
+
+.footer {
+  background: var(--neutral-100);
+  border-top: 1px solid var(--neutral-200);
+  padding: var(--space-lg) var(--space-md);
+  margin-top: auto;
+  text-align: center;
+}
+
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  justify-content: space-around;
+}
+
+.footerText {
+  color: var(--neutral-600);
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.footerLink {
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.footerLink:hover {
+  color: var(--primary-700);
+  text-decoration: underline;
+}
+
+.footerDivider {
+  width: 100%;
+  height: 1px;
+  background: var(--neutral-200);
+  margin: var(--space-sm) 0;
+}
+
+.footerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border: 1px solid var(--primary-200);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer {
+    padding: var(--space-md);
+  }
+  
+  .footerContent {
+    gap: var(--space-xs);
+  }
+}
+
+

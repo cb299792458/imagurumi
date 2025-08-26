@@ -11,6 +11,10 @@ export const ThreeModel = ({transformedPattern}: {transformedPattern: Transforme
 
     return (
         <>
+            {/* Enhanced lighting */}
+            <directionalLight position={[10, 10, 5]} intensity={0.8} castShadow />
+            <pointLight position={[-10, -10, -5]} intensity={0.3} color="#ffffff" />
+            
             {patternPoints.map(({color, points}, index) => (
                 <group 
                     key={index}
@@ -21,13 +25,36 @@ export const ThreeModel = ({transformedPattern}: {transformedPattern: Transforme
                 >
                     {points.map((point, i) => (
                         <group key={`${index}-${i}`}>
-                            <mesh scale={SHADOW_SCALE} position={new THREE.Vector3(...point)}>
+                            {/* Enhanced shadow with better material */}
+                            <mesh 
+                                scale={SHADOW_SCALE} 
+                                position={new THREE.Vector3(...point)}
+                                receiveShadow
+                            >
                                 <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
-                                <meshStandardMaterial color={color === "black" ? "white" : "black"} side={THREE.BackSide} />
+                                <meshStandardMaterial 
+                                    color={color === "black" ? "#2a2a2a" : "#e5e5e5"} 
+                                    side={THREE.BackSide}
+                                    transparent
+                                    opacity={0.3}
+                                    roughness={0.8}
+                                />
                             </mesh>
-                            <mesh position={new THREE.Vector3(...point)}>
+                            
+                            {/* Main sphere with enhanced material */}
+                            <mesh 
+                                position={new THREE.Vector3(...point)}
+                                castShadow
+                                receiveShadow
+                            >
                                 <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
-                                <meshStandardMaterial color={color}/>
+                                <meshStandardMaterial 
+                                    color={color}
+                                    roughness={0.2}
+                                    metalness={0.1}
+                                    emissive={color}
+                                    emissiveIntensity={0.05}
+                                />
                             </mesh>
                         </group>
                     ))}

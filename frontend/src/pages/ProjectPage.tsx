@@ -6,6 +6,7 @@ import { Project } from "../utilities/types";
 import { ThreeCanvas } from "../components/ThreeCanvas";
 import Layout from "./Layout";
 import { projectRecordToProject } from "../utilities/converters";
+import styles from './ProjectPage.module.css';
 
 const ProjectPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -19,13 +20,49 @@ const ProjectPage = () => {
         }
     }, [projectData]);
 
-    return <Layout>
-        <h1>Project: {projectData?.project?.name}</h1>
-        <a href={`/instructions/project/${id}`} className="btn btn-primary">View Instructions</a>
-        {projectLoading && <p>Loading project...</p>}
-        {projectError && <p>Error: {projectError.message}</p>}
-        <ThreeCanvas project={project} />
-    </Layout>
+    return (
+        <Layout>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <h1 className={styles.title}>
+                        Project: {projectData?.project?.name || 'Loading...'}
+                    </h1>
+                </div>
+
+                <div className={styles.actions}>
+                    <a href="/all-projects" className={styles.backLink}>
+                        ← Back to Projects
+                    </a>
+                    <a href={`/instructions/project/${id}`} className={styles.instructionsLink}>
+                        📖 View Instructions
+                    </a>
+                </div>
+
+                {projectData?.project?.description && (
+                    <div className={styles.projectInfo}>
+                        <h3 className={styles.projectInfoTitle}>Description</h3>
+                        <p className={styles.projectInfoText}>
+                            {projectData.project.description}
+                        </p>
+                    </div>
+                )}
+
+                {projectLoading && (
+                    <p className={styles.loadingText}>Loading project...</p>
+                )}
+                
+                {projectError && (
+                    <p className={styles.errorText}>
+                        Error: {projectError.message}
+                    </p>
+                )}
+
+                <div className={styles.threeCanvasContainer}>
+                    <ThreeCanvas project={project} />
+                </div>
+            </div>
+        </Layout>
+    )
 }
 
 export default ProjectPage;

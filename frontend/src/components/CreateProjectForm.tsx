@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Project } from "../utilities/types";
 import { useMutation } from "@apollo/client";
 import { CREATE_PROJECT } from "../utilities/gql";
+import styles from './CreateProjectForm.module.css';
+import sharedStyles from '../styles/components.module.css';
 
 export const CreateProjectForm = ({ project }: { project: Project }) =>{
     const [name, setName] = useState('');
@@ -17,16 +19,43 @@ export const CreateProjectForm = ({ project }: { project: Project }) =>{
     };
   
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Save Project</h2>
-            <p>Add a name and description, then save your project. Your project will be viewable in the All Projects page.</p>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
-            <button type="submit">Save Project</button>
+        <form onSubmit={handleSubmit} className={styles.form}>
+            <h2 className={styles.title}>Save Project</h2>
+            <p className={styles.description}>
+                Add a name and description, then save your project. Your project will be viewable in the All Projects page.
+            </p>
+            
+            <div className={sharedStyles.formGroup}>
+                <label htmlFor="project-name" className={sharedStyles.formLabel}>Project Name</label>
+                <input 
+                    id="project-name"
+                    type="text"
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    placeholder="Enter project name" 
+                    required 
+                    className={sharedStyles.formInput}
+                />
+            </div>
+            
+            <div className={sharedStyles.formGroup}>
+                <label htmlFor="project-description" className={sharedStyles.formLabel}>Description</label>
+                <textarea 
+                    id="project-description"
+                    value={description} 
+                    onChange={(e) => setDescription(e.target.value)} 
+                    placeholder="Describe your project" 
+                    className={sharedStyles.formTextarea}
+                />
+            </div>
+            
+            <button type="submit" className={styles.submitButton}>
+                💾 Save Project
+            </button>
     
-            {loading && <p>Submitting...</p>}
-            {error && <p>Error: {error.message}</p>}
-            {data && <p>Created pattern: {data.createProject.name}</p>}
+            {loading && <p className={styles.loadingText}>Saving project...</p>}
+            {error && <p className={styles.errorText}>Error: {error.message}</p>}
+            {data && <p className={styles.successText}>Project saved: {data.createProject.name}</p>}
         </form>
     );
 }

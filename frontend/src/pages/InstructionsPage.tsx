@@ -5,6 +5,7 @@ import { GET_PATTERNS, GET_PROJECT } from "../utilities/gql";
 import { useEffect, useState } from "react";
 import { ProjectPattern, ProjectPatternRecord } from "../utilities/types";
 import { textToPatternInstance } from "../utilities/converters";
+import styles from './InstructionsPage.module.css';
 
 const InstructionsPage = () => {
     const [ projectName, setProjectName ] = useState<string>('');
@@ -58,23 +59,42 @@ const InstructionsPage = () => {
         }
     }, [data]);
 
-    return <Layout>
-        <a href={`/project/${id}`}>View Project</a>
-        <h1>Instructions</h1>
-        {projectName && <h2>{projectName}</h2>}
-        {projectDescription && <p>{projectDescription}</p>}
-        {loading && <p>Loading instructions{['.', '..', '...'][loadingIndex]}</p>}
-        {error && <p>Error: {error.message}</p>}
-        {instructions?.map((piece, i) => (
-            <section key={i} style={{ marginBottom: '1em' }}>
-                {piece.split('\n').map((line, j) => (
-                    <p key={j} style={{ margin: 0 }}>
-                        {line}
+    return (
+        <Layout>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <a href={`/project/${id}`} className={styles.backLink}>
+                        ← Back to Project
+                    </a>
+                    <h1 className={styles.title}>Instructions</h1>
+                    {projectName && <h2 className={styles.projectName}>{projectName}</h2>}
+                    {projectDescription && <p className={styles.projectDescription}>{projectDescription}</p>}
+                </div>
+
+                {loading && (
+                    <p className={styles.loadingText}>
+                        Loading instructions{['.', '..', '...'][loadingIndex]}
                     </p>
+                )}
+                
+                {error && (
+                    <p className={styles.errorText}>
+                        Error: {error.message}
+                    </p>
+                )}
+                
+                {instructions?.map((piece, i) => (
+                    <section key={i} className={styles.instructionsSection}>
+                        {piece.split('\n').map((line, j) => (
+                            <p key={j} className={styles.instructionLine}>
+                                {line}
+                            </p>
+                        ))}
+                    </section>
                 ))}
-            </section>
-        ))}
-    </Layout>
+            </div>
+        </Layout>
+    )
 }
 
 export default InstructionsPage;
