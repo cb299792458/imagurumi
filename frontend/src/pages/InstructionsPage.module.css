@@ -38,6 +38,17 @@
   background-clip: text;
 }
 
+/* Ensure readable text when highlighted */
+.title::selection {
+  background: var(--primary-100);
+  color: var(--neutral-900);
+  -webkit-text-fill-color: var(--neutral-900);
+}
+.title::-moz-selection {
+  background: var(--primary-100);
+  color: var(--neutral-900);
+}
+
 .projectName {
   font-size: var(--font-size-2xl);
   font-weight: 700;
@@ -153,5 +164,7 @@
     font-size: var(--font-size-xs);
   }
 }
+
+
 
 

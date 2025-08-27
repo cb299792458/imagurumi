@@ -20,6 +20,17 @@
   background-clip: text;
 }
 
+/* Ensure readable text when highlighted */
+.title::selection {
+  background: var(--primary-100);
+  color: var(--neutral-900);
+  -webkit-text-fill-color: var(--neutral-900);
+}
+.title::-moz-selection {
+  background: var(--primary-100);
+  color: var(--neutral-900);
+}
+
 .subtitle {
   font-size: var(--font-size-lg);
   color: var(--neutral-600);
@@ -161,5 +172,7 @@
     font-size: var(--font-size-xs);
   }
 }
+
+
 
 

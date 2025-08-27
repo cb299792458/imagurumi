@@ -24,6 +24,17 @@
   background-clip: text;
 }
 
+/* Ensure readable text when highlighted */
+.title::selection {
+  background: var(--primary-100);
+  color: var(--neutral-900);
+  -webkit-text-fill-color: var(--neutral-900);
+}
+.title::-moz-selection {
+  background: var(--primary-100);
+  color: var(--neutral-900);
+}
+
 .errorMessage {
   background: var(--error);
   color: white;
