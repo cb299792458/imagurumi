@@ -4,8 +4,11 @@
   box-shadow: var(--shadow-md);
   padding: var(--space-xl);
   max-width: 500px;
-  margin: 0 auto;
+  margin: 0;
   border: 1px solid var(--neutral-200);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
@@ -33,7 +36,7 @@
   text-align: center;
   color: var(--neutral-600);
   font-style: italic;
-  margin-top: var(--space-md);
+  margin-top: auto;
 }
 
 .errorText {
@@ -52,6 +55,10 @@
   padding: var(--space-sm);
   border-radius: var(--radius-md);
   margin-top: var(--space-md);
+}
+
+.inputError {
+  border-color: var(--error) !important;
 }
 
 

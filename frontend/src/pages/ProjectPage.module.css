@@ -80,6 +80,10 @@
   box-shadow: var(--shadow-md);
   border: 1px solid var(--neutral-200);
   margin-bottom: var(--space-xl);
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .projectInfo {

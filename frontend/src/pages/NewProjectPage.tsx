@@ -106,7 +106,7 @@ const NewProjectPage = () => {
                                     <th>Pattern ID</th>
                                     <th>Pattern Name</th>
                                     <th>Transformations</th>
-                                    <th>Remove Pattern</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -130,7 +130,7 @@ const NewProjectPage = () => {
                                                 }}
                                                 className={styles.removePatternButton}
                                             >
-                                                Remove
+                                                Remove Pattern
                                             </button>
                                         </td>
                                     </tr>

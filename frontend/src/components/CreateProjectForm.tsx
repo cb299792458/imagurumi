@@ -8,14 +8,22 @@ import sharedStyles from '../styles/components.module.css';
 export const CreateProjectForm = ({ project }: { project: Project }) =>{
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
+    const [showErrors, setShowErrors] = useState(false);
     const userId = 1; // TODO: get userId from context or props
   
     const [createProject, { data, loading, error }] = useMutation(CREATE_PROJECT);
   
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
+        if (!name.trim()) {
+            setShowErrors(true);
+            return;
+        }
         const projectPatterns = project.map((p) => ({patternId: p.patternId, ...p.transform}));
         await createProject({ variables: { name, description, userId, projectPatterns }});
+        setShowErrors(false);
+        setName('');
+        setDescription('');
     };
   
     return (
@@ -33,8 +41,7 @@ export const CreateProjectForm = ({ project }: { project: Project }) =>{
                     value={name} 
                     onChange={(e) => setName(e.target.value)} 
                     placeholder="Enter project name" 
-                    required 
-                    className={sharedStyles.formInput}
+                    className={`${sharedStyles.formInput} ${showErrors && !name.trim() ? styles.inputError : ''}`}
                 />
             </div>
             

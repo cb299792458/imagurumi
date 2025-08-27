@@ -73,18 +73,6 @@
   position: relative;
 }
 
-.sectionTitle::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
-  border-radius: 2px;
-}
-
 .featureGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -231,6 +219,7 @@
     padding: var(--space-lg);
   }
 }
+
 
 
 

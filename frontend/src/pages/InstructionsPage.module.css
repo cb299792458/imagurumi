@@ -109,19 +109,19 @@
 .instructionLine {
   margin: 0;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
+  font-size: var(--font-size-xs);
+  line-height: 1.3;
   color: var(--neutral-700);
-  padding: var(--space-xs) 0;
+  padding: 2px 0;
 }
 
 .instructionLine:first-child {
   font-weight: 600;
   color: var(--primary-700);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   border-bottom: 1px solid var(--primary-200);
-  padding-bottom: var(--space-sm);
-  margin-bottom: var(--space-sm);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 .instructionLine:empty {

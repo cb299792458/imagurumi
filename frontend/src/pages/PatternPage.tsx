@@ -49,6 +49,9 @@ const PatternPage: React.FC = () => {
             <div className={styles.container}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Pattern Creator</h1>
+                    <p className={styles.subtitle}>
+                        Write your pattern and instantly visualize it in 3D
+                    </p>
                 </div>
 
                 {errorMessage && (
@@ -72,7 +75,7 @@ const PatternPage: React.FC = () => {
                             <textarea
                                 id="pattern-text"
                                 className={styles.textarea}
-                                placeholder="Paste your pattern here...&#10;&#10;Example:&#10;@crochet-spiral&#10;6&#10;12&#10;18&#10;# Change to blue yarn&#10;24"
+                                placeholder="Type or paste your pattern here...&#10;&#10;Example:&#10;@crochet-spiral&#10;red&#10;6&#10;12&#10;18&#10;# Change to blue yarn&#10;blue&#10;24"
                                 rows={8}
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}

@@ -31,7 +31,7 @@ const AllProjectsPage = () => {
                                 <th>Project ID</th>
                                 <th>Project Name</th>
                                 <th>Description</th>
-                                <th>Actions</th>
+                                <th>Project Links</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -66,7 +66,7 @@ const AllProjectsPage = () => {
                                                 href={`/instructions/project/${project.id}`}
                                                 className={styles.instructionsLink}
                                             >
-                                                Instructions
+                                                View Instructions
                                             </a>
                                         </div>
                                     </td>

@@ -9,6 +9,13 @@
   position: relative;
 }
 
+/* Ensure the WebGL canvas fills its container */
+.canvasContainer canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
 .canvasContainer::before {
   content: '';
   position: absolute;

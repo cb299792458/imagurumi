@@ -133,15 +133,7 @@
 }
 
 .removePatternButton {
-  composes: buttonSecondary buttonSmall from '../styles/components.module.css';
-  background: var(--error);
-  color: white;
-  border-color: var(--error);
-}
-
-.removePatternButton:hover {
-  background: #dc2626;
-  border-color: #dc2626;
+  composes: buttonPrimary buttonSmall from '../styles/components.module.css';
 }
 
 .loadingRow {
@@ -165,10 +157,12 @@
   box-shadow: var(--shadow-md);
   border: 1px solid var(--neutral-200);
   margin-bottom: var(--space-xl);
-  min-height: 60vh;
+  min-height: var(--canvasHeight);
+  max-height: var(--canvasHeight);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .canvasPlaceholder {
@@ -183,11 +177,20 @@
   grid-template-columns: 1.6fr 1fr;
   gap: var(--space-xl);
   align-items: stretch;
+  --canvasHeight: 60vh;
 }
 
 /* Ensure the form aligns visually with cards */
 .canvasGrid :global(form) {
   margin: 0; /* override auto margins */
+  height: 100%;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  min-height: var(--canvasHeight);
+  max-height: var(--canvasHeight);
+  overflow: auto;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1024px) {

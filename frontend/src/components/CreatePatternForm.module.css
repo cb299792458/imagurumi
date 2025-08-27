@@ -17,6 +17,10 @@
   text-align: center;
 }
 
+.inputError {
+  border-color: var(--error) !important;
+}
+
 .formContent {
   flex: 1;
   display: flex;

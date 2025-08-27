@@ -50,10 +50,9 @@ export const ThreeModel = ({transformedPattern}: {transformedPattern: Transforme
                                 <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
                                 <meshStandardMaterial 
                                     color={color}
-                                    roughness={0.2}
-                                    metalness={0.1}
-                                    emissive={color}
-                                    emissiveIntensity={0.05}
+                                    roughness={0.85}
+                                    metalness={0.0}
+                                    envMapIntensity={0.2}
                                 />
                             </mesh>
                         </group>
