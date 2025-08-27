@@ -14,6 +14,7 @@ const NewProjectPage = () => {
     const [patterns, setPatterns] = useState<PatternRecord[]>([]);
     const [project, setProject] = useState<Project>([]);
     const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
+    const [showProTip, setShowProTip] = useState<boolean>(true);
 
     // load a new pattern into project
     useEffect(() => {
@@ -31,110 +32,127 @@ const NewProjectPage = () => {
                     </p>
                 </div>
 
-                <section className={styles.section}>
-                    <h2 className={styles.sectionTitle}>Add Patterns</h2>
-                    <p className={styles.sectionDescription}>
-                        Choose patterns from the list below to add to your project.
-                    </p>
-                    <table className={styles.patternsTable}>
-                        <thead>
-                            <tr>
-                                <th>Pattern ID</th>
-                                <th>Pattern Name</th>
-                                <th>Description</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {patternLoading && (
+                <div className={styles.tablesGrid}>
+                    <section className={styles.section}>
+                        <h2 className={styles.sectionTitle}>Add Patterns</h2>
+                        <p className={styles.sectionDescription}>
+                            Choose patterns from the list below to add to your project.
+                        </p>
+                        <div className={styles.tableScroll}>
+                        <table className={styles.patternsTable}>
+                            <thead>
                                 <tr>
-                                    <td colSpan={4} className={styles.loadingRow}>
-                                        Loading patterns...
-                                    </td>
+                                    <th>Pattern ID</th>
+                                    <th>Pattern Name</th>
+                                    <th>Description</th>
+                                    <th>Action</th>
                                 </tr>
-                            )}
-                            {patternError && (
-                                <tr>
-                                    <td colSpan={4} className={styles.errorRow}>
-                                        Error: {patternError.message}
-                                    </td>
-                                </tr>
-                            )}
-                            {patternData?.allPatterns.map((pattern: PatternRecord) => (
-                                <tr key={pattern.id}>
-                                    <td>{pattern.id}</td>
-                                    <td>{pattern.name}</td>
-                                    <td>{pattern.description}</td>
-                                    <td>
-                                        <button 
-                                            onClick={() => setPatterns([...patterns, pattern])}
-                                            className={styles.addPatternButton}
-                                        >
-                                            Add to Project
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </section>
-
-                <section className={styles.section}>
-                    <h2 className={styles.sectionTitle}>Project Patterns</h2>
-                    <div className={styles.patternsInfo}>
-                        <strong>💡 Pro Tips:</strong> Click on a pattern to select it. Use the transformations to modify the pattern. 
-                        Patterns can be moved along the X (red), Y (green), or Z (blue) axes. Rotations are counter-clockwise around the indicated axis.
-                    </div>
-                    <table className={styles.patternsTable}>
-                        <thead>
-                            <tr>
-                                <th>Pattern ID</th>
-                                <th>Pattern Name</th>
-                                <th>Transformations</th>
-                                <th>Remove Pattern</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {patterns.map((pattern: PatternRecord, index: number) => (
-                                <tr 
-                                    key={index} 
-                                    className={selectedPatternIndex === index ? styles.selected : ''}
-                                    onClick={() => setSelectedPatternIndex(index)}
-                                >
-                                    <td>{pattern.id}</td>
-                                    <td>{pattern.name}</td>
-                                    <td>
-                                        <PatternTransformer index={index} project={project} setProject={setProject}/>
-                                    </td>                      
-                                    <td>
-                                        <button 
-                                            onClick={(e) => {
-                                                setPatterns(patterns.filter((_, i) => i !== index)); 
-                                                setSelectedPatternIndex(-1); 
-                                                e.stopPropagation();
-                                            }}
-                                            className={styles.removePatternButton}
-                                        >
-                                            Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </section>
-
-                <div className={styles.threeCanvasContainer}>
-                    {project.length > 0 ? (
-                        <ThreeCanvas project={project} />
-                    ) : (
-                        <div className={styles.canvasPlaceholder}>
-                            Add some patterns to your project to see the 3D preview
+                            </thead>
+                            <tbody>
+                                {patternLoading && (
+                                    <tr>
+                                        <td colSpan={4} className={styles.loadingRow}>
+                                            Loading patterns...
+                                        </td>
+                                    </tr>
+                                )}
+                                {patternError && (
+                                    <tr>
+                                        <td colSpan={4} className={styles.errorRow}>
+                                            Error: {patternError.message}
+                                        </td>
+                                    </tr>
+                                )}
+                                {patternData?.allPatterns.map((pattern: PatternRecord) => (
+                                    <tr key={pattern.id}>
+                                        <td>{pattern.id}</td>
+                                        <td>{pattern.name}</td>
+                                        <td>{pattern.description}</td>
+                                        <td>
+                                            <button 
+                                                onClick={() => setPatterns([...patterns, pattern])}
+                                                className={styles.addPatternButton}
+                                            >
+                                                Add to Project
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                         </div>
-                    )}
+                    </section>
+
+                    <section className={styles.section}>
+                        <h2 className={styles.sectionTitle}>Project Patterns</h2>
+                        {showProTip && (
+                            <div className={styles.patternsInfo}>
+                                <button 
+                                    type="button" 
+                                    aria-label="Dismiss tips" 
+                                    className={styles.dismissTip}
+                                    onClick={() => setShowProTip(false)}
+                                >
+                                    ×
+                                </button>
+                                <strong>💡 Pro Tips:</strong> Click on a pattern to select it. Use the transformations to modify the pattern. 
+                                Patterns can be moved along the X (red), Y (green), or Z (blue) axes. Rotations are counter-clockwise around the indicated axis.
+                            </div>
+                        )}
+                        <div className={styles.tableScroll}>
+                        <table className={styles.patternsTable}>
+                            <thead>
+                                <tr>
+                                    <th>Pattern ID</th>
+                                    <th>Pattern Name</th>
+                                    <th>Transformations</th>
+                                    <th>Remove Pattern</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {patterns.map((pattern: PatternRecord, index: number) => (
+                                    <tr 
+                                        key={index} 
+                                        className={selectedPatternIndex === index ? styles.selected : ''}
+                                        onClick={() => setSelectedPatternIndex(index)}
+                                    >
+                                        <td>{pattern.id}</td>
+                                        <td>{pattern.name}</td>
+                                        <td>
+                                            <PatternTransformer index={index} project={project} setProject={setProject}/>
+                                        </td>                      
+                                        <td>
+                                            <button 
+                                                onClick={(e) => {
+                                                    setPatterns(patterns.filter((_, i) => i !== index)); 
+                                                    setSelectedPatternIndex(-1); 
+                                                    e.stopPropagation();
+                                                }}
+                                                className={styles.removePatternButton}
+                                            >
+                                                Remove
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        </div>
+                    </section>
                 </div>
 
-                <CreateProjectForm project={project} />
+                <div className={styles.canvasGrid}>
+                    <div className={styles.threeCanvasContainer}>
+                        {project.length > 0 ? (
+                            <ThreeCanvas project={project} />
+                        ) : (
+                            <div className={styles.canvasPlaceholder}>
+                                Add some patterns to your project to see the 3D preview
+                            </div>
+                        )}
+                    </div>
+                    <CreateProjectForm project={project} />
+                </div>
             </div>
         </Layout>
     );

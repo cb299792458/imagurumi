@@ -1,5 +1,5 @@
 .container {
-  max-width: 1400px;
+  max-width: 95vw;
   margin: 0 auto;
   padding: var(--space-lg);
 }
@@ -43,23 +43,20 @@
   margin-bottom: var(--space-2xl);
 }
 
+/* Side-by-side tables grid */
+.tablesGrid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
 .sectionTitle {
   font-size: var(--font-size-2xl);
   font-weight: 700;
   color: var(--neutral-900);
   margin: 0 0 var(--space-md) 0;
   position: relative;
-}
-
-.sectionTitle::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 40px;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
-  border-radius: 2px;
 }
 
 /* Ensure readable text when highlighted */
@@ -87,27 +84,38 @@
   box-shadow: var(--shadow-md);
   border: 1px solid var(--neutral-200);
   margin-bottom: var(--space-lg);
+  font-size: var(--font-size-sm);
 }
 
 .patternsTable th {
   background: var(--neutral-50);
-  padding: var(--space-md);
+  padding: var(--space-sm);
   text-align: left;
   font-weight: 600;
   color: var(--neutral-700);
   border-bottom: 2px solid var(--neutral-200);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .patternsTable td {
-  padding: var(--space-md);
+  padding: var(--space-sm);
   border-bottom: 1px solid var(--neutral-200);
   color: var(--neutral-600);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
 }
 
 .patternsTable tr:hover {
   background: var(--neutral-50);
+}
+
+/* Scroll container constraining table height */
+.tableScroll {
+  max-height: 320px;
+  overflow: auto;
+  border-radius: var(--radius-lg);
 }
 
 .patternsTable tr.selected {
@@ -157,7 +165,7 @@
   box-shadow: var(--shadow-md);
   border: 1px solid var(--neutral-200);
   margin-bottom: var(--space-xl);
-  min-height: 400px;
+  min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,6 +177,25 @@
   text-align: center;
 }
 
+/* Grid to place canvas and save form side-by-side */
+.canvasGrid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: var(--space-xl);
+  align-items: stretch;
+}
+
+/* Ensure the form aligns visually with cards */
+.canvasGrid :global(form) {
+  margin: 0; /* override auto margins */
+}
+
+@media (max-width: 1024px) {
+  .canvasGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .patternsInfo {
   background: var(--info);
   color: white;
@@ -177,10 +204,31 @@
   margin-bottom: var(--space-lg);
   font-size: var(--font-size-sm);
   line-height: 1.6;
+  position: relative;
 }
 
 .patternsInfo strong {
   font-weight: 600;
+}
+
+.dismissTip {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.dismissTip:hover {
+  background: rgba(255,255,255,0.3);
 }
 
 /* Responsive Design */
@@ -206,6 +254,11 @@
   .patternsTable th,
   .patternsTable td {
     padding: var(--space-sm);
+  }
+
+  .tablesGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
   }
 }
 
