@@ -5,6 +5,7 @@ import NewProjectPage from './pages/NewProjectPage';
 import ProjectPage from './pages/ProjectPage';
 import InstructionsPage from './pages/InstructionsPage';
 import AllProjectsPage from './pages/AllProjectsPage';
+import TestPage from './pages/TestPage';
 
 function App() {
     return (<Router>
@@ -15,6 +16,7 @@ function App() {
             <Route path="/project/:id" element={<ProjectPage />} />
             <Route path="/instructions/:type/:id" element={<InstructionsPage />} />
             <Route path="/all-projects" element={<AllProjectsPage />} />
+            <Route path="/test" element={<TestPage />} />
 
             <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
