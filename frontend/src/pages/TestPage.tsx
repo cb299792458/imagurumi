@@ -27,21 +27,43 @@ function useGridGraph() {
     const nodes: Node[] = [];
     const edges: [number, number][] = [];
 
-    const GRID_SIZE = 10
-    for (let i = 0; i < GRID_SIZE; i++) {
-      for (let j = 0; j < GRID_SIZE; j++) {
+    const CIRCUMFERENCE = 12
+    const HEIGHT = 5
+    for (let i = 0; i < CIRCUMFERENCE; i++) {
+      for (let j = 0; j < HEIGHT; j++) {
         nodes.push(new Node());
       }
     }
 
     // connect grid edges
-    for (let i = 0; i < GRID_SIZE; i++) {
-      for (let j = 0; j < GRID_SIZE; j++) {
-        const idx = i * GRID_SIZE + j;
-        if (i > 0) edges.push([idx, (i - 1) * GRID_SIZE  + j]);
-        if (j > 0) edges.push([idx, i * GRID_SIZE + (j - 1)]);
+    for (let i = 0; i < CIRCUMFERENCE; i++) {
+      for (let j = 0; j < HEIGHT; j++) {
+        const idx = i * HEIGHT + j;
+        if (i > 0) edges.push([idx, idx - HEIGHT]);
+        if (j > 0) edges.push([idx, idx - 1]);
       }
     }
+
+    // roll into cylinder
+    for (let i = 0; i < HEIGHT; i++) {
+      const idx1 = i;
+      const idx2 = (HEIGHT) * (CIRCUMFERENCE-1) + i
+      edges.push([idx1, idx2]); // connect first and last in each row
+    }
+
+    // hardcode end
+    for (let i = 0; i < 6; i++) {
+      nodes.push(new Node());
+      const idx1 = nodes.length-1;
+      const idx2 = 2 * HEIGHT * i
+      edges.push([idx1, idx2])
+    }
+
+    for (let i = 0; i < 5; i ++) {
+      edges.push([nodes.length - 6 + i, nodes.length - 6 + i + 1])
+    }
+
+    edges.push([nodes.length - 1, nodes.length - 6])
 
     return { nodes, edges };
   }, []);
@@ -208,7 +230,7 @@ export default function TestPage() {
               <OrbitControls />
               <Simulation nodes={nodes} edges={edges} />
               <NodeSpheres nodes={nodes} />
-              <EdgeLines nodes={nodes} edges={edges} />
+              <EdgeLines nodes={nodes} edges={edges} />/
             </Canvas>
         </div>
   );
