@@ -25,7 +25,16 @@ const Layout = ({ children }: LayoutProps) => {
                             rel="noopener noreferrer"
                             className={styles.footerLink}
                         >
-                            Brian Lam, Jeongwon Lee
+                            Brian Lam
+                        </a>
+                        {" • "}
+                        <a 
+                            href="https://www.linkedin.com/in/jeongwon-lee-245882246/" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className={styles.footerLink}
+                        >
+                            Jeongwon Lee
                         </a>
                     </p>
                 </div>
