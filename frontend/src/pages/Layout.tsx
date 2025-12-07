@@ -25,7 +25,7 @@ const Layout = ({ children }: LayoutProps) => {
                             rel="noopener noreferrer"
                             className={styles.footerLink}
                         >
-                            Brian Lam
+                            Brian Lam, Jeongwon Lee
                         </a>
                     </p>
                 </div>
