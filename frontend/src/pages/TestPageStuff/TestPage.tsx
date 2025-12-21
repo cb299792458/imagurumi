@@ -76,7 +76,7 @@ const createSimpleMeshGraph = () => {
     return { nodes, edges }
 }
 
-const createCrochetSphere = () => {
+const createCrochetSphereGraph = () => {
     /*
         A replication of this pattern:
         const text1 = 
@@ -94,27 +94,6 @@ const createCrochetSphere = () => {
         (1sc,dec)x6 [12]
         (dec)x6 [6]
         !cut-fill-close [0]`
-
-
-        0 156
-        1 157
-        2 159
-        3 160
-        4 162
-        5 163
-        6 165
-        7 166
-        8 168
-        9 169
-        10 171
-        11 172
-        12 174
-        13 175
-        14 177
-        15 178
-        16 192
-        17 179
-
     */
     const ROWS = [6, 12, 18, 24, 24, 24, 24, 24, 24, 18, 12, 6];
 
@@ -188,7 +167,7 @@ const options: Record<
   clear: () => ({ nodes: [], edges: [] }),
   mesh: createSimpleMeshGraph,
   cylinder: createClosedCylinderGraph,
-  sphere: createCrochetSphere,
+  sphere: createCrochetSphereGraph,
 };
 
 export default function TestPage() {
