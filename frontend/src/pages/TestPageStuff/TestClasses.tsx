@@ -14,7 +14,7 @@ export class PhysicsNode {
 export class PhysicsEdge {
     nodeI: number;
     nodeJ: number;
-    restLength: number = 1;
+    restLength: number = 0.1;
 
     constructor(nodeI: number, nodeJ: number) {
         this.nodeI = nodeI; // first node index

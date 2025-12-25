@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 export function NodeSpheres({
     nodes,
-    radius = 0.1,
+    radius = 0.5,
     color = "black",
 }: {
     nodes: PhysicsNode[];
