@@ -5,7 +5,7 @@ import NewProjectPage from './pages/NewProjectPage';
 import ProjectPage from './pages/ProjectPage';
 import InstructionsPage from './pages/InstructionsPage';
 import AllProjectsPage from './pages/AllProjectsPage';
-import TestPage from './pages/TestPage';
+import TestPage from './pages/TestPageStuff/TestPage';
 
 function App() {
     return (<Router>
