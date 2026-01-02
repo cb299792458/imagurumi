@@ -160,27 +160,168 @@ const createCrochetSphereGraph = () => {
     return { nodes, edges }
 }
 
-const options: Record<
-  string,
-  () => { nodes: PhysicsNode[]; edges: PhysicsEdge[] }
-> = {
-  clear: () => ({ nodes: [], edges: [] }),
-  mesh: createSimpleMeshGraph,
-  cylinder: createClosedCylinderGraph,
-  sphere: createCrochetSphereGraph,
-};
+const createTextPatternGraph = (pattern: string): { nodes: PhysicsNode[], edges: PhysicsEdge[] } => {
+    const nodes: PhysicsNode[] = [];
+    const edges: PhysicsEdge[] = [];
+
+    const rows = pattern.trim().split('\n').map(row => row.split(','));
+    const rowNodes: PhysicsNode[][] = [];
+
+    for (let r = 0; r < rows.length; r++) {
+        const prevRow = r > 0 ? rowNodes[r - 1] : null;
+        const currentRow: PhysicsNode[] = [];
+
+        let prevIndex = 0; // running index
+
+        // handling inc & dec
+        for (const stitch of rows[r]) {
+            if (!prevRow) {
+                // first row: just create nodes
+                const node = new PhysicsNode();
+                nodes.push(node);
+                currentRow.push(node);
+                continue;
+            }
+            // throw an error if there is no remaining parent stitch to be connected
+            if (prevIndex >= prevRow.length) {
+                throw new Error(
+                    `Row ${r + 1}: Not enough parent stitches.`
+                );
+            }
+
+            switch (stitch.trim()) {
+                case "sc": {
+                    const node = new PhysicsNode();
+                    nodes.push(node);
+                    currentRow.push(node);
+
+                    const parent = prevRow[prevIndex];
+                    edges.push(new PhysicsEdge(nodes.indexOf(node), nodes.indexOf(parent)));
+
+                    prevIndex += 1;
+                    break;
+                }
+
+                case "inc": {
+                    const node1 = new PhysicsNode();
+                    const node2 = new PhysicsNode();
+                    nodes.push(node1, node2);
+                    currentRow.push(node1, node2);
+
+                    const parent = prevRow[prevIndex];
+
+                    edges.push(new PhysicsEdge(nodes.indexOf(node1), nodes.indexOf(parent)));
+                    edges.push(new PhysicsEdge(nodes.indexOf(node2), nodes.indexOf(parent)));
+
+                    prevIndex += 1;
+                    break;
+                }
+
+                case "dec": {
+                    // throw an error if there aren't at least two parent stitches to be decreased
+                    if (prevIndex + 1 >= prevRow.length) {
+                        throw new Error(
+                            `Row ${r + 1}: Not enough parent stitches.`
+                        );
+                    }
+                    
+                    const node = new PhysicsNode();
+                    nodes.push(node);
+                    currentRow.push(node);
+
+                    const parent1 = prevRow[prevIndex];
+                    const parent2 = prevRow[prevIndex + 1];
+
+                    edges.push(new PhysicsEdge(nodes.indexOf(node), nodes.indexOf(parent1)));
+                    edges.push(new PhysicsEdge(nodes.indexOf(node), nodes.indexOf(parent2)));
+
+                    prevIndex += 2;
+                    break;
+                }
+            }
+        }
+
+        // connect the first and last stitch of a row
+        if (currentRow.length > 1) {
+            const a = nodes.indexOf(currentRow[0]);
+            const b = nodes.indexOf(currentRow[currentRow.length - 1]);
+            edges.push(new PhysicsEdge(a, b));
+        }
+
+        // connect neighbors in same row
+        for (let i = 1; i < currentRow.length; i++) {
+            const a = nodes.indexOf(currentRow[i - 1]);
+            const b = nodes.indexOf(currentRow[i]);
+            edges.push(new PhysicsEdge(a, b));
+        }
+
+        rowNodes.push(currentRow);
+    }
+
+    return { nodes, edges };
+}
+
+
+
+const defaultSpherePattern = `sc,sc,sc,sc,sc,sc
+inc,inc,inc,inc,inc,inc
+sc,inc,sc,inc,sc,inc,sc,inc,sc,inc,sc,inc
+sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
+sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
+sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
+sc,dec,sc,dec,sc,dec,sc,dec,sc,dec,sc,dec
+dec,dec,dec,dec,dec,dec`;
+
 
 export default function TestPage() {
+    const [textInput, setTextInput] = useState(defaultSpherePattern);
     const [demoVersion, setDemoVersion] = useState<string>('clear')
-    const { nodes, edges } = useMemo(() => options[demoVersion](), [demoVersion]);
+    const [patternText, setPatternText] = useState(defaultSpherePattern);
+    const [error, setError] = useState<string | null>(null);
 
+    const options = useMemo<Record<
+        string,
+        () => { nodes: PhysicsNode[]; edges: PhysicsEdge[] }
+    >>(() => ({
+        clear: () => ({ nodes: [], edges: [] }),
+        mesh: createSimpleMeshGraph,
+        cylinder: createClosedCylinderGraph,
+        sphere: createCrochetSphereGraph,
+        pattern: () => createTextPatternGraph(patternText),
+    }), [patternText]);
+
+    const { nodes, edges } = useMemo(() => {
+        try {
+            setError(null);
+            return options[demoVersion]();
+        } catch (e: any) {
+            setError(e.message || "Unknown pattern error");
+            return { nodes: [], edges: [] };
+        }
+    }, [demoVersion, options]);
     return (
         <div className={styles.canvasContainer}>
-            {Object.keys(options).map((key) => {
-                return <button onClick={() => setDemoVersion(key)} key={key}>
-                    {key}
-                </button>
-            })}
+            <div>
+                {Object.keys(options).map((key) => {
+                    return <button onClick={() => setDemoVersion(key)} key={key}>
+                        {key}
+                    </button>
+                })}
+            </div>
+            <div>
+                <textarea
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    rows={15}
+                    cols={30}
+                />
+                <button onClick={() => {setPatternText(textInput); setDemoVersion('pattern')}}>Generate</button>
+                {error && (
+                    <div style={{ color: "red", whiteSpace: "pre-wrap" }}>
+                        {error}
+                    </div>
+                )}
+            </div>
             <div className={styles.canvasControls}>
                 🖱️ Drag to rotate • Scroll to zoom • Right-click to pan
             </div>
