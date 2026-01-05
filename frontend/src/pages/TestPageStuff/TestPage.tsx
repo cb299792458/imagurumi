@@ -175,7 +175,7 @@ const createTextPatternGraph = (pattern: string): { nodes: PhysicsNode[], edges:
 
         // handling inc & dec
         for (const stitch of row) {
-            if (!prevRow) {
+            if (r > 0) {
                 // first row: just create nodes
                 const node = new PhysicsNode();
                 nodes.push(node);
