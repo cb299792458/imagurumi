@@ -167,7 +167,7 @@ const createTextPatternGraph = (pattern: string): { nodes: PhysicsNode[], edges:
     const rows = pattern.trim().split('\n').map(row => row.split(','));
     const rowNodes: PhysicsNode[][] = [];
 
-    for (let r = 0; r < rows.length; r++) {
+    for (const [r, row] of rows.entries()) {
         const prevRow = r > 0 ? rowNodes[r - 1] : null;
         const currentRow: PhysicsNode[] = [];
 
