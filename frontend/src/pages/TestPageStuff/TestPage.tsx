@@ -174,7 +174,7 @@ const createTextPatternGraph = (pattern: string): { nodes: PhysicsNode[], edges:
         let prevIndex = 0; // running index
 
         // handling inc & dec
-        for (const stitch of rows[r]) {
+        for (const stitch of row) {
             if (!prevRow) {
                 // first row: just create nodes
                 const node = new PhysicsNode();
