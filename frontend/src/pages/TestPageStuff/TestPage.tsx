@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import styles from '../../components/ThreeCanvas.module.css';
 import GraphSimulation from "./GraphSimulation";
 import { PhysicsEdge, PhysicsNode } from "./TestClasses";
+import { createParsedGraph } from "../../utilities/parser";
 
 const createClosedCylinderGraph = () => {
     const CIRCUMFERENCE = 12
@@ -160,27 +161,67 @@ const createCrochetSphereGraph = () => {
     return { nodes, edges }
 }
 
-const options: Record<
-  string,
-  () => { nodes: PhysicsNode[]; edges: PhysicsEdge[] }
-> = {
-  clear: () => ({ nodes: [], edges: [] }),
-  mesh: createSimpleMeshGraph,
-  cylinder: createClosedCylinderGraph,
-  sphere: createCrochetSphereGraph,
-};
+
+
+const defaultSpherePattern = `sc,sc,sc,sc,sc,sc
+inc,inc,inc,inc,inc,inc
+sc,inc,sc,inc,sc,inc,sc,inc,sc,inc,sc,inc
+sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
+sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
+sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
+sc,dec,sc,dec,sc,dec,sc,dec,sc,dec,sc,dec
+dec,dec,dec,dec,dec,dec`;
+
 
 export default function TestPage() {
+    const [textInput, setTextInput] = useState(defaultSpherePattern);
     const [demoVersion, setDemoVersion] = useState<string>('clear')
-    const { nodes, edges } = useMemo(() => options[demoVersion](), [demoVersion]);
+    const [patternText, setPatternText] = useState(defaultSpherePattern);
+    const [error, setError] = useState<string | null>(null);
 
+    const options = useMemo<Record<
+        string,
+        () => { nodes: PhysicsNode[]; edges: PhysicsEdge[] }
+    >>(() => ({
+        clear: () => ({ nodes: [], edges: [] }),
+        mesh: createSimpleMeshGraph,
+        cylinder: createClosedCylinderGraph,
+        sphere: createCrochetSphereGraph,
+        pattern: () => createParsedGraph(patternText),
+    }), [patternText]);
+
+    const { nodes, edges } = useMemo(() => {
+        try {
+            setError(null);
+            return options[demoVersion]();
+        } catch (e: any) {
+            setError(e.message || "Unknown pattern error");
+            return { nodes: [], edges: [] };
+        }
+    }, [demoVersion, options]);
     return (
         <div className={styles.canvasContainer}>
-            {Object.keys(options).map((key) => {
-                return <button onClick={() => setDemoVersion(key)} key={key}>
-                    {key}
-                </button>
-            })}
+            <div>
+                {Object.keys(options).map((key) => {
+                    return <button onClick={() => setDemoVersion(key)} key={key}>
+                        {key}
+                    </button>
+                })}
+            </div>
+            <div>
+                <textarea
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    rows={15}
+                    cols={30}
+                />
+                <button onClick={() => {setPatternText(textInput); setDemoVersion('pattern')}}>Generate</button>
+                {error && (
+                    <div style={{ color: "red", whiteSpace: "pre-wrap" }}>
+                        {error}
+                    </div>
+                )}
+            </div>
             <div className={styles.canvasControls}>
                 🖱️ Drag to rotate • Scroll to zoom • Right-click to pan
             </div>
