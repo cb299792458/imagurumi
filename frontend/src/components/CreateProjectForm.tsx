@@ -19,7 +19,15 @@ export const CreateProjectForm = ({ project }: { project: Project }) =>{
             setShowErrors(true);
             return;
         }
-        const projectPatterns = project.map((p) => ({patternId: p.patternId, ...p.transform}));
+        const projectPatterns = project
+            .filter((p) => p.patternId !== undefined && p.transform !== undefined)
+            .map((p) => ({patternId: p.patternId!, ...p.transform}));
+        
+        if (projectPatterns.length === 0) {
+            setShowErrors(true);
+            return;
+        }
+        
         await createProject({ variables: { name, description, userId, projectPatterns }});
         setShowErrors(false);
         setName('');

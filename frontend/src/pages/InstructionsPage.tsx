@@ -13,9 +13,14 @@ const InstructionsPage = () => {
     const [ instructions, setInstructions ] = useState<string[]>([]);
     const [ loadingIndex, setLoadingIndex ] = useState<number>(0);
     const { type, id } = useParams<{ type: string, id: string }>();
+    const projectId = id ? parseInt(id, 10) : null;
+    const isProjectQuery = type === 'project';
     const { loading, error, data } = useQuery(
-        type === 'project' ? GET_PROJECT: GET_PATTERNS,
-        {variables: { id: parseInt(id || '') }}
+        isProjectQuery ? GET_PROJECT : GET_PATTERNS,
+        {
+            variables: isProjectQuery ? { id: projectId } : undefined,
+            skip: isProjectQuery && (!projectId || isNaN(projectId))
+        }
     )
 
     useEffect(() => {

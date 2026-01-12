@@ -35,9 +35,9 @@ export const typeDefs = `#graphql
         deletePattern(id: Int!): Pattern
 
         createProject(
-            name: String!
-            description: String
-            userId: Int!
+            name: String!,
+            description: String,
+            userId: Int!,
             projectPatterns: [ProjectPatternInput!]!
         ): Project
     }

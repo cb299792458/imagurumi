@@ -24,7 +24,11 @@ export const PatternTransformer = ({
                         data-axis={transform}
                         value={project[index]?.transform?.[transform] ?? 0}
                         onChange={(e) => {
-                            const newTransform = { ...project[index].transform, [transform]: parseFloat(e.target.value) };
+                            if (!project[index]) return;
+                            const currentTransform = project[index].transform || {
+                                x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0
+                            };
+                            const newTransform = { ...currentTransform, [transform]: parseFloat(e.target.value) };
                             setProject((prev: Project) => {
                                 const newModels = [...prev];
                                 newModels[index] = { ...newModels[index], transform: newTransform as Transform};

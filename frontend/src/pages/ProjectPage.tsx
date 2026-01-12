@@ -10,7 +10,11 @@ import styles from './ProjectPage.module.css';
 
 const ProjectPage = () => {
     const { id } = useParams<{ id: string }>();
-    const { loading: projectLoading, error: projectError, data: projectData } = useQuery(GET_PROJECT, { variables: {id: parseInt(id || '')} });
+    const projectId = id ? parseInt(id, 10) : null;
+    const { loading: projectLoading, error: projectError, data: projectData } = useQuery(GET_PROJECT, { 
+        variables: { id: projectId },
+        skip: !projectId || isNaN(projectId)
+    });
     const [ project, setProject ] = useState<Project>([]);
 
     // load project data into newProject

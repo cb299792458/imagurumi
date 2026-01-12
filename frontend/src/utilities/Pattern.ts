@@ -16,7 +16,7 @@ export class FlatPattern {
         let height = 0;
         const lines = this.text.split('\n');
         for (const line of lines) {
-            if (['@', '#'].includes(line[0])) continue;
+            if (line.length > 0 && ['@', '#'].includes(line[0])) continue;
             
             const isNumeric = /^\d+$/.test(line);
             if (isNumeric) {
@@ -112,7 +112,7 @@ export class SpiralPattern {
         let height = 0;
         const lines = this.text.split('\n');
         for (const line of lines) {
-            if (['@', '#'].includes(line[0])) continue;
+            if (line.length > 0 && ['@', '#'].includes(line[0])) continue;
             
             const isNumeric = /^\d+$/.test(line);
             if (isNumeric) {
