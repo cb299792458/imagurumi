@@ -1,12 +1,15 @@
 import { useMemo, useRef } from "react";
-import { PhysicsEdge, PhysicsNode } from "./TestClasses";
+import { PhysicsNode } from "./TestClasses";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+const SHADOW_SCALE = 1.05;
+const SPHERE_SCALE = 0.95;
+
 export function NodeSpheres({
     nodes,
-    radius = 0.5,
-    color = "black",
+    radius = 2.5,
+    color = "#b3b3b3",
 }: {
     nodes: PhysicsNode[];
     radius?: number;
@@ -30,48 +33,94 @@ export function NodeSphere({
     radius: number;
     color: string;
 }) {
-    const ref = useRef<THREE.Mesh>(null!);
+    const ref = useRef<THREE.Group>(null!);
 
     useFrame(() => {
         ref.current.position.set(node.x, node.y, node.z);
     });
 
     return (
-        <mesh ref={ref}>
-            <sphereGeometry args={[radius, 16, 16]} />
-            <meshStandardMaterial color={color} />
-        </mesh>
+        <group ref={ref}>
+            {/* Shadow using back half of sphere */}
+            <mesh scale={SHADOW_SCALE}>
+                <sphereGeometry args={[radius, 16, 16]} />
+                <meshStandardMaterial 
+                    color="black"
+                    side={THREE.BackSide}
+                    transparent
+                    opacity={0.3}
+                    roughness={0.8}
+                />
+            </mesh>
+            
+            {/* Main sphere */}
+            <mesh scale={SPHERE_SCALE}>
+                <sphereGeometry args={[radius, 16, 16]} />
+                <meshStandardMaterial 
+                    color={color}
+                    roughness={0.85}
+                    metalness={0.0}
+                />
+            </mesh>
+        </group>
     );
 }
 
 export function EdgeLines({
     nodes,
-    edges,
     color = "gray",
 }: {
     nodes: PhysicsNode[];
-    edges: PhysicsEdge[];
     color?: string;
 }) {
     const ref = useRef<THREE.LineSegments>(null!);
 
+    const edgeCount = useMemo(() => {
+        let count = 0;
+        const nodeIndexMap = new Map<PhysicsNode, number>();
+        nodes.forEach((node, index) => nodeIndexMap.set(node, index));
+        const processed = new Set<string>();
+        for (const n1 of nodes) {
+            for (const n2 of n1.neighbors) {
+                const idx1 = nodeIndexMap.get(n1)!;
+                const idx2 = nodeIndexMap.get(n2)!;
+                const key1 = `${idx1}-${idx2}`;
+                const key2 = `${idx2}-${idx1}`;
+                if (!processed.has(key1) && !processed.has(key2)) {
+                    processed.add(key1);
+                    count++;
+                }
+            }
+        }
+        return count;
+    }, [nodes]);
+
     const positions = useMemo(
-        () => new Float32Array(edges.length * 2 * 3),
-        [edges.length]
+        () => new Float32Array(edgeCount * 2 * 3),
+        [edgeCount]
     );
 
     useFrame(() => {
         let i = 0;
-        for (const e of edges) {
-            const a = nodes[e.nodeI];
-            const b = nodes[e.nodeJ];
+        const nodeIndexMap = new Map<PhysicsNode, number>();
+        nodes.forEach((node, index) => nodeIndexMap.set(node, index));
+        const processed = new Set<string>();
+        for (const n1 of nodes) {
+            for (const n2 of n1.neighbors) {
+                const idx1 = nodeIndexMap.get(n1)!;
+                const idx2 = nodeIndexMap.get(n2)!;
+                const key1 = `${idx1}-${idx2}`;
+                const key2 = `${idx2}-${idx1}`;
+                if (processed.has(key1) || processed.has(key2)) continue;
+                processed.add(key1);
 
-            positions[i++] = a.x;
-            positions[i++] = a.y;
-            positions[i++] = a.z;
-            positions[i++] = b.x;
-            positions[i++] = b.y;
-            positions[i++] = b.z;
+                positions[i++] = n1.x;
+                positions[i++] = n1.y;
+                positions[i++] = n1.z;
+                positions[i++] = n2.x;
+                positions[i++] = n2.y;
+                positions[i++] = n2.z;
+            }
         }
 
         ref.current.geometry.attributes.position.needsUpdate = true;
