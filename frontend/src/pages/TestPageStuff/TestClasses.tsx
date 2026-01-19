@@ -9,15 +9,6 @@ export class PhysicsNode {
     ax = 0;
     ay = 0;
     az = 0;
-}
-
-export class PhysicsEdge {
-    nodeI: number;
-    nodeJ: number;
-    restLength: number = 0.1;
-
-    constructor(nodeI: number, nodeJ: number) {
-        this.nodeI = nodeI; // first node index
-        this.nodeJ = nodeJ; // second node index
-    }
+    neighbors: PhysicsNode[] = [];
+    restLength = 0.1;
 }

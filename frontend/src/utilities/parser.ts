@@ -1,8 +1,12 @@
-import { PhysicsEdge, PhysicsNode } from "../pages/TestPageStuff/TestClasses";
+import { PhysicsNode } from "../pages/TestPageStuff/TestClasses";
 
-export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; edges: PhysicsEdge[] } => {
+function connectNodes(n1: PhysicsNode, n2: PhysicsNode) {
+    if (!n1.neighbors.includes(n2)) n1.neighbors.push(n2);
+    if (!n2.neighbors.includes(n1)) n2.neighbors.push(n1);
+}
+
+export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[] } => {
     const nodes: PhysicsNode[] = [];
-    const edges: PhysicsEdge[] = [];
 
     const rows = pattern.trim().split('\n').map(row => row.split(',').map(s => s.trim()).filter(Boolean));
 
@@ -39,7 +43,7 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; edge
                         const parentIndex = nodesBeforePrevRow + prevIndex;
 
                         nodes.push(new PhysicsNode());
-                        edges.push(new PhysicsEdge(nodeIndex, parentIndex));
+                        connectNodes(nodes[nodeIndex], nodes[parentIndex]);
 
                         prevIndex += 1;
                         break;
@@ -53,8 +57,8 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; edge
 
                         nodes.push(new PhysicsNode(), new PhysicsNode());
 
-                        edges.push(new PhysicsEdge(nodeIndex1, parentIndex));
-                        edges.push(new PhysicsEdge(nodeIndex2, parentIndex));
+                        connectNodes(nodes[nodeIndex1], nodes[parentIndex]);
+                        connectNodes(nodes[nodeIndex2], nodes[parentIndex]);
 
                         prevIndex += 1;
                         break;
@@ -73,8 +77,8 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; edge
 
                         nodes.push(new PhysicsNode());
 
-                        edges.push(new PhysicsEdge(nodeIndex, parentIndex1));
-                        edges.push(new PhysicsEdge(nodeIndex, parentIndex2));
+                        connectNodes(nodes[nodeIndex], nodes[parentIndex1]);
+                        connectNodes(nodes[nodeIndex], nodes[parentIndex2]);
 
                         prevIndex += 2;
                         break;
@@ -100,11 +104,11 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; edge
             const first = currentRowCountStart;
             const last = currentRowCountStart + currentRowCount - 1;
 
-            edges.push(new PhysicsEdge(first, last));
+            connectNodes(nodes[first], nodes[last]);
 
             // connect neighbors in same row
             for (let i = 1; i < currentRowCount; i++) {
-                edges.push(new PhysicsEdge(currentRowCountStart + i - 1, currentRowCountStart + i));
+                connectNodes(nodes[currentRowCountStart + i - 1], nodes[currentRowCountStart + i]);
             }
         }
 
@@ -113,5 +117,5 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; edge
         prevRowCount = currentRowCount;
     }
 
-    return { nodes, edges };
+    return { nodes };
 };

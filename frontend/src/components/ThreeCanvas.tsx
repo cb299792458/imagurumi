@@ -19,14 +19,12 @@ export const ThreeCanvas = ({ project }: { project: Project}) => {
                 shadows
                 gl={{ antialias: true }}
             >
-                Enhanced lighting setup
                 <ambientLight intensity={0.4} />
                 <directionalLight 
                     position={[10, 10, 5]} 
                     intensity={1} 
                     castShadow 
-                    shadow-mapSize-width={2048}
-                    shadow-mapSize-height={2048}
+                    shadow-mapSize={[2048, 2048]}
                 />
                 <pointLight position={[-10, -10, -5]} intensity={0.5} color="#ffffff" />
                 

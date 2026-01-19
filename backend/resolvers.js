@@ -76,7 +76,7 @@ const resolvers = {
             return await context.prisma.projectPattern.findMany({
                 where: { projectId: parent.id },
                 include: { pattern: true },
-            }) || [];
+            });
         }
     },
 
