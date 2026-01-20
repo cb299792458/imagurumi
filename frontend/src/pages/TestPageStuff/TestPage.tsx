@@ -166,14 +166,29 @@ const createCrochetSphereGraph = () => {
 
 
 
-const defaultSpherePattern = `sc,sc,sc,sc,sc,sc
-inc,inc,inc,inc,inc,inc
-sc,inc,sc,inc,sc,inc,sc,inc,sc,inc,sc,inc
-sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
-sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
-sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
-sc,dec,sc,dec,sc,dec,sc,dec,sc,dec,sc,dec
-dec,dec,dec,dec,dec,dec`;
+// const defaultSpherePattern = `sc,sc,sc,sc,sc,sc
+// inc,inc,inc,inc,inc,inc
+// sc,inc,sc,inc,sc,inc,sc,inc,sc,inc,sc,inc
+// sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
+// sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
+// sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc,sc
+// sc,dec,sc,dec,sc,dec,sc,dec,sc,dec,sc,dec
+// dec,dec,dec,dec,dec,dec`;
+
+const defaultSpherePattern = `purple
+(sc) x 6
+(inc) x 6
+(sc, inc) x 6
+
+#eeb2e4
+(sc) x 18
+(sc) x 18
+(sc) x 18
+
+#8ee5fd
+(sc, dec) x 6
+(dec) x 6`;
+
 
 
 export default function TestPage() {

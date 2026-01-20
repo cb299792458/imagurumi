@@ -11,4 +11,10 @@ export class PhysicsNode {
     az = 0;
     neighbors: PhysicsNode[] = [];
     restLength = 0.1;
+
+    color?: string;
+
+    constructor(color?: string) {
+        this.color = color;
+    }
 }
