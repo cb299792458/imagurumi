@@ -198,23 +198,23 @@ export default function TestPage() {
     const [error, setError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-    const options = useMemo<Record<string, () => { nodes: PhysicsNode[]; nodeColors?: string[] }>>(
-        () => ({
-            mesh: () => ({ nodes: createSimpleMeshGraph().nodes }),
-            cylinder: () => ({ nodes: createClosedCylinderGraph().nodes }),
-            sphere: () => ({ nodes: createCrochetSphereGraph().nodes }),
-            pattern: () => createParsedGraph(patternText),
-        }),
-        [patternText]
-    );
+    const options = useMemo<Record<
+        string,
+        () => { nodes: PhysicsNode[] }
+    >>(() => ({
+        mesh: createSimpleMeshGraph,
+        cylinder: createClosedCylinderGraph,
+        sphere: createCrochetSphereGraph,
+        pattern: () => createParsedGraph(patternText),
+    }), [patternText]);
 
-    const { nodes, nodeColors = [] } = useMemo(() => {
+    const { nodes } = useMemo(() => {
         try {
             setError(null);
             return options[demoVersion]();
         } catch (e: any) {
             setError(e.message || "Unknown pattern error");
-            return { nodes: [], nodeColors: [] };
+            return { nodes: [] };
         }
     }, [demoVersion, options]);
 
@@ -300,7 +300,7 @@ export default function TestPage() {
                                 <Canvas camera={{ position: [10, 10, 10] }}>
                                     <ambientLight />
                                     <OrbitControls />
-                                    <GraphSimulation nodes={nodes} nodeColors={nodeColors} />
+                                    <GraphSimulation nodes={nodes} />
                                 </Canvas>
                             </div>
                         </div>

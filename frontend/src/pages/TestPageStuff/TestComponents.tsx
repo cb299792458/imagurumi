@@ -8,17 +8,15 @@ const SPHERE_SCALE = 0.95;
 
 export function NodeSpheres({
     nodes,
-    nodeColors,
     radius = 2.5,
 }: {
     nodes: PhysicsNode[];
-    nodeColors?: string[]; // optional now
     radius?: number;
 }) {
     return (
         <>
             {nodes.map((node, i) => (
-                <NodeSphere key={i} node={node} radius={radius} color={nodeColors?.[i] ?? "#b3b3b3"} /> // default grey color
+                <NodeSphere key={i} node={node} radius={radius} />
             ))}
         </>
     );
@@ -27,11 +25,9 @@ export function NodeSpheres({
 export function NodeSphere({
     node,
     radius,
-    color,
 }: {
     node: PhysicsNode;
     radius: number;
-    color: string;
 }) {
     const ref = useRef<THREE.Group>(null!);
 
@@ -57,7 +53,7 @@ export function NodeSphere({
             <mesh scale={SPHERE_SCALE}>
                 <sphereGeometry args={[radius, 16, 16]} />
                 <meshStandardMaterial 
-                    color={color}
+                    color={node.color ?? "#b3b3b3"}
                     roughness={0.85}
                     metalness={0.0}
                 />

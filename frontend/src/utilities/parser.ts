@@ -45,16 +45,16 @@ function parsePatternLines(pattern: string): ParsedLine[] {
     }
     return result;
 }
-export function createParsedGraph(pattern: string): { nodes: PhysicsNode[]; nodeColors: string[]; } {
+
+export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[] } => {
     const nodes: PhysicsNode[] = [];
-    const nodeColors: string[] = [];
 
     const parsedLines = parsePatternLines(pattern);
+    
+    let currentColor: string | undefined = undefined;
 
     let prevRowCount = 0;
     let nodesBeforePrevRow = 0;
-    let currentColor = "#b3b3b3"; 
-
     let rowCounter = 0;
 
     for (const entry of parsedLines) {
@@ -72,8 +72,7 @@ export function createParsedGraph(pattern: string): { nodes: PhysicsNode[]; node
         // first row: just create nodes
         if (nodes.length === 0) {
             for (let i = 0; i < row.length; i++) {
-                nodes.push(new PhysicsNode());
-                nodeColors.push(currentColor);
+                nodes.push(new PhysicsNode(currentColor));
             }
         } 
         // all other rows
@@ -87,8 +86,7 @@ export function createParsedGraph(pattern: string): { nodes: PhysicsNode[]; node
                         const nodeIndex = nodes.length;
                         const parentIndex = nodesBeforePrevRow + prevIndex;
 
-                        nodes.push(new PhysicsNode());
-                        nodeColors.push(currentColor);
+                        nodes.push(new PhysicsNode(currentColor));
                         connectNodes(nodes[nodeIndex], nodes[parentIndex]);
 
                         prevIndex += 1;
@@ -104,8 +102,7 @@ export function createParsedGraph(pattern: string): { nodes: PhysicsNode[]; node
                         const nodeIndex1 = nodes.length;
                         const nodeIndex2 = nodes.length + 1;
 
-                        nodes.push(new PhysicsNode(), new PhysicsNode());
-                        nodeColors.push(currentColor, currentColor);
+                        nodes.push(new PhysicsNode(currentColor),new PhysicsNode(currentColor));
 
                         connectNodes(nodes[nodeIndex1], nodes[parentIndex]);
                         connectNodes(nodes[nodeIndex2], nodes[parentIndex]);
@@ -122,8 +119,7 @@ export function createParsedGraph(pattern: string): { nodes: PhysicsNode[]; node
                         const parentIndex2 = nodesBeforePrevRow + prevIndex + 1;
                         const nodeIndex = nodes.length;
 
-                        nodes.push(new PhysicsNode());
-                        nodeColors.push(currentColor);
+                        nodes.push(new PhysicsNode(currentColor));
 
                         connectNodes(nodes[nodeIndex], nodes[parentIndex1]);
                         connectNodes(nodes[nodeIndex], nodes[parentIndex2]);
@@ -162,5 +158,5 @@ export function createParsedGraph(pattern: string): { nodes: PhysicsNode[]; node
         prevRowCount = currentRowCount;
     }
 
-    return { nodes, nodeColors };
+    return { nodes };
 }
