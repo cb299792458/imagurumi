@@ -4,14 +4,16 @@ import { useSpringSimulation } from "./useSpringSimulation";
 
 const GraphSimulation = ({
     nodes,
+    nodeColors,
 }: {
     nodes: PhysicsNode[];
+    nodeColors: string[];
 }) => {
     useSpringSimulation({ nodes });
 
     return (
         <>
-            <NodeSpheres nodes={nodes} />
+            <NodeSpheres nodes={nodes} nodeColors={nodeColors} />
             <EdgeLines nodes={nodes} />
         </>
     );

@@ -8,17 +8,17 @@ const SPHERE_SCALE = 0.95;
 
 export function NodeSpheres({
     nodes,
+    nodeColors,
     radius = 2.5,
-    color = "#b3b3b3",
 }: {
     nodes: PhysicsNode[];
+    nodeColors?: string[]; // optional now
     radius?: number;
-    color?: string;
 }) {
     return (
         <>
             {nodes.map((node, i) => (
-                <NodeSphere key={i} node={node} radius={radius} color={color} />
+                <NodeSphere key={i} node={node} radius={radius} color={nodeColors?.[i] ?? "#b3b3b3"} /> // default grey color
             ))}
         </>
     );
