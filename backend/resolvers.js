@@ -1,3 +1,8 @@
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
+
 const resolvers = {
     Query: {
         users: async (_parent, _args, context) => {
@@ -69,8 +74,29 @@ const resolvers = {
                 },
             });
         },
+
+    signup: async (_parent, { email, password, username }, context) => {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await context.prisma.user.create({
+            data: { email, username, password: hashedPassword },
+        });
+
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET);
+        return { token, user };
     },
 
+    login: async (_parent, { email, password }, context) => {
+        const user = await context.prisma.user.findUnique({ where: { email } });
+        if (!user) throw new Error("User not found");
+
+        const valid = await bcrypt.compare(password, user.password);
+        if (!valid) throw new Error("Incorrect password");
+
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET);
+        return { token, user };
+    },
+},
     Project: {
         projectPatterns: async (parent, _args, context) => {
             return await context.prisma.projectPattern.findMany({
@@ -80,6 +106,6 @@ const resolvers = {
         }
     },
 
-    };
+};
 
 export { resolvers };
