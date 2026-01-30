@@ -40,6 +40,17 @@ export const typeDefs = `#graphql
             userId: Int!,
             projectPatterns: [ProjectPatternInput!]!
         ): Project
+
+        signup(
+            email: String!
+            password: String!
+            username: String!
+        ): AuthPayload!
+
+        login(
+            email: String!
+            password: String!
+        ): AuthPayload!
     }
 
     type Pattern {
@@ -81,5 +92,10 @@ export const typeDefs = `#graphql
         username: String!
         patterns: [Pattern!]!
         projects: [Project!]!
+    }
+        
+    type AuthPayload {
+    token: String!
+    user: User!
     }
 `;

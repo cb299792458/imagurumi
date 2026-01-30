@@ -1,7 +1,7 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import styles from './NavBar.module.css';
 
-const NavBarItem = ({ to, name }: { to: string, name: string }) => {
+const NavBarItem = ({ to, name }: { to: string, name: string }) => {    
     const location = useLocation();
     const isActive = location.pathname === to;
     
@@ -18,6 +18,16 @@ const NavBarItem = ({ to, name }: { to: string, name: string }) => {
 }
 
 const NavBar = () => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const handleLogout = () => {
+    const confirmed = window.confirm("Are you sure you want to log out?");
+    if (!confirmed) return;
+
+    localStorage.removeItem("token");
+    navigate("/"); // go back to home after logout
+  };
   return (
     <nav className={styles.navbar}>
       <ul className={styles.navList}>
@@ -25,6 +35,19 @@ const NavBar = () => {
         <NavBarItem to="/pattern" name="Patterns" />
         <NavBarItem to="/all-projects" name="All Projects" />
         <NavBarItem to="/project" name="New Project" />
+        
+        <li className={styles.logLink}>
+          {token ? "Logged in" : "Not logged in"}
+          {token ? (
+            <span onClick={handleLogout} className={styles.navLink}>
+              Logout
+            </span>
+          ) : (
+            <NavLink to="/login" className={styles.navLink}>
+              Login
+            </NavLink>
+          )}
+        </li>
       </ul>
     </nav>
   );

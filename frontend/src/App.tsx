@@ -6,6 +6,8 @@ import ProjectPage from './pages/ProjectPage';
 import InstructionsPage from './pages/InstructionsPage';
 import AllProjectsPage from './pages/AllProjectsPage';
 import TestPage from './pages/TestPageStuff/TestPage';
+import LoginPage from "./pages/LoginPage";
+import SignupPage from './pages/SignupPage';
 
 function App() {
     return (<Router>
@@ -17,6 +19,8 @@ function App() {
             <Route path="/instructions/:type/:id" element={<InstructionsPage />} />
             <Route path="/all-projects" element={<AllProjectsPage />} />
             <Route path="/test" element={<TestPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
 
             <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
