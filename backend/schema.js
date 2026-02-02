@@ -2,6 +2,7 @@ export const typeDefs = `#graphql
     type Query {
         users: [User!]!
         allPatterns: [Pattern]
+        allNewPatterns: [NewPattern]
         allProjects: [Project]
         project(id: Int!): Project
         pattern(id: Int!): Pattern
@@ -15,6 +16,13 @@ export const typeDefs = `#graphql
         rotX: Float!
         rotY: Float!
         rotZ: Float!
+    }
+
+    input PointInput {
+        x: Float!
+        y: Float!
+        z: Float!
+        color: String!
     }
 
     type Mutation {
@@ -40,6 +48,14 @@ export const typeDefs = `#graphql
             userId: Int!,
             projectPatterns: [ProjectPatternInput!]!
         ): Project
+
+        createNewPattern(
+            name: String!,
+            description: String,
+            text: String!,
+            userId: Int!,
+            points: [PointInput!]!
+        ): NewPattern
     }
 
     type Pattern {
@@ -81,5 +97,26 @@ export const typeDefs = `#graphql
         username: String!
         patterns: [Pattern!]!
         projects: [Project!]!
+    }
+
+    type NewPattern {
+        id: Int!
+        name: String!
+        description: String
+        text: String!
+        userId: Int!
+        user: User!
+        points: [Point!]!
+        createdAt: String!
+    }
+
+    type Point {
+        id: Int!
+        x: Float!
+        y: Float!
+        z: Float!
+        color: String!
+        newPatternId: Int!
+        newPattern: NewPattern!
     }
 `;

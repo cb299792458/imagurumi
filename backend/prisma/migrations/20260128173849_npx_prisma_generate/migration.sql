@@ -1,0 +1,1 @@
+-- This migration was created by prisma generate, no schema changes
