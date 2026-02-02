@@ -9,6 +9,13 @@ const resolvers = {
         allProjects: async (_parent, _args, context) => {
             return await context.prisma.project.findMany();
         },
+        allNewPatterns: async (_parent, _args, context) => {
+            return await context.prisma.newPattern.findMany({
+                include: {
+                    points: true,
+                },
+            });
+        },
         pattern: async (_parent, { id }, context) => {
             return await context.prisma.pattern.findUnique({
                 where: { id },
@@ -69,6 +76,29 @@ const resolvers = {
                 },
             });
         },
+        createNewPattern: async (_parent, { name, description, text, userId, points }, context) => {
+            return await context.prisma.newPattern.create({
+                data: {
+                    name,
+                    description,
+                    text,
+                    user: {
+                        connect: { id: userId },
+                    },
+                    points: {
+                        create: points.map(p => ({
+                            x: p.x,
+                            y: p.y,
+                            z: p.z,
+                            color: p.color,
+                        })),
+                    },
+                },
+                include: {
+                    points: true,
+                },
+            });
+        },
     },
 
     Project: {
@@ -77,6 +107,21 @@ const resolvers = {
                 where: { projectId: parent.id },
                 include: { pattern: true },
             });
+        }
+    },
+
+    NewPattern: {
+        createdAt: (parent) => {
+            // Convert Prisma DateTime to ISO string
+            if (parent.createdAt instanceof Date) {
+                return parent.createdAt.toISOString();
+            }
+            // Handle if it's a number (timestamp)
+            if (typeof parent.createdAt === 'number') {
+                return new Date(parent.createdAt).toISOString();
+            }
+            // If it's already a string, return as is
+            return parent.createdAt;
         }
     },
 

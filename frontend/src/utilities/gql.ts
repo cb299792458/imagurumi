@@ -63,3 +63,39 @@ export const CREATE_PROJECT = gql`
         }
     }
 `;
+
+export const CREATE_NEW_PATTERN = gql`
+    mutation CreateNewPattern($name: String!, $description: String, $text: String!, $userId: Int!, $points: [PointInput!]!) {
+        createNewPattern(name: $name, description: $description, text: $text, userId: $userId, points: $points) {
+            id
+            name
+            points {
+                id
+                x
+                y
+                z
+                color
+            }
+        }
+    }
+`;
+
+export const GET_NEW_PATTERNS = gql`
+    query GetNewPatterns {
+        allNewPatterns {
+            id
+            name
+            description
+            text
+            userId
+            createdAt
+            points {
+                id
+                x
+                y
+                z
+                color
+            }
+        }
+    }
+`;

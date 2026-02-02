@@ -5,13 +5,17 @@ import NewProjectPage from './pages/NewProjectPage';
 import ProjectPage from './pages/ProjectPage';
 import InstructionsPage from './pages/InstructionsPage';
 import AllProjectsPage from './pages/AllProjectsPage';
+import AllNewPatternsPage from './pages/AllNewPatternsPage';
 import TestPage from './pages/TestPageStuff/TestPage';
+import NewPatternPage from './pages/NewPatternPage';
 
 function App() {
     return (<Router>
         <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/pattern" element={<PatternPage />} />
+            <Route path="/new-pattern" element={<NewPatternPage />} />
+            <Route path="/all-new-patterns" element={<AllNewPatternsPage />} />
             <Route path="/project" element={<NewProjectPage />} />
             <Route path="/project/:id" element={<ProjectPage />} />
             <Route path="/instructions/:type/:id" element={<InstructionsPage />} />
