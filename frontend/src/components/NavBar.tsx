@@ -19,13 +19,13 @@ const NavBarItem = ({ to, name }: { to: string, name: string }) => {
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("imagurumiToken");
 
   const handleLogout = () => {
     const confirmed = window.confirm("Are you sure you want to log out?");
     if (!confirmed) return;
 
-    localStorage.removeItem("token");
+    localStorage.removeItem("imagurumiToken");
     navigate("/"); // go back to home after logout
   };
   return (

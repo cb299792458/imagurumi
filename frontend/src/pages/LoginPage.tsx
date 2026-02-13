@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Layout from "./Layout";
 import styles from "./LoginPage.module.css";
@@ -8,11 +8,23 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const BACKEND_URL = import.meta.env.VITE_GRAPHQL_BACKEND_URL;
+
+    // Redirect if already logged in
+    useEffect(() => {
+        const token = localStorage.getItem("imagurumiToken");
+        if (token) {
+            navigate("/");
+        }
+    }, [navigate]);
+
 
     const handleLogin = async () => {
+        setLoading(true);
         setError("");
         try {
-        const response = await fetch("http://localhost:4000", {
+        const response = await fetch(BACKEND_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -33,11 +45,14 @@ export default function LoginPage() {
         if (result.errors) {
             throw new Error(result.errors[0].message);
         }
-        localStorage.setItem("token", result.data.login.token);
+        localStorage.setItem("imagurumiToken", result.data.login.token);
         navigate("/");
         } catch (err:any) {
         setError(err.message || "Login failed");
         console.error(err);
+        }
+        finally {
+            setLoading(false);
         }
     };
 
@@ -61,7 +76,9 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
             />
 
-            <button onClick={handleLogin}>Login</button>
+            <button onClick={handleLogin} disabled={loading}>
+                {loading ? 'Logging in...' : 'Login'}
+            </button>
             <div className={styles.signupRow}>
                 <span>Not a user?</span>
                 <NavLink to="/signup" className={styles.signupLink}>

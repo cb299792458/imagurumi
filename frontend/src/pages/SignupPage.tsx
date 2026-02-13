@@ -10,6 +10,8 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const BACKEND_URL = import.meta.env.VITE_GRAPHQL_BACKEND_URL;
+
 
   const handleSignup = async () => {
     setError("");
@@ -21,7 +23,7 @@ export default function SignupPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:4000", {
+      const response = await fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -43,8 +45,8 @@ export default function SignupPage() {
         throw new Error(result.errors[0].message);
       }
 
-      const token = result.data.signup.token;
-      localStorage.setItem("token", token);
+      const token = result.data.signup.imagurumiToken;
+      localStorage.setItem("imagurumiToken", token);
       setSuccess(true);
 
       setTimeout(() => {
