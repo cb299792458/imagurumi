@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Layout from "./Layout";
 import styles from "./LoginPage.module.css";
@@ -12,8 +12,14 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-
     const [login] = useMutation(LOGIN);
+
+    useEffect(() => {
+        const token = localStorage.getItem("imagurumiToken");
+        if (token) {
+            navigate("/");
+        }
+    }, [navigate]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
