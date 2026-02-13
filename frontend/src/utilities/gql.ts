@@ -63,3 +63,21 @@ export const CREATE_PROJECT = gql`
         }
     }
 `;
+
+export const LOGIN = gql`
+    mutation Login($email: String!, $password: String!) {
+        login(email: $email, password: $password) {
+            token
+            user { id email username }
+        }
+    }
+`;
+
+export const SIGNUP = gql`
+    mutation Signup($username: String!, $email: String!, $password: String!) {
+        signup(username: $username, email: $email, password: $password) {
+            token
+            user { id username email }
+        }
+    }
+`;
