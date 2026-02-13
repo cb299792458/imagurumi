@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "./Layout";
 import styles from "./SignupPage.module.css";
+import { SIGNUP } from "../utilities/gql";
+import { useMutation } from "@apollo/client";
 
 export default function SignupPage() {
   const [username, setUsername] = useState("");
@@ -10,51 +12,21 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
-  const BACKEND_URL = import.meta.env.VITE_GRAPHQL_BACKEND_URL;
 
+  const [signup, { loading }] = useMutation(SIGNUP);
 
-  const handleSignup = async () => {
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError("");
     setSuccess(false);
 
-    if (!username || !email || !password) {
-      setError("Please fill in all fields.");
-      return;
-    }
-
     try {
-      const response = await fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: `
-            mutation Signup($username: String!, $email: String!, $password: String!) {
-              signup(username: $username, email: $email, password: $password) {
-                token
-                user { id username email }
-              }
-            }
-          `,
-          variables: { username, email, password },
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.errors) {
-        throw new Error(result.errors[0].message);
-      }
-
-      const token = result.data.signup.imagurumiToken;
-      localStorage.setItem("imagurumiToken", token);
+      const { data } = await signup({ variables: { username, email, password } });
+      localStorage.setItem("imagurumiToken", data.signup.token);
       setSuccess(true);
-
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
+      setTimeout(() => navigate("/"), 1000);
     } catch (err: any) {
       setError(err.message || "Signup failed");
-      console.error(err);
     }
   };
 
@@ -64,28 +36,36 @@ export default function SignupPage() {
         <div className={styles.authForm}>
           <h2>Sign Up</h2>
 
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          <form onSubmit={handleSignup} className={styles.formContainer}>
+            <div className={styles.inputs}>
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+            <button type="submit" disabled={loading} className={styles.submitBtn}>
+              {loading ? "Signing up..." : "Sign Up"}
+            </button>
+          </form>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <button onClick={handleSignup}>Sign Up</button>
 
           {error && <p className={styles.error}>{error}</p>}
           {success && <p className={styles.success}>Signed up successfully! Redirecting...</p>}
