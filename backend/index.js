@@ -3,6 +3,9 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import { typeDefs } from './schema.js';
 import { resolvers } from './resolvers.js';
 import { PrismaClient } from '@prisma/client';
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
 const prisma = new PrismaClient();
 
@@ -14,9 +17,24 @@ const server = new ApolloServer({
 
 // Start the server
 const { url } = await startStandaloneServer(server, {
-  context: async () => ({
-    prisma
-  }),
+  context: async ({ req }) => {
+    const authHeader = req.headers.authorization || "";
+    let user = null;
+
+    if (authHeader.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "");
+      try {
+        user = jwt.verify(token, process.env.JWT_SECRET);
+      } catch (err) {
+        console.log("Invalid token");
+      }
+    }
+
+    return {
+      prisma,
+      user,
+    };
+  },
   listen: { port: 4000 },
 });
 
