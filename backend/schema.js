@@ -2,9 +2,22 @@ export const typeDefs = `#graphql
     type Query {
         users: [User!]!
         allPatterns: [Pattern]
+        allNewPatterns: [NewPattern]
         allProjects: [Project]
+        allNewProjects: [NewProject]
         project(id: Int!): Project
+        newProject(id: Int!): NewProject
         pattern(id: Int!): Pattern
+    }
+
+    input NewProjectPatternInput {
+        newPatternId: Int!
+        x: Float!
+        y: Float!
+        z: Float!
+        rotX: Float!
+        rotY: Float!
+        rotZ: Float!
     }
 
     input ProjectPatternInput {
@@ -15,6 +28,13 @@ export const typeDefs = `#graphql
         rotX: Float!
         rotY: Float!
         rotZ: Float!
+    }
+
+    input PointInput {
+        x: Float!
+        y: Float!
+        z: Float!
+        color: String!
     }
 
     type Mutation {
@@ -41,6 +61,13 @@ export const typeDefs = `#graphql
             projectPatterns: [ProjectPatternInput!]!
         ): Project
 
+        createNewProject(
+            name: String!,
+            description: String,
+            userId: Int!,
+            newProjectPatterns: [NewProjectPatternInput!]!
+        ): NewProject
+
         signup(
             email: String!
             password: String!
@@ -51,6 +78,14 @@ export const typeDefs = `#graphql
             email: String!
             password: String!
         ): AuthPayload!
+
+        createNewPattern(
+            name: String!,
+            description: String,
+            text: String!,
+            userId: Int!,
+            points: [PointInput!]!
+        ): NewPattern
     }
 
     type Pattern {
@@ -70,6 +105,28 @@ export const typeDefs = `#graphql
         description: String
         userId: Int!
         projectPatterns: [ProjectPattern!]!
+    }
+
+    type NewProject {
+        id: Int!
+        name: String!
+        description: String
+        userId: Int!
+        newProjectPatterns: [NewProjectPattern!]!
+    }
+
+    type NewProjectPattern {
+        id: Int!
+        newProjectId: Int!
+        newPatternId: Int!
+        newProject: NewProject!
+        newPattern: NewPattern!
+        x: Float!
+        y: Float!
+        z: Float!
+        rotX: Float!
+        rotY: Float!
+        rotZ: Float!
     }
 
     type ProjectPattern {
@@ -92,10 +149,32 @@ export const typeDefs = `#graphql
         username: String!
         patterns: [Pattern!]!
         projects: [Project!]!
+        newProjects: [NewProject!]!
     }
-        
+
     type AuthPayload {
         token: String!
         user: User!
+    }
+
+    type NewPattern {
+        id: Int!
+        name: String!
+        description: String
+        text: String!
+        userId: Int!
+        user: User!
+        points: [Point!]!
+        createdAt: String!
+    }
+
+    type Point {
+        id: Int!
+        x: Float!
+        y: Float!
+        z: Float!
+        color: String!
+        newPatternId: Int!
+        newPattern: NewPattern!
     }
 `;

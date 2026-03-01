@@ -6,7 +6,7 @@ const HomePage = () => {
         <Layout>
             <div className={styles.hero}>
                 <div className={styles.heroContent}>
-                    <h1 className={styles.heroTitle}>Welcome to VisuWOOLizer</h1>
+                    <h1 className={styles.heroTitle}>Welcome to Imagurumi</h1>
                     <p className={styles.heroSubtitle}>
                         Transform your yarn crafting patterns into stunning 3D visualizations. 
                         See your amigurumi come to life before you even pick up your hook.

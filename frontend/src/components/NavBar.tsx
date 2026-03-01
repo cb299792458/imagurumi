@@ -34,7 +34,9 @@ const NavBar = () => {
         <NavBarItem to="/" name="Home" />
         <NavBarItem to="/pattern" name="Patterns" />
         <NavBarItem to="/all-projects" name="All Projects" />
+        <NavBarItem to="/all-new-projects" name="All New Projects" />
         <NavBarItem to="/project" name="New Project" />
+        <NavBarItem to="/new-pattern-project" name="New Pattern Project" />
         
         <li className={styles.logLink}>
           {token ? "Logged in" : "Not logged in"}

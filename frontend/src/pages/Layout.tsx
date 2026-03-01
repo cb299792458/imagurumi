@@ -16,7 +16,7 @@ const Layout = ({ children }: LayoutProps) => {
             <footer className={styles.footer}>
                 <div className={styles.footerContent}>
                     <div className={styles.footerBadge}>
-                        🧶 VisuWOOLizer
+                        🧶 Imagurumi
                     </div>
                     <p className={styles.footerText}>
                         © 2025 <a 
