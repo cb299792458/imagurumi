@@ -117,3 +117,52 @@ export const GET_NEW_PATTERNS = gql`
         }
     }
 `;
+
+export const GET_NEW_PROJECTS = gql`
+    query GetNewProjects {
+        allNewProjects {
+            id
+            name
+            description
+        }
+    }
+`;
+
+export const GET_NEW_PROJECT = gql`
+    query GetNewProject($id: Int!) {
+        newProject(id: $id) {
+            id
+            name
+            description
+            newProjectPatterns {
+                id
+                x
+                y
+                z
+                rotX
+                rotY
+                rotZ
+                newPattern {
+                    id
+                    name
+                    points {
+                        id
+                        x
+                        y
+                        z
+                        color
+                    }
+                }
+            }
+        }
+    }
+`;
+
+export const CREATE_NEW_PROJECT = gql`
+    mutation CreateNewProject($name: String!, $description: String, $userId: Int!, $newProjectPatterns: [NewProjectPatternInput!]!) {
+        createNewProject(name: $name, description: $description, userId: $userId, newProjectPatterns: $newProjectPatterns) {
+            id
+            name
+        }
+    }
+`;

@@ -10,6 +10,9 @@ import TestPage from './pages/TestPageStuff/TestPage';
 import LoginPage from "./pages/LoginPage";
 import SignupPage from './pages/SignupPage';
 import NewPatternPage from './pages/NewPatternPage';
+import NewPatternProjectPage from './pages/NewPatternProjectPage';
+import AllNewProjectsPage from './pages/AllNewProjectsPage';
+import NewProjectDetailPage from './pages/NewProjectDetailPage';
 
 function App() {
     return (<Router>
@@ -17,7 +20,10 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/pattern" element={<PatternPage />} />
             <Route path="/new-pattern" element={<NewPatternPage />} />
+            <Route path="/new-pattern-project" element={<NewPatternProjectPage />} />
             <Route path="/all-new-patterns" element={<AllNewPatternsPage />} />
+            <Route path="/all-new-projects" element={<AllNewProjectsPage />} />
+            <Route path="/new-project/:id" element={<NewProjectDetailPage />} />
             <Route path="/project" element={<NewProjectPage />} />
             <Route path="/project/:id" element={<ProjectPage />} />
             <Route path="/instructions/:type/:id" element={<InstructionsPage />} />

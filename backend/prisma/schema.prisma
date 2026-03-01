@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id          Int          @id @default(autoincrement())
-  email       String       @unique
-  username    String       @unique
-  password    String
-  patterns    Pattern[]
-  newPatterns NewPattern[]
-  projects    Project[]
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  username       String          @unique
+  password       String
+  patterns       Pattern[]
+  newPatterns    NewPattern[]
+  projects       Project[]
+  newProjects    NewProject[]
 }
 
 model Pattern {
@@ -53,14 +54,39 @@ model ProjectPattern {
 }
 
 model NewPattern {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  text        String   @db.Text
-  user        User     @relation(fields: [userId], references: [id])
-  userId      Int
-  points      Point[]
-  createdAt   DateTime @default(now())
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  description         String?
+  text                String               @db.Text
+  user                User                 @relation(fields: [userId], references: [id])
+  userId              Int
+  points              Point[]
+  newProjectPatterns  NewProjectPattern[]
+  createdAt           DateTime             @default(now())
+}
+
+model NewProject {
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  description         String?
+  userId              Int
+  createdAt           DateTime             @default(now())
+  user                User                 @relation(fields: [userId], references: [id])
+  newProjectPatterns  NewProjectPattern[]
+}
+
+model NewProjectPattern {
+  id           Int        @id @default(autoincrement())
+  newProjectId Int
+  newPatternId Int
+  rotX         Float
+  rotY         Float
+  rotZ         Float
+  x            Float
+  y            Float
+  z            Float
+  newProject   NewProject @relation(fields: [newProjectId], references: [id])
+  newPattern   NewPattern @relation(fields: [newPatternId], references: [id])
 }
 
 model Point {

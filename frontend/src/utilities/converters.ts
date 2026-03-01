@@ -1,4 +1,4 @@
-import { PatternRecord, Project, ProjectPatternRecord, ProjectRecord, ColoredPoints } from "./types";
+import { PatternRecord, Project, ProjectPatternRecord, ProjectRecord, ColoredPoints, Transform } from "./types";
 import { Pattern, FlatPattern, SpiralPattern } from "./Pattern";
 import { PhysicsNode } from "../pages/TestPageStuff/TestClasses";
 
@@ -65,6 +65,48 @@ export const textToPatternInstance = (text: string): Pattern => {
 
     return patternInstance;
 }
+
+const defaultTransform: Transform = { x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0 };
+
+/**
+ * Convert a NewProject from the API (with newProjectPatterns and newPattern.points) to Project for ThreeCanvas.
+ */
+export const newProjectRecordToProject = (newProject: {
+    newProjectPatterns: Array<{
+        x: number;
+        y: number;
+        z: number;
+        rotX: number;
+        rotY: number;
+        rotZ: number;
+        newPattern: { points: Array<{ x: number; y: number; z: number; color: string }> };
+    }>;
+}): Project => {
+    return newProject.newProjectPatterns.map((npp) => ({
+        patternPoints: pointsToColoredPoints(npp.newPattern.points),
+        transform: {
+            x: npp.x,
+            y: npp.y,
+            z: npp.z,
+            rotX: npp.rotX,
+            rotY: npp.rotY,
+            rotZ: npp.rotZ,
+        },
+    }));
+};
+
+/**
+ * Build a Project (for ThreeCanvas) from an array of NewPatterns, preserving transforms by index.
+ */
+export const newPatternsToProject = (
+    prev: Project,
+    newPatterns: Array<{ id: number; points: Array<{ x: number; y: number; z: number; color: string }> }>
+): Project => {
+    return newPatterns.map((np, i) => ({
+        patternPoints: pointsToColoredPoints(np.points),
+        transform: prev[i]?.transform ?? defaultTransform,
+    }));
+};
 
 /**
  * Convert PhysicsNode array to ColoredPoints format

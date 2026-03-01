@@ -31,6 +31,15 @@ const resolvers = {
                 where: { id },
             });
         },
+        allNewProjects: async (_parent, _args, context) => {
+            return await context.prisma.newProject.findMany();
+        },
+        newProject: async (_parent, { id }, context) => {
+            return await context.prisma.newProject.findUnique({
+                where: { id },
+                include: { newProjectPatterns: { include: { newPattern: { include: { points: true } } } } },
+            });
+        },
     },
 
     Mutation: {
@@ -70,6 +79,28 @@ const resolvers = {
                     projectPatterns: {
                         create: projectPatterns.map(pp => ({
                             pattern: { connect: { id: pp.patternId } },
+                            x: pp.x,
+                            y: pp.y,
+                            z: pp.z,
+                            rotX: pp.rotX,
+                            rotY: pp.rotY,
+                            rotZ: pp.rotZ,
+                        })),
+                    },
+                },
+            });
+        },
+        createNewProject: async (_parent, { name, description, userId, newProjectPatterns }, context) => {
+            return await context.prisma.newProject.create({
+                data: {
+                    name,
+                    description,
+                    user: {
+                        connect: { id: userId },
+                    },
+                    newProjectPatterns: {
+                        create: newProjectPatterns.map(pp => ({
+                            newPattern: { connect: { id: pp.newPatternId } },
                             x: pp.x,
                             y: pp.y,
                             z: pp.z,
@@ -130,6 +161,14 @@ const resolvers = {
             return await context.prisma.projectPattern.findMany({
                 where: { projectId: parent.id },
                 include: { pattern: true },
+            });
+        }
+    },
+    NewProject: {
+        newProjectPatterns: async (parent, _args, context) => {
+            return await context.prisma.newProjectPattern.findMany({
+                where: { newProjectId: parent.id },
+                include: { newPattern: { include: { points: true } } },
             });
         }
     },
