@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_NEW_PATTERNS } from "../utilities/gql";
+import { GET_PATTERNS_WITH_POINTS } from "../utilities/gql";
 import { Project } from "../utilities/types";
 import { ThreeCanvas } from "../components/ThreeCanvas";
 import { PatternTransformer } from "../components/PatternTransformer";
-import { CreateNewProjectForm } from "../components/CreateNewProjectForm";
+import { CreateProjectForm } from "../components/CreateProjectForm";
 import Layout from "./Layout";
-import { newPatternsToProject } from "../utilities/converters";
-import styles from "./NewProjectPage.module.css";
+import { patternsToProject } from "../utilities/converters";
+import styles from "./PatternProjectPage.module.css";
 
-interface NewPatternFromApi {
+interface PatternFromApi {
     id: number;
     name: string;
     description: string | null;
@@ -19,32 +19,32 @@ interface NewPatternFromApi {
     points: Array<{ id: number; x: number; y: number; z: number; color: string }>;
 }
 
-const NewPatternProjectPage = () => {
-    const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_NEW_PATTERNS);
-    const [newPatterns, setNewPatterns] = useState<NewPatternFromApi[]>([]);
+const PatternProjectPage = () => {
+    const { loading: patternLoading, error: patternError, data: patternData } = useQuery(GET_PATTERNS_WITH_POINTS);
+    const [selectedPatterns, setSelectedPatterns] = useState<PatternFromApi[]>([]);
     const [project, setProject] = useState<Project>([]);
     const [selectedPatternIndex, setSelectedPatternIndex] = useState<number>(-1);
     const [showProTip, setShowProTip] = useState<boolean>(true);
 
     useEffect(() => {
-        setProject((prev) => newPatternsToProject(prev, newPatterns));
-    }, [newPatterns]);
+        setProject((prev) => patternsToProject(prev, selectedPatterns));
+    }, [selectedPatterns]);
 
     return (
         <Layout>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h1 className={styles.title}>Create a New Pattern Project</h1>
+                    <h1 className={styles.title}>Create Project</h1>
                     <p className={styles.subtitle}>
-                        Build 3D projects by combining and transforming your saved new patterns
+                        Build 3D projects by combining and transforming your saved patterns
                     </p>
                 </div>
 
                 <div className={styles.tablesGrid}>
                     <section className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Add New Patterns</h2>
+                        <h2 className={styles.sectionTitle}>Add Patterns</h2>
                         <p className={styles.sectionDescription}>
-                            Choose new patterns from the list below to add to your project.
+                            Choose patterns from the list below to add to your project.
                         </p>
                         <div className={styles.tableScroll}>
                             <table className={styles.patternsTable}>
@@ -71,14 +71,14 @@ const NewPatternProjectPage = () => {
                                             </td>
                                         </tr>
                                     )}
-                                    {patternData?.allNewPatterns.map((pattern: NewPatternFromApi) => (
+                                    {patternData?.allPatterns.map((pattern: PatternFromApi) => (
                                         <tr key={pattern.id}>
                                             <td>{pattern.id}</td>
                                             <td>{pattern.name}</td>
                                             <td>{pattern.description ?? ""}</td>
                                             <td>
                                                 <button
-                                                    onClick={() => setNewPatterns([...newPatterns, pattern])}
+                                                    onClick={() => setSelectedPatterns([...selectedPatterns, pattern])}
                                                     className={styles.addPatternButton}
                                                 >
                                                     Add to Project
@@ -118,7 +118,7 @@ const NewPatternProjectPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {newPatterns.map((pattern: NewPatternFromApi, index: number) => (
+                                    {selectedPatterns.map((pattern: PatternFromApi, index: number) => (
                                         <tr
                                             key={index}
                                             className={selectedPatternIndex === index ? styles.selected : ""}
@@ -132,7 +132,7 @@ const NewPatternProjectPage = () => {
                                             <td>
                                                 <button
                                                     onClick={(e) => {
-                                                        setNewPatterns(newPatterns.filter((_, i) => i !== index));
+                                                        setSelectedPatterns(selectedPatterns.filter((_, i) => i !== index));
                                                         setSelectedPatternIndex(-1);
                                                         e.stopPropagation();
                                                     }}
@@ -155,15 +155,15 @@ const NewPatternProjectPage = () => {
                             <ThreeCanvas project={project} />
                         ) : (
                             <div className={styles.canvasPlaceholder}>
-                                Add some new patterns to your project to see the 3D preview
+                                Add some patterns to your project to see the 3D preview
                             </div>
                         )}
                     </div>
-                    <CreateNewProjectForm project={project} newPatternIds={newPatterns.map((np) => np.id)} />
+                    <CreateProjectForm project={project} patternIds={selectedPatterns.map((p) => p.id)} />
                 </div>
             </div>
         </Layout>
     );
 };
 
-export default NewPatternProjectPage;
+export default PatternProjectPage;

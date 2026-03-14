@@ -73,7 +73,7 @@ const HomePage = () => {
                             <li className={styles.howToItem}>
                                 <div className={styles.stepNumber}>4</div>
                                 <p className={styles.stepText}>
-                                    <strong>Build Your Project:</strong> Go to the New Project Page and add each pattern to your project. 
+                                    <strong>Build Your Project:</strong> Go to Create Project and add each pattern to your project. 
                                     Transform them until they look just right
                                 </p>
                             </li>

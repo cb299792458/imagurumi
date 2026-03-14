@@ -8,36 +8,36 @@ const resolvers = {
         users: async (_parent, _args, context) => {
             return await context.prisma.user.findMany();
         },
-        allNewPatterns: async (_parent, _args, context) => {
-            return await context.prisma.newPattern.findMany({
+        allPatterns: async (_parent, _args, context) => {
+            return await context.prisma.pattern.findMany({
                 include: {
                     points: true,
                 },
             });
         },
-        allNewProjects: async (_parent, _args, context) => {
-            return await context.prisma.newProject.findMany();
+        allProjects: async (_parent, _args, context) => {
+            return await context.prisma.project.findMany();
         },
-        newProject: async (_parent, { id }, context) => {
-            return await context.prisma.newProject.findUnique({
+        project: async (_parent, { id }, context) => {
+            return await context.prisma.project.findUnique({
                 where: { id },
-                include: { newProjectPatterns: { include: { newPattern: { include: { points: true } } } } },
+                include: { projectPatterns: { include: { pattern: { include: { points: true } } } } },
             });
         },
     },
 
     Mutation: {
-        createNewProject: async (_parent, { name, description, userId, newProjectPatterns }, context) => {
-            return await context.prisma.newProject.create({
+        createProject: async (_parent, { name, description, userId, projectPatterns }, context) => {
+            return await context.prisma.project.create({
                 data: {
                     name,
                     description,
                     user: {
                         connect: { id: userId },
                     },
-                    newProjectPatterns: {
-                        create: newProjectPatterns.map(pp => ({
-                            newPattern: { connect: { id: pp.newPatternId } },
+                    projectPatterns: {
+                        create: projectPatterns.map(pp => ({
+                            pattern: { connect: { id: pp.patternId } },
                             x: pp.x,
                             y: pp.y,
                             z: pp.z,
@@ -59,8 +59,8 @@ const resolvers = {
             const token = jwt.sign({ userId: user.id }, JWT_SECRET);
             return { token, user };
         },
-        createNewPattern: async (_parent, { name, description, text, userId, points }, context) => {
-            return await context.prisma.newPattern.create({
+        createPattern: async (_parent, { name, description, text, userId, points }, context) => {
+            return await context.prisma.pattern.create({
                 data: {
                     name,
                     description,
@@ -93,16 +93,16 @@ const resolvers = {
             return { token, user };
         },
     },
-    NewProject: {
-        newProjectPatterns: async (parent, _args, context) => {
-            return await context.prisma.newProjectPattern.findMany({
-                where: { newProjectId: parent.id },
-                include: { newPattern: { include: { points: true } } },
+    Project: {
+        projectPatterns: async (parent, _args, context) => {
+            return await context.prisma.projectPattern.findMany({
+                where: { projectId: parent.id },
+                include: { pattern: { include: { points: true } } },
             });
         }
     },
 
-    NewPattern: {
+    Pattern: {
         createdAt: (parent) => {
             // Convert Prisma DateTime to ISO string
             if (parent.createdAt instanceof Date) {

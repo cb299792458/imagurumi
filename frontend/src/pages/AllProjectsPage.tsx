@@ -1,27 +1,27 @@
 import { useQuery } from '@apollo/client';
-import { GET_NEW_PROJECTS } from '../utilities/gql';
+import { GET_PROJECTS_LIST } from '../utilities/gql';
 import Layout from './Layout';
 import styles from './AllProjectsPage.module.css';
 
-const AllNewProjectsPage = () => {
-    const { loading, error, data } = useQuery(GET_NEW_PROJECTS);
+const AllProjectsPage = () => {
+    const { loading, error, data } = useQuery(GET_PROJECTS_LIST);
 
     return (
         <Layout>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h1 className={styles.title}>All New Projects</h1>
+                    <h1 className={styles.title}>Projects</h1>
                     <p className={styles.subtitle}>
-                        Browse and manage all your new-pattern 3D projects
+                        Browse and manage your 3D projects
                     </p>
                 </div>
 
-                {data?.allNewProjects && data.allNewProjects.length === 0 ? (
+                {data?.allProjects && data.allProjects.length === 0 ? (
                     <div className={styles.emptyState}>
                         <div className={styles.emptyStateIcon}>🧶</div>
-                        <h2 className={styles.emptyStateTitle}>No New Projects Yet</h2>
+                        <h2 className={styles.emptyStateTitle}>No Projects Yet</h2>
                         <p className={styles.emptyStateText}>
-                            Create your first new-pattern project to get started!
+                            Create your first project to get started!
                         </p>
                     </div>
                 ) : (
@@ -49,7 +49,7 @@ const AllNewProjectsPage = () => {
                                     </td>
                                 </tr>
                             )}
-                            {data?.allNewProjects.map((project: { id: string; name: string; description: string | null }) => (
+                            {data?.allProjects.map((project: { id: string; name: string; description: string | null }) => (
                                 <tr key={project.id}>
                                     <td>{project.id}</td>
                                     <td>{project.name}</td>
@@ -57,7 +57,7 @@ const AllNewProjectsPage = () => {
                                     <td>
                                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                             <a
-                                                href={`/new-project/${project.id}`}
+                                                href={`/project/${project.id}`}
                                                 className={styles.viewProjectLink}
                                             >
                                                 View Project
@@ -74,4 +74,4 @@ const AllNewProjectsPage = () => {
     );
 };
 
-export default AllNewProjectsPage;
+export default AllProjectsPage;

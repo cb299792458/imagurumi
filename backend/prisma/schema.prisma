@@ -8,56 +8,56 @@ datasource db {
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  email          String          @unique
-  username       String          @unique
-  password       String
-  newPatterns    NewPattern[]
-  newProjects    NewProject[]
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  username  String    @unique
+  password  String
+  patterns  Pattern[] @relation("UserPatterns")
+  projects  Project[] @relation("UserProjects")
 }
 
-model NewPattern {
-  id                  Int                  @id @default(autoincrement())
-  name                String
-  description         String?
-  text                String               @db.Text
-  user                User                 @relation(fields: [userId], references: [id])
-  userId              Int
-  points              Point[]
-  newProjectPatterns  NewProjectPattern[]
-  createdAt           DateTime             @default(now())
+model Pattern {
+  id                Int              @id @default(autoincrement())
+  name              String
+  description       String?
+  text              String           @db.Text
+  user              User             @relation("UserPatterns", fields: [userId], references: [id])
+  userId            Int
+  points            Point[]
+  projectPatterns   ProjectPattern[]
+  createdAt         DateTime         @default(now())
 }
 
-model NewProject {
-  id                  Int                  @id @default(autoincrement())
-  name                String
-  description         String?
-  userId              Int
-  createdAt           DateTime             @default(now())
-  user                User                 @relation(fields: [userId], references: [id])
-  newProjectPatterns  NewProjectPattern[]
+model Project {
+  id                Int              @id @default(autoincrement())
+  name              String
+  description       String?
+  userId            Int
+  createdAt         DateTime         @default(now())
+  user              User             @relation("UserProjects", fields: [userId], references: [id])
+  projectPatterns   ProjectPattern[]
 }
 
-model NewProjectPattern {
-  id           Int        @id @default(autoincrement())
-  newProjectId Int
-  newPatternId Int
-  rotX         Float
-  rotY         Float
-  rotZ         Float
-  x            Float
-  y            Float
-  z            Float
-  newProject   NewProject @relation(fields: [newProjectId], references: [id])
-  newPattern   NewPattern @relation(fields: [newPatternId], references: [id])
+model ProjectPattern {
+  id         Int     @id @default(autoincrement())
+  projectId  Int
+  patternId  Int
+  rotX       Float
+  rotY       Float
+  rotZ       Float
+  x          Float
+  y          Float
+  z          Float
+  project    Project @relation(fields: [projectId], references: [id])
+  pattern    Pattern @relation(fields: [patternId], references: [id])
 }
 
 model Point {
-  id           Int        @id @default(autoincrement())
-  x            Float
-  y            Float
-  z            Float
-  color        String
-  newPattern   NewPattern @relation(fields: [newPatternId], references: [id], onDelete: Cascade)
-  newPatternId Int
+  id         Int     @id @default(autoincrement())
+  x          Float
+  y          Float
+  z          Float
+  color      String
+  pattern    Pattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+  patternId  Int
 }

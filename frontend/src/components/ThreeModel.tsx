@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { TransformedPattern } from '../utilities/types';
 
-const SPHERE_RADIUS = 0.65;
+const SPHERE_RADIUS = 2.50;
 const SPHERE_SEGMENTS = 32;
 const SHADOW_SCALE = 1.05;
 

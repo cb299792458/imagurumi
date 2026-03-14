@@ -68,7 +68,7 @@ const InstructionsPage = () => {
         <Layout>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <a href={`/new-project/${id}`} className={styles.backLink}>
+                    <a href={`/project/${id}`} className={styles.backLink}>
                         ← Back to Project
                     </a>
                     <h1 className={styles.title}>Instructions</h1>

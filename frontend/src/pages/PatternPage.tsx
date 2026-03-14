@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Layout from './Layout';
-import { CreateNewPatternForm } from '../components/CreateNewPatternForm';
+import { CreatePatternForm } from '../components/CreatePatternForm';
 import { PhysicsPatternView } from '../components/PhysicsPatternView';
 import { PhysicsNode } from '../pages/TestPageStuff/TestClasses';
 import { createParsedGraph } from '../utilities/parser';
 import styles from './PatternPage.module.css';
 
-const NewPatternPage: React.FC = () => {
+const PatternPage: React.FC = () => {
     const [text, setText] = useState<string>('');
     const [nodes, setNodes] = useState<PhysicsNode[]>([]);
     const [parseError, setParseError] = useState<string>('');
@@ -34,9 +34,9 @@ const NewPatternPage: React.FC = () => {
         <Layout>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h1 className={styles.title}>New Pattern Creator</h1>
+                    <h1 className={styles.title}>Create Pattern</h1>
                     <p className={styles.subtitle}>
-                        Create a new pattern with points
+                        Create a pattern with points
                     </p>
                 </div>
 
@@ -48,9 +48,9 @@ const NewPatternPage: React.FC = () => {
 
                 <div className={styles.mainContent}>
                     <div className={styles.leftPanel}>
-                        <CreateNewPatternForm text={text} nodes={nodes} />
+                        <CreatePatternForm text={text} nodes={nodes} />
                     </div>
-                    
+
                     {/* Center Panel - Pattern Text Input */}
                     <div className={styles.centerPanel}>
                         <div className={styles.patternInput}>
@@ -87,4 +87,4 @@ const NewPatternPage: React.FC = () => {
     );
 };
 
-export default NewPatternPage;
+export default PatternPage;
