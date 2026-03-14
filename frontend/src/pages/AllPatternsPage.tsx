@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_NEW_PATTERNS } from '../utilities/gql';
+import { GET_PATTERNS_WITH_POINTS } from '../utilities/gql';
 import { ThreeCanvas } from '../components/ThreeCanvas';
 import { pointsToColoredPoints } from '../utilities/converters';
 import Layout from './Layout';
 import styles from './AllProjectsPage.module.css';
 import modalStyles from './PatternPage.module.css';
 
-interface NewPattern {
+interface Pattern {
     id: number;
     name: string;
     description: string | null;
@@ -23,12 +23,12 @@ interface NewPattern {
     }>;
 }
 
-const AllNewPatternsPage = () => {
-    const { loading, error, data } = useQuery(GET_NEW_PATTERNS);
-    const [selectedPattern, setSelectedPattern] = useState<NewPattern | null>(null);
+const AllPatternsPage = () => {
+    const { loading, error, data } = useQuery(GET_PATTERNS_WITH_POINTS);
+    const [selectedPattern, setSelectedPattern] = useState<Pattern | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const openModal = (pattern: NewPattern) => {
+    const openModal = (pattern: Pattern) => {
         setSelectedPattern(pattern);
         setIsModalOpen(true);
     };
@@ -50,8 +50,8 @@ const AllNewPatternsPage = () => {
         if (dateValue === null || dateValue === undefined) return '-';
         try {
             // Handle both string and number timestamps
-            const date = typeof dateValue === 'number' 
-                ? new Date(dateValue) 
+            const date = typeof dateValue === 'number'
+                ? new Date(dateValue)
                 : new Date(dateValue);
             if (isNaN(date.getTime())) {
                 return String(dateValue); // Return original value if invalid
@@ -66,13 +66,13 @@ const AllNewPatternsPage = () => {
         <Layout>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h1 className={styles.title}>All New Patterns</h1>
+                    <h1 className={styles.title}>Patterns</h1>
                     <p className={styles.subtitle}>
                         Browse and manage all your physics-based patterns
                     </p>
                 </div>
 
-                {data?.allNewPatterns && data.allNewPatterns.length === 0 ? (
+                {data?.allPatterns && data.allPatterns.length === 0 ? (
                     <div className={styles.emptyState}>
                         <div className={styles.emptyStateIcon}>🧶</div>
                         <h2 className={styles.emptyStateTitle}>No Patterns Yet</h2>
@@ -107,7 +107,7 @@ const AllNewPatternsPage = () => {
                                     </td>
                                 </tr>
                             )}
-                            {data?.allNewPatterns.map((pattern: NewPattern) => (
+                            {data?.allPatterns.map((pattern: Pattern) => (
                                 <tr key={pattern.id}>
                                     <td>{pattern.id}</td>
                                     <td>{pattern.name}</td>
@@ -115,7 +115,7 @@ const AllNewPatternsPage = () => {
                                     <td>{pattern.points.length}</td>
                                     <td>{formatDate(pattern.createdAt)}</td>
                                     <td>
-                                        <button 
+                                        <button
                                             onClick={() => openModal(pattern)}
                                             className={styles.viewProjectLink}
                                             type="button"
@@ -137,7 +137,7 @@ const AllNewPatternsPage = () => {
                                 <h2 className={modalStyles.modalTitle}>
                                     {selectedPattern.name} - 3D Visualization
                                 </h2>
-                                <button 
+                                <button
                                     onClick={closeModal}
                                     className={modalStyles.modalCloseButton}
                                     aria-label="Close modal"
@@ -164,4 +164,4 @@ const AllNewPatternsPage = () => {
     );
 }
 
-export default AllNewPatternsPage;
+export default AllPatternsPage;

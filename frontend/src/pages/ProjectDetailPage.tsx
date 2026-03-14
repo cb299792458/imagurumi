@@ -1,26 +1,25 @@
 import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { GET_PROJECT } from "../utilities/gql";
+import { GET_PROJECT_WITH_PATTERNS } from "../utilities/gql";
 import { Project } from "../utilities/types";
 import { ThreeCanvas } from "../components/ThreeCanvas";
 import Layout from "./Layout";
-import { projectRecordToProject } from "../utilities/converters";
+import { projectWithPointsToProject } from "../utilities/converters";
 import styles from './ProjectPage.module.css';
 
-const ProjectPage = () => {
+const ProjectDetailPage = () => {
     const { id } = useParams<{ id: string }>();
     const projectId = id ? parseInt(id, 10) : null;
-    const { loading: projectLoading, error: projectError, data: projectData } = useQuery(GET_PROJECT, { 
+    const { loading: projectLoading, error: projectError, data: projectData } = useQuery(GET_PROJECT_WITH_PATTERNS, {
         variables: { id: projectId },
-        skip: !projectId || isNaN(projectId)
+        skip: !projectId || isNaN(projectId),
     });
-    const [ project, setProject ] = useState<Project>([]);
+    const [project, setProject] = useState<Project>([]);
 
-    // load project data into newProject
     useEffect(() => {
         if (projectData?.project) {
-            setProject(projectRecordToProject(projectData.project));
+            setProject(projectWithPointsToProject(projectData.project));
         }
     }, [projectData]);
 
@@ -34,11 +33,8 @@ const ProjectPage = () => {
                 </div>
 
                 <div className={styles.actions}>
-                    <a href="/all-projects" className={styles.backLink}>
+                    <a href="/projects" className={styles.backLink}>
                         ← Back to Projects
-                    </a>
-                    <a href={`/instructions/project/${id}`} className={styles.instructionsLink}>
-                        📖 View Instructions
                     </a>
                 </div>
 
@@ -54,7 +50,7 @@ const ProjectPage = () => {
                 {projectLoading && (
                     <p className={styles.loadingText}>Loading project...</p>
                 )}
-                
+
                 {projectError && (
                     <p className={styles.errorText}>
                         Error: {projectError.message}
@@ -66,7 +62,7 @@ const ProjectPage = () => {
                 </div>
             </div>
         </Layout>
-    )
-}
+    );
+};
 
-export default ProjectPage;
+export default ProjectDetailPage;

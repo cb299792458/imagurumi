@@ -69,41 +69,41 @@ export const textToPatternInstance = (text: string): Pattern => {
 const defaultTransform: Transform = { x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0 };
 
 /**
- * Convert a NewProject from the API (with newProjectPatterns and newPattern.points) to Project for ThreeCanvas.
+ * Convert a Project from the API (with projectPatterns and pattern.points) to Project for ThreeCanvas.
  */
-export const newProjectRecordToProject = (newProject: {
-    newProjectPatterns: Array<{
+export const projectWithPointsToProject = (project: {
+    projectPatterns: Array<{
         x: number;
         y: number;
         z: number;
         rotX: number;
         rotY: number;
         rotZ: number;
-        newPattern: { points: Array<{ x: number; y: number; z: number; color: string }> };
+        pattern: { points: Array<{ x: number; y: number; z: number; color: string }> };
     }>;
 }): Project => {
-    return newProject.newProjectPatterns.map((npp) => ({
-        patternPoints: pointsToColoredPoints(npp.newPattern.points),
+    return project.projectPatterns.map((pp) => ({
+        patternPoints: pointsToColoredPoints(pp.pattern.points),
         transform: {
-            x: npp.x,
-            y: npp.y,
-            z: npp.z,
-            rotX: npp.rotX,
-            rotY: npp.rotY,
-            rotZ: npp.rotZ,
+            x: pp.x,
+            y: pp.y,
+            z: pp.z,
+            rotX: pp.rotX,
+            rotY: pp.rotY,
+            rotZ: pp.rotZ,
         },
     }));
 };
 
 /**
- * Build a Project (for ThreeCanvas) from an array of NewPatterns, preserving transforms by index.
+ * Build a Project (for ThreeCanvas) from an array of Patterns, preserving transforms by index.
  */
-export const newPatternsToProject = (
+export const patternsToProject = (
     prev: Project,
-    newPatterns: Array<{ id: number; points: Array<{ x: number; y: number; z: number; color: string }> }>
+    patterns: Array<{ id: number; points: Array<{ x: number; y: number; z: number; color: string }> }>
 ): Project => {
-    return newPatterns.map((np, i) => ({
-        patternPoints: pointsToColoredPoints(np.points),
+    return patterns.map((p, i) => ({
+        patternPoints: pointsToColoredPoints(p.points),
         transform: prev[i]?.transform ?? defaultTransform,
     }));
 };

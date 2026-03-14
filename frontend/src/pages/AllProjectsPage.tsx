@@ -1,18 +1,18 @@
 import { useQuery } from '@apollo/client';
-import { GET_PROJECTS } from '../utilities/gql';
+import { GET_PROJECTS_LIST } from '../utilities/gql';
 import Layout from './Layout';
 import styles from './AllProjectsPage.module.css';
 
 const AllProjectsPage = () => {
-    const { loading, error, data } = useQuery(GET_PROJECTS);
+    const { loading, error, data } = useQuery(GET_PROJECTS_LIST);
 
     return (
         <Layout>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h1 className={styles.title}>All Projects</h1>
+                    <h1 className={styles.title}>Projects</h1>
                     <p className={styles.subtitle}>
-                        Browse and manage all your 3D yarn crafting projects
+                        Browse and manage your 3D projects
                     </p>
                 </div>
 
@@ -21,7 +21,7 @@ const AllProjectsPage = () => {
                         <div className={styles.emptyStateIcon}>🧶</div>
                         <h2 className={styles.emptyStateTitle}>No Projects Yet</h2>
                         <p className={styles.emptyStateText}>
-                            Create your first project to get started with 3D yarn crafting!
+                            Create your first project to get started!
                         </p>
                     </div>
                 ) : (
@@ -49,24 +49,18 @@ const AllProjectsPage = () => {
                                     </td>
                                 </tr>
                             )}
-                            {data?.allProjects.map((project: { id: string; name: string; description: string }) => (
+                            {data?.allProjects.map((project: { id: string; name: string; description: string | null }) => (
                                 <tr key={project.id}>
                                     <td>{project.id}</td>
                                     <td>{project.name}</td>
-                                    <td>{project.description}</td>
+                                    <td>{project.description ?? ''}</td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                            <a 
+                                            <a
                                                 href={`/project/${project.id}`}
                                                 className={styles.viewProjectLink}
                                             >
                                                 View Project
-                                            </a>
-                                            <a 
-                                                href={`/instructions/project/${project.id}`}
-                                                className={styles.instructionsLink}
-                                            >
-                                                View Instructions
                                             </a>
                                         </div>
                                     </td>
@@ -78,6 +72,6 @@ const AllProjectsPage = () => {
             </div>
         </Layout>
     );
-}
+};
 
 export default AllProjectsPage;

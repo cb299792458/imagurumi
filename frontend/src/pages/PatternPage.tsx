@@ -1,69 +1,54 @@
-import React, { useState } from 'react';
-import { useQuery } from '@apollo/client';
-import { GET_PATTERNS } from '../utilities/gql';
-import { PatternRecord, PatternPoints } from '../utilities/types';
+import React, { useState, useEffect } from 'react';
 import Layout from './Layout';
 import { CreatePatternForm } from '../components/CreatePatternForm';
-import { ThreeCanvas } from '../components/ThreeCanvas';
+import { PhysicsPatternView } from '../components/PhysicsPatternView';
+import { PhysicsNode } from '../pages/TestPageStuff/TestClasses';
+import { createParsedGraph } from '../utilities/parser';
 import styles from './PatternPage.module.css';
-import { Pattern } from '../utilities/Pattern';
-import { textToPatternInstance } from '../utilities/converters';
 
 const PatternPage: React.FC = () => {
     const [text, setText] = useState<string>('');
-    const [patternPoints, setPatternPoints] = useState<PatternPoints>([]);
-    const [errorMessage, setErrorMessage] = useState<string>('');
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [nodes, setNodes] = useState<PhysicsNode[]>([]);
+    const [parseError, setParseError] = useState<string>('');
 
-    const { loading, error, data, refetch } = useQuery(GET_PATTERNS);
-
-    const handleText = () => {
+    // Parse text and create nodes whenever text changes
+    useEffect(() => {
         if (!text.trim()) {
-            setErrorMessage('Please enter a pattern');
+            setNodes([]);
+            setParseError('');
             return;
         }
 
         try {
-            const pattern: Pattern = textToPatternInstance(text);
-            setPatternPoints(pattern.toPatternPoints());
-
-            setErrorMessage('');
-            setIsModalOpen(true); // Open modal when pattern is visualized
-        } catch {
-            setErrorMessage('Error processing pattern');
+            const { nodes: parsedNodes } = createParsedGraph(text);
+            setNodes(parsedNodes);
+            setParseError('');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Error parsing pattern';
+            setParseError(errorMessage);
+            setNodes([]);
         }
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
-
-    const handleModalOverlayClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            closeModal();
-        }
-    };
+    }, [text]);
 
     return (
         <Layout>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h1 className={styles.title}>Pattern Creator</h1>
+                    <h1 className={styles.title}>Create Pattern</h1>
                     <p className={styles.subtitle}>
-                        Write your pattern and instantly visualize it in 3D
+                        Create a pattern with points
                     </p>
                 </div>
 
-                {errorMessage && (
+                {parseError && (
                     <div className={styles.errorMessage}>
-                        {errorMessage}
+                        {parseError}
                     </div>
                 )}
 
                 <div className={styles.mainContent}>
-                    {/* Left Panel - Create Pattern Form */}
                     <div className={styles.leftPanel}>
-                        <CreatePatternForm text={text} refetch={refetch}/>
+                        <CreatePatternForm text={text} nodes={nodes} />
                     </div>
 
                     {/* Center Panel - Pattern Text Input */}
@@ -75,92 +60,28 @@ const PatternPage: React.FC = () => {
                             <textarea
                                 id="pattern-text"
                                 className={styles.textarea}
-                                placeholder="Type or paste your pattern here...&#10;&#10;Example:&#10;@crochet-spiral&#10;red&#10;6&#10;12&#10;18&#10;# Change to blue yarn&#10;blue&#10;24"
+                                placeholder="Type or paste your pattern text here..."
                                 rows={8}
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
                             />
-                            <button onClick={handleText} className={styles.imagineButton}>
-                                🎨 Visualize Pattern
-                            </button>
                         </div>
                     </div>
 
-                    {/* Right Panel - Saved Patterns Table */}
+                    {/* Right Panel - 3D View */}
                     <div className={styles.rightPanel}>
-                        <h3 className={styles.inputLabel}>Saved Patterns</h3>
-                        <table className={styles.patternsTable}>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading && (
-                                    <tr>
-                                        <td colSpan={4} className={styles.loadingRow}>
-                                            Loading patterns...
-                                        </td>
-                                    </tr>
-                                )}
-                                {error && (
-                                    <tr>
-                                        <td colSpan={4} className={styles.errorRow}>
-                                            Error: {error.message}
-                                        </td>
-                                    </tr>
-                                )}
-                                {data && data.allPatterns.map((pattern: PatternRecord) => (
-                                    <tr key={pattern.id}>
-                                        <td>{pattern.id}</td>
-                                        <td>{pattern.name}</td>
-                                        <td>{pattern.description}</td>
-                                        <td>
-                                            <button 
-                                                onClick={() => setText(pattern.text)}
-                                                className={styles.loadPatternButton}
-                                            >
-                                                Load
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <h3 className={styles.inputLabel}>3D Preview</h3>
+                        <div className={styles.threeCanvasContainer}>
+                            {nodes.length > 0 ? (
+                                <PhysicsPatternView nodes={nodes} />
+                            ) : (
+                                <div className={styles.canvasPlaceholder}>
+                                    Add pattern text to see the 3D preview
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-
-                {/* 3D Model Modal */}
-                {isModalOpen && (
-                    <div className={styles.modalOverlay} onClick={handleModalOverlayClick}>
-                        <div className={styles.modalContent}>
-                            <div className={styles.modalHeader}>
-                                <h2 className={styles.modalTitle}>3D Pattern Visualization</h2>
-                                <button 
-                                    onClick={closeModal}
-                                    className={styles.modalCloseButton}
-                                    aria-label="Close modal"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                            <div className={styles.modalBody}>
-                                <div className={styles.threeCanvasContainer}>
-                                    {patternPoints.length > 0 ? (
-                                        <ThreeCanvas project={[{patternPoints}]} />
-                                    ) : (
-                                        <div className={styles.canvasPlaceholder}>
-                                            Enter a pattern and click "Visualize Pattern" to see the 3D preview
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         </Layout>
     );

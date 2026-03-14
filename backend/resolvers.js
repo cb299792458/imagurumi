@@ -9,65 +9,24 @@ const resolvers = {
             return await context.prisma.user.findMany();
         },
         allPatterns: async (_parent, _args, context) => {
-            return await context.prisma.pattern.findMany();
-        },
-        allProjects: async (_parent, _args, context) => {
-            return await context.prisma.project.findMany();
-        },
-        allNewPatterns: async (_parent, _args, context) => {
-            return await context.prisma.newPattern.findMany({
+            return await context.prisma.pattern.findMany({
                 include: {
                     points: true,
                 },
             });
         },
-        pattern: async (_parent, { id }, context) => {
-            return await context.prisma.pattern.findUnique({
-                where: { id },
-            });
+        allProjects: async (_parent, _args, context) => {
+            return await context.prisma.project.findMany();
         },
         project: async (_parent, { id }, context) => {
             return await context.prisma.project.findUnique({
                 where: { id },
-            });
-        },
-        allNewProjects: async (_parent, _args, context) => {
-            return await context.prisma.newProject.findMany();
-        },
-        newProject: async (_parent, { id }, context) => {
-            return await context.prisma.newProject.findUnique({
-                where: { id },
-                include: { newProjectPatterns: { include: { newPattern: { include: { points: true } } } } },
+                include: { projectPatterns: { include: { pattern: { include: { points: true } } } } },
             });
         },
     },
 
     Mutation: {
-        createPattern: async (_parent, { name, description, text, userId }, context) => {
-            return await context.prisma.pattern.create({
-                data: {
-                    name,
-                    description,
-                    text,
-                    userId,
-                },
-            });
-        },
-        updatePattern: async (_parent, { id, name, description, text }, context) => {
-            return await context.prisma.pattern.update({
-                where: { id },
-                data: {
-                    name,
-                    description,
-                    text,
-                },
-            });
-        },
-        deletePattern: async (_parent, { id }, context) => {
-            return await context.prisma.pattern.delete({
-                where: { id },
-            });
-        },
         createProject: async (_parent, { name, description, userId, projectPatterns }, context) => {
             return await context.prisma.project.create({
                 data: {
@@ -90,28 +49,6 @@ const resolvers = {
                 },
             });
         },
-        createNewProject: async (_parent, { name, description, userId, newProjectPatterns }, context) => {
-            return await context.prisma.newProject.create({
-                data: {
-                    name,
-                    description,
-                    user: {
-                        connect: { id: userId },
-                    },
-                    newProjectPatterns: {
-                        create: newProjectPatterns.map(pp => ({
-                            newPattern: { connect: { id: pp.newPatternId } },
-                            x: pp.x,
-                            y: pp.y,
-                            z: pp.z,
-                            rotX: pp.rotX,
-                            rotY: pp.rotY,
-                            rotZ: pp.rotZ,
-                        })),
-                    },
-                },
-            });
-        },
         signup: async (_parent, { email, password, username }, context) => {
             const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -122,8 +59,8 @@ const resolvers = {
             const token = jwt.sign({ userId: user.id }, JWT_SECRET);
             return { token, user };
         },
-        createNewPattern: async (_parent, { name, description, text, userId, points }, context) => {
-            return await context.prisma.newPattern.create({
+        createPattern: async (_parent, { name, description, text, userId, points }, context) => {
+            return await context.prisma.pattern.create({
                 data: {
                     name,
                     description,
@@ -160,20 +97,12 @@ const resolvers = {
         projectPatterns: async (parent, _args, context) => {
             return await context.prisma.projectPattern.findMany({
                 where: { projectId: parent.id },
-                include: { pattern: true },
-            });
-        }
-    },
-    NewProject: {
-        newProjectPatterns: async (parent, _args, context) => {
-            return await context.prisma.newProjectPattern.findMany({
-                where: { newProjectId: parent.id },
-                include: { newPattern: { include: { points: true } } },
+                include: { pattern: { include: { points: true } } },
             });
         }
     },
 
-    NewPattern: {
+    Pattern: {
         createdAt: (parent) => {
             // Convert Prisma DateTime to ISO string
             if (parent.createdAt instanceof Date) {
