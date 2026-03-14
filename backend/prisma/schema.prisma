@@ -12,45 +12,8 @@ model User {
   email          String          @unique
   username       String          @unique
   password       String
-  patterns       Pattern[]
   newPatterns    NewPattern[]
-  projects       Project[]
   newProjects    NewProject[]
-}
-
-model Pattern {
-  id              Int              @id @default(autoincrement())
-  name            String
-  description     String?
-  userId          Int
-  createdAt       DateTime         @default(now())
-  text            String
-  user            User             @relation(fields: [userId], references: [id])
-  projectPatterns ProjectPattern[]
-}
-
-model Project {
-  id              Int              @id @default(autoincrement())
-  name            String
-  description     String?
-  userId          Int
-  createdAt       DateTime         @default(now())
-  user            User             @relation(fields: [userId], references: [id])
-  projectPatterns ProjectPattern[]
-}
-
-model ProjectPattern {
-  id        Int     @id @default(autoincrement())
-  projectId Int
-  patternId Int
-  rotX      Float
-  rotY      Float
-  rotZ      Float
-  x         Float
-  y         Float
-  z         Float
-  pattern   Pattern @relation(fields: [patternId], references: [id])
-  project   Project @relation(fields: [projectId], references: [id])
 }
 
 model NewPattern {

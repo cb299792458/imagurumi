@@ -1,27 +1,13 @@
 export const typeDefs = `#graphql
     type Query {
         users: [User!]!
-        allPatterns: [Pattern]
         allNewPatterns: [NewPattern]
-        allProjects: [Project]
         allNewProjects: [NewProject]
-        project(id: Int!): Project
         newProject(id: Int!): NewProject
-        pattern(id: Int!): Pattern
     }
 
     input NewProjectPatternInput {
         newPatternId: Int!
-        x: Float!
-        y: Float!
-        z: Float!
-        rotX: Float!
-        rotY: Float!
-        rotZ: Float!
-    }
-
-    input ProjectPatternInput {
-        patternId: Int!
         x: Float!
         y: Float!
         z: Float!
@@ -38,29 +24,6 @@ export const typeDefs = `#graphql
     }
 
     type Mutation {
-        createPattern(
-            name: String!, 
-            description: String,
-            text: String!,
-            userId: Int!
-        ): Pattern
-
-        updatePattern(
-            id: Int!,
-            name: String,
-            description: String,
-            text: String
-        ): Pattern
-
-        deletePattern(id: Int!): Pattern
-
-        createProject(
-            name: String!,
-            description: String,
-            userId: Int!,
-            projectPatterns: [ProjectPatternInput!]!
-        ): Project
-
         createNewProject(
             name: String!,
             description: String,
@@ -88,25 +51,6 @@ export const typeDefs = `#graphql
         ): NewPattern
     }
 
-    type Pattern {
-        id: Int!
-        name: String!
-        description: String
-        text: String!
-        userId: Int!
-        user: User!
-        projectPatterns: [ProjectPattern!]!
-        createdAt: String!
-    }
-
-    type Project {
-        id: Int!
-        name: String!
-        description: String
-        userId: Int!
-        projectPatterns: [ProjectPattern!]!
-    }
-
     type NewProject {
         id: Int!
         name: String!
@@ -129,26 +73,10 @@ export const typeDefs = `#graphql
         rotZ: Float!
     }
 
-    type ProjectPattern {
-        id: Int!
-        projectId: Int!
-        project: Project!
-        patternId: Int!
-        pattern: Pattern!
-        x: Float!
-        y: Float!
-        z: Float!
-        rotX: Float!
-        rotY: Float!
-        rotZ: Float!
-    }
-  
     type User {
         id: Int!
         email: String!
         username: String!
-        patterns: [Pattern!]!
-        projects: [Project!]!
         newProjects: [NewProject!]!
     }
 
