@@ -5,13 +5,20 @@ function connectNodes(n1: PhysicsNode, n2: PhysicsNode) {
     if (!n2.neighbors.includes(n1)) n2.neighbors.push(n1);
 }
 
+function tokenizeStitches(input: string, separator = ","): string[] {
+    return input
+        .split(separator)
+        .map((s) => s.trim())
+        .map((s) => s.toLowerCase())
+        .filter(Boolean);
+}
+
 type ParsedLine =
   | { type: "color"; value: string }
   | { type: "row"; stitches: string[] };
 
 function parsePatternLines(pattern: string): ParsedLine[] {
-    // 1. Filter out empty lines from the initial split
-    const lines = pattern.split('\n').map(l => l.trim()).filter(Boolean);
+    const lines = tokenizeStitches(pattern, "\n");
     const result: ParsedLine[] = [];
 
     for (const line of lines) {
@@ -27,8 +34,7 @@ function parsePatternLines(pattern: string): ParsedLine[] {
         if (match) {
             const group = match[1];
             const count = parseInt(match[2], 10);
-
-            const stitches = group.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+            const stitches = tokenizeStitches(group);
 
             const expanded: string[] = [];
             for (let i = 0; i < count; i++) {
@@ -37,7 +43,7 @@ function parsePatternLines(pattern: string): ParsedLine[] {
             result.push({ type: "row", stitches: expanded });
         } else {
             // already expanded row
-            const stitches = line.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+            const stitches = tokenizeStitches(line);
             if (stitches.length > 0) {
                 result.push({ type: "row", stitches });
             }
@@ -69,14 +75,11 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[] } => 
         const currentRowCountStart = nodes.length;
         let prevIndex = 0;
 
-        // first row: just create nodes
         if (nodes.length === 0) {
             for (let i = 0; i < row.length; i++) {
                 nodes.push(new PhysicsNode(currentColor));
             }
-        } 
-        // all other rows
-        else {
+        } else {
             for (const stitch of row) {
                 switch (stitch) {
                     case "sc": {
@@ -102,7 +105,7 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[] } => 
                         const nodeIndex1 = nodes.length;
                         const nodeIndex2 = nodes.length + 1;
 
-                        nodes.push(new PhysicsNode(currentColor),new PhysicsNode(currentColor));
+                        nodes.push(new PhysicsNode(currentColor), new PhysicsNode(currentColor));
 
                         connectNodes(nodes[nodeIndex1], nodes[parentIndex]);
                         connectNodes(nodes[nodeIndex2], nodes[parentIndex]);
