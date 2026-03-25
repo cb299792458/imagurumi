@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { flushSync } from 'react-dom';
 import Layout from './Layout';
 import { CreatePatternForm } from '../components/CreatePatternForm';
 import { PhysicsPatternView } from '../components/PhysicsPatternView';
 import { PhysicsNode } from '../pages/TestPageStuff/TestClasses';
 import { createParsedGraph } from '../utilities/parser';
+import { toggleCommentAtSelection } from '../utilities/patternTextComments';
 import styles from './PatternPage.module.css';
 
 const PatternPage: React.FC = () => {
@@ -64,6 +66,23 @@ const PatternPage: React.FC = () => {
                                 rows={8}
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key !== '/' || (!e.metaKey && !e.ctrlKey)) {
+                                        return;
+                                    }
+                                    e.preventDefault();
+                                    const ta = e.currentTarget;
+                                    const { value, selectionStart, selectionEnd } = ta;
+                                    const next = toggleCommentAtSelection(
+                                        value,
+                                        selectionStart,
+                                        selectionEnd
+                                    );
+                                    flushSync(() => {
+                                        setText(next.text);
+                                    });
+                                    ta.setSelectionRange(next.selectionStart, next.selectionEnd);
+                                }}
                             />
                         </div>
                     </div>

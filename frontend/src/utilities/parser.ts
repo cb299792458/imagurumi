@@ -451,6 +451,10 @@ function parsePatternLines(pattern: string): ParsedLine[] {
     const result: ParsedLine[] = [];
 
     for (const line of lines) {
+        if (line.trimStart().startsWith("//")) {
+            continue;
+        }
+
         // color line (word or hex)
         if (/^([a-zA-Z]+|#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))$/.test(line)) {
             result.push({ type: "color", value: line });
