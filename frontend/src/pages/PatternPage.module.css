@@ -91,6 +91,41 @@
   display: block;
 }
 
+.patternInputHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.patternInputHeader .inputLabel {
+  margin-bottom: 0;
+}
+
+.samplePatternTools {
+  flex-shrink: 0;
+}
+
+.sampleSelect {
+  font-size: var(--font-size-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 2px solid var(--neutral-300);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--neutral-800);
+  min-width: 14rem;
+  max-width: 100%;
+  cursor: pointer;
+}
+
+.sampleSelect:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgb(14 165 233 / 0.1);
+}
+
 .textarea {
   width: 100%;
   flex: 1;

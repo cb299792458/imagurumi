@@ -6,7 +6,16 @@ import { PhysicsPatternView } from '../components/PhysicsPatternView';
 import { PhysicsNode } from '../pages/TestPageStuff/TestClasses';
 import { createParsedGraph } from '../utilities/parser';
 import { toggleCommentAtSelection } from '../utilities/patternTextComments';
+import { SAMPLE_PATTERNS } from '../data/samplePatterns';
 import styles from './PatternPage.module.css';
+
+function normalizeSampleTextForEditor(text: string): string {
+    return text
+        .replace(/\t+/g, '')
+        .split('\n')
+        .map((line) => line.trimStart())
+        .join('\n');
+}
 
 const PatternPage: React.FC = () => {
     const [text, setText] = useState<string>('');
@@ -32,6 +41,20 @@ const PatternPage: React.FC = () => {
         }
     }, [text]);
 
+    const handleSamplePatternChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const id = e.target.value;
+        if (!id) {
+            return;
+        }
+        const sample = SAMPLE_PATTERNS.find((p) => p.id === id);
+        if (!sample) {
+            return;
+        }
+        setText(normalizeSampleTextForEditor(sample.text));
+        // Reset to placeholder so the same sample can be loaded again.
+        e.currentTarget.value = '';
+    };
+
     return (
         <Layout>
             <div className={styles.container}>
@@ -56,9 +79,29 @@ const PatternPage: React.FC = () => {
                     {/* Center Panel - Pattern Text Input */}
                     <div className={styles.centerPanel}>
                         <div className={styles.patternInput}>
-                            <label htmlFor="pattern-text" className={styles.inputLabel}>
-                                Pattern Text
-                            </label>
+                            <div className={styles.patternInputHeader}>
+                                <label htmlFor="pattern-text" className={styles.inputLabel}>
+                                    Pattern Text
+                                </label>
+                                <div className={styles.samplePatternTools}>
+                                    <label htmlFor="sample-pattern-select" className="sr-only">
+                                        Load a sample pattern into the editor
+                                    </label>
+                                    <select
+                                        id="sample-pattern-select"
+                                        className={styles.sampleSelect}
+                                        onChange={handleSamplePatternChange}
+                                        aria-label="Sample patterns"
+                                    >
+                                        <option value="">Sample patterns…</option>
+                                        {SAMPLE_PATTERNS.map((sample) => (
+                                            <option key={sample.id} value={sample.id}>
+                                                {sample.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                             <textarea
                                 id="pattern-text"
                                 className={styles.textarea}

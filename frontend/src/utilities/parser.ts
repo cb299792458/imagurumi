@@ -5,6 +5,14 @@ function connectNodes(n1: PhysicsNode, n2: PhysicsNode) {
     if (!n2.neighbors.includes(n1)) n2.neighbors.push(n1);
 }
 
+const INC_STITCH_RE = /^inc(\d+)$/;
+const ROW_TOKEN_RE = /\(|\)|,|[a-zA-Z]+x\d+|inc\d+|x|\d+|[a-zA-Z]+/g;
+const UNEXPECTED_NUMBER_RE = /^\d+$/;
+const SINGLE_STITCH_WITH_MULTIPLIER_RE = /^([a-zA-Z]+)x(\d+)$/;
+const COLOR_LINE_RE = /^([a-zA-Z]+|#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))$/;
+const MAGIC_RING_RE = /^\s*mr\s*(\d+)\s*$/i;
+const CHAIN_RE = /^\s*ch\s*(\d+)\s*$/i;
+
 type StitchAttachmentOpts = {
     firstStitchInRow: boolean;
     /** End of the previous row in stitch order — models yarn running from there to the first stitch of this row. */
@@ -12,16 +20,62 @@ type StitchAttachmentOpts = {
     color?: string;
 };
 
+type RowContextBase = {
+    nodes: PhysicsNode[];
+    nodesBeforePrevRow: number;
+    rowCounter: number;
+    currentColor: string | undefined;
+    lastNodeOfPrevRow: PhysicsNode;
+};
+
+type LoopRowContext = RowContextBase & {
+    prevRowCount: number;
+};
+
+type FlatLineRowContext = RowContextBase;
+
+type ChainToLoopRowContext = {
+    nodes: PhysicsNode[];
+    nodesBeforePrevRow: number;
+    parentRowCount: number;
+    rowCounter: number;
+    currentColor: string | undefined;
+};
+
+type ParsedLine =
+    | { type: "color"; value: string }
+    | { type: "row"; stitches: string[] }
+    | { type: "startMagicRing"; count: number }
+    | { type: "startChain"; count: number };
+
+function makeStitchOpts(
+    firstStitchInRow: boolean,
+    lastNodeOfPrevRow: PhysicsNode,
+    color: string | undefined
+): StitchAttachmentOpts {
+    return { firstStitchInRow, lastNodeOfPrevRow, color };
+}
+
+function connectAdjacentNodesInRow(nodes: PhysicsNode[], rowStart: number, rowCount: number): void {
+    for (let i = 1; i < rowCount; i++) {
+        connectNodes(nodes[rowStart + i - 1], nodes[rowStart + i]);
+    }
+}
+
+function rowErr(rowCounter: number, detail: string): Error {
+    return new Error(`Row ${rowCounter}: ${detail}`);
+}
+
 function pushScStitch(
     nodes: PhysicsNode[],
     parentIndex: number,
     opts: StitchAttachmentOpts
 ): void {
-    const nodeIndex = nodes.length;
-    nodes.push(new PhysicsNode(opts.color));
-    connectNodes(nodes[nodeIndex], nodes[parentIndex]);
+    const newStitch = new PhysicsNode(opts.color);
+    nodes.push(newStitch);
+    connectNodes(newStitch, nodes[parentIndex]);
     if (opts.firstStitchInRow) {
-        connectNodes(nodes[nodeIndex], opts.lastNodeOfPrevRow);
+        connectNodes(newStitch, opts.lastNodeOfPrevRow);
     }
 }
 
@@ -55,7 +109,7 @@ function parseIncChildCount(stitch: string): number | null {
     if (stitch === "inc") {
         return 2;
     }
-    const m = stitch.match(/^inc(\d+)$/);
+    const m = stitch.match(INC_STITCH_RE);
     if (!m) {
         return null;
     }
@@ -72,6 +126,11 @@ function pushDecStitch(
     parentIndex2: number,
     opts: StitchAttachmentOpts
 ): void {
+    if (Math.abs(parentIndex2 - parentIndex1) !== 1) {
+        throw new Error(
+            `dec expects adjacent parent indices; got ${parentIndex1} and ${parentIndex2}`
+        );
+    }
     const nodeIndex = nodes.length;
     nodes.push(new PhysicsNode(opts.color));
     connectNodes(nodes[nodeIndex], nodes[parentIndex1]);
@@ -81,105 +140,126 @@ function pushDecStitch(
     }
 }
 
-type LoopRowContext = {
-    nodes: PhysicsNode[];
-    nodesBeforePrevRow: number;
-    prevRowCount: number;
-    rowCounter: number;
-    currentColor: string | undefined;
-    lastNodeOfPrevRow: PhysicsNode;
-};
+/**
+ * Applies sc/inc* stitches and returns how many parent stitches were consumed.
+ * Returns null for dec so callers can enforce mode-specific dec rules.
+ */
+function applyScOrIncStitch(
+    stitch: string,
+    nodes: PhysicsNode[],
+    parentIndex: number,
+    stitchOpts: StitchAttachmentOpts
+): number | null {
+    const incChildren = parseIncChildCount(stitch);
+    if (incChildren !== null) {
+        pushIncStitch(nodes, parentIndex, incChildren, stitchOpts);
+        return 1;
+    }
+    if (stitch === "sc") {
+        pushScStitch(nodes, parentIndex, stitchOpts);
+        return 1;
+    }
+    if (stitch === "dec") {
+        return null;
+    }
+    throw new Error(`Unknown stitch type: ${stitch}`);
+}
+
+/** Number of parent stitches consumed by one stitch token in flat/linear traversal. */
+function parentConsumptionForStitch(stitch: string): number {
+    if (stitch === "dec") {
+        return 2;
+    }
+    if (stitch === "sc" || parseIncChildCount(stitch) !== null) {
+        return 1;
+    }
+    throw new Error(`Unknown stitch type: ${stitch}`);
+}
+
+function parentConsumptionForRow(row: string[], rowCounter: number): number {
+    try {
+        return row.reduce((total, stitch) => total + parentConsumptionForStitch(stitch), 0);
+    } catch (error) {
+        if (error instanceof Error && error.message.startsWith("Unknown stitch type:")) {
+            throw rowErr(rowCounter, error.message);
+        }
+        throw error;
+    }
+}
 
 function processLoopRoundRow(row: string[], ctx: LoopRowContext): number {
-    let prevIndex = 0;
+    let parentCursor = 0;
     const { nodes, nodesBeforePrevRow, prevRowCount, rowCounter, currentColor, lastNodeOfPrevRow } = ctx;
 
     for (const stitch of row) {
-        const firstStitchInRow = prevIndex === 0;
-        const stitchOpts = { firstStitchInRow, lastNodeOfPrevRow, color: currentColor };
+        const stitchOpts = makeStitchOpts(parentCursor === 0, lastNodeOfPrevRow, currentColor);
 
-        const incChildren = parseIncChildCount(stitch);
-        if (incChildren !== null) {
-            if (prevIndex >= prevRowCount) {
-                throw new Error(`Row ${rowCounter}: Not enough parent stitches`);
-            }
-            pushIncStitch(nodes, nodesBeforePrevRow + prevIndex, incChildren, stitchOpts);
-            prevIndex += 1;
+        if (parentCursor >= prevRowCount) {
+            throw rowErr(rowCounter, "Not enough parent stitches");
+        }
+
+        const consumedParents = applyScOrIncStitch(
+            stitch,
+            nodes,
+            nodesBeforePrevRow + parentCursor,
+            stitchOpts
+        );
+        if (consumedParents !== null) {
+            parentCursor += consumedParents;
             continue;
         }
 
-        switch (stitch) {
-            case "sc": {
-                if (prevIndex >= prevRowCount) {
-                    throw new Error(`Row ${rowCounter}: Not enough parent stitches`);
-                }
-                pushScStitch(nodes, nodesBeforePrevRow + prevIndex, stitchOpts);
-                prevIndex += 1;
-                break;
-            }
-            case "dec": {
-                if (prevIndex + 1 >= prevRowCount) {
-                    throw new Error(`Row ${rowCounter}: dec requires 2 parent stitches`);
-                }
-                pushDecStitch(
-                    nodes,
-                    nodesBeforePrevRow + prevIndex,
-                    nodesBeforePrevRow + prevIndex + 1,
-                    stitchOpts
-                );
-                prevIndex += 2;
-                break;
-            }
-            default:
-                throw new Error(`Unknown stitch type: ${stitch}`);
+        if (parentCursor + 1 >= prevRowCount) {
+            throw rowErr(rowCounter, "dec requires 2 parent stitches");
         }
+        pushDecStitch(
+            nodes,
+            nodesBeforePrevRow + parentCursor,
+            nodesBeforePrevRow + parentCursor + 1,
+            stitchOpts
+        );
+        parentCursor += 2;
     }
-    return prevIndex;
+    return parentCursor;
 }
 
-type FlatLineRowContext = {
-    nodes: PhysicsNode[];
-    nodesBeforePrevRow: number;
-    rowCounter: number;
-    currentColor: string | undefined;
-    lastNodeOfPrevRow: PhysicsNode;
-};
-
 function processFlatLineRow(row: string[], parentSeq: number[], ctx: FlatLineRowContext): number {
-    let prevIndex = 0;
+    let parentCursor = 0;
     const { nodes, nodesBeforePrevRow, rowCounter, currentColor, lastNodeOfPrevRow } = ctx;
 
     for (const stitch of row) {
-        const firstStitchInRow = prevIndex === 0;
-        const physicalParent = parentSeq[prevIndex];
-        const stitchOpts: StitchAttachmentOpts = {
-            firstStitchInRow,
-            lastNodeOfPrevRow,
-            color: currentColor,
-        };
-        const parentIndex = nodesBeforePrevRow + physicalParent;
+        const stitchOpts = makeStitchOpts(parentCursor === 0, lastNodeOfPrevRow, currentColor);
+        const firstParent = parentSeq[parentCursor];
+        if (firstParent === undefined) {
+            throw rowErr(rowCounter, "Not enough parent stitches");
+        }
+        const parentIndex = nodesBeforePrevRow + firstParent;
 
-        const incChildren = parseIncChildCount(stitch);
-        if (incChildren !== null) {
-            pushIncStitch(nodes, parentIndex, incChildren, stitchOpts);
-            prevIndex += 1;
+        const consumedParents = applyScOrIncStitch(stitch, nodes, parentIndex, stitchOpts);
+        if (consumedParents !== null) {
+            parentCursor += consumedParents;
             continue;
         }
 
-        switch (stitch) {
-            case "sc":
-                pushScStitch(nodes, parentIndex, stitchOpts);
-                prevIndex += 1;
-                break;
-            case "dec":
-                throw new Error(
-                    `Row ${rowCounter}: dec is not supported after a chain row (flat row uses a backward walk)`
-                );
-            default:
-                throw new Error(`Unknown stitch type: ${stitch}`);
+        const secondParent = parentSeq[parentCursor + 1];
+        if (secondParent === undefined) {
+            throw rowErr(rowCounter, "dec requires 2 parent stitches");
         }
+        if (secondParent === firstParent) {
+            throw rowErr(
+                rowCounter,
+                "dec requires 2 distinct parent stitches; encountered a corner bounce repeat"
+            );
+        }
+        pushDecStitch(
+            nodes,
+            nodesBeforePrevRow + firstParent,
+            nodesBeforePrevRow + secondParent,
+            stitchOpts
+        );
+        parentCursor += 2;
     }
-    return prevIndex;
+    return parentCursor;
 }
 
 /** Physical parent indices 0..P-1 for each stitch: start at last (P-1), walk backward, bounce at ends repeating the corner stitch then reversing direction. */
@@ -250,16 +330,18 @@ function assertChainToLoopConsumesAllParentsExceptSkipped(
 ): void {
     for (const idx of parentLocal) {
         if (idx < 1 || idx >= P) {
-            throw new Error(
-                `Row ${rowCounter}: line-to-loop row must only attach to parents 1..${P - 1} (C0 skipped), got ${idx}`
+            throw rowErr(
+                rowCounter,
+                `line-to-loop row must only attach to parents 1..${P - 1} (C0 skipped), got ${idx}`
             );
         }
     }
     const used = new Set(parentLocal);
     for (let p = 1; p <= P - 1; p++) {
         if (!used.has(p)) {
-            throw new Error(
-                `Row ${rowCounter}: line-to-loop row must use every parent stitch from C1 to C${P - 1} (C0 skipped); missing parent index ${p}`
+            throw rowErr(
+                rowCounter,
+                `line-to-loop row must use every parent stitch from C1 to C${P - 1} (C0 skipped); missing parent index ${p}`
             );
         }
     }
@@ -267,19 +349,14 @@ function assertChainToLoopConsumesAllParentsExceptSkipped(
 
 function applyChainToLoopRow(
     row: string[],
-    ctx: {
-        nodes: PhysicsNode[];
-        nodesBeforePrevRow: number;
-        P: number;
-        rowCounter: number;
-        currentColor: string | undefined;
-    }
+    ctx: ChainToLoopRowContext
 ): void {
     const n = row.length;
-    const parentLocal = chainToLoopParentSequence(ctx.P);
+    const parentLocal = chainToLoopParentSequence(ctx.parentRowCount);
     if (parentLocal.length !== n) {
-        throw new Error(
-            `Row ${ctx.rowCounter}: line-to-loop row must have exactly ${parentLocal.length} stitches (2(P-1)), got ${n}`
+        throw rowErr(
+            ctx.rowCounter,
+            `line-to-loop row must have exactly ${parentLocal.length} stitches (2(P-1)), got ${n}`
         );
     }
     const { nodes, nodesBeforePrevRow, rowCounter, currentColor } = ctx;
@@ -287,32 +364,14 @@ function applyChainToLoopRow(
 
     for (let si = 0; si < n; si++) {
         const parentIndex = nodesBeforePrevRow + parentLocal[si];
-        const firstStitchInRow = si === 0;
-        const stitchOpts = {
-            firstStitchInRow,
-            lastNodeOfPrevRow: chainTipC0,
-            color: currentColor,
-        };
+        const stitchOpts = makeStitchOpts(si === 0, chainTipC0, currentColor);
 
-        const stitch = row[si];
-        const incChildren = parseIncChildCount(stitch);
-        if (incChildren !== null) {
-            pushIncStitch(nodes, parentIndex, incChildren, stitchOpts);
-            continue;
-        }
-        switch (stitch) {
-            case "sc":
-                pushScStitch(nodes, parentIndex, stitchOpts);
-                break;
-            case "dec":
-                throw new Error(
-                    `Row ${rowCounter}: dec is not supported in a line-to-loop closing round`
-                );
-            default:
-                throw new Error(`Unknown stitch type: ${stitch}`);
+        const consumedParents = applyScOrIncStitch(row[si], nodes, parentIndex, stitchOpts);
+        if (consumedParents === null) {
+            throw rowErr(rowCounter, "dec is not supported in a line-to-loop closing round");
         }
     }
-    assertChainToLoopConsumesAllParentsExceptSkipped(parentLocal, ctx.P, rowCounter);
+    assertChainToLoopConsumesAllParentsExceptSkipped(parentLocal, ctx.parentRowCount, rowCounter);
 }
 
 /** True when the row has more than one stitch and its first and last nodes are neighbors (closed ring). */
@@ -337,14 +396,8 @@ function tokenizeStitches(input: string, separator = ","): string[] {
         .filter(Boolean);
 }
 
-type ParsedLine =
-  | { type: "color"; value: string }
-  | { type: "row"; stitches: string[] }
-  | { type: "startMagicRing"; count: number }
-  | { type: "startChain"; count: number };
-
 function expandRowLine(line: string): string[] {
-    const tokens = line.toLowerCase().match(/\(|\)|,|[a-zA-Z]+x\d+|inc\d+|x|\d+|[a-zA-Z]+/g);
+    const tokens = line.toLowerCase().match(ROW_TOKEN_RE);
     if (!tokens || tokens.length === 0) {
         return [];
     }
@@ -414,11 +467,11 @@ function expandRowLine(line: string): string[] {
             continue;
         }
 
-        if (/^\d+$/.test(token)) {
+        if (UNEXPECTED_NUMBER_RE.test(token)) {
             throw new Error("Unexpected number in row");
         }
 
-        const singleStitchWithMultiplier = token.match(/^([a-zA-Z]+)x(\d+)$/);
+        const singleStitchWithMultiplier = token.match(SINGLE_STITCH_WITH_MULTIPLIER_RE);
         if (singleStitchWithMultiplier) {
             const stitch = singleStitchWithMultiplier[1];
             const count = Number(singleStitchWithMultiplier[2]);
@@ -456,12 +509,12 @@ function parsePatternLines(pattern: string): ParsedLine[] {
         }
 
         // color line (word or hex)
-        if (/^([a-zA-Z]+|#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))$/.test(line)) {
+        if (COLOR_LINE_RE.test(line)) {
             result.push({ type: "color", value: line });
             continue;
         }
 
-        const mr = line.match(/^\s*mr\s*(\d+)\s*$/i);
+        const mr = line.match(MAGIC_RING_RE);
         if (mr) {
             const count = parseInt(mr[1], 10);
             if (count < 1) {
@@ -471,7 +524,7 @@ function parsePatternLines(pattern: string): ParsedLine[] {
             continue;
         }
 
-        const ch = line.match(/^\s*ch\s*(\d+)\s*$/i);
+        const ch = line.match(CHAIN_RE);
         if (ch) {
             const count = parseInt(ch[1], 10);
             if (count < 3) {
@@ -529,9 +582,7 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
             }
             const currentRowCount = nodes.length - currentRowCountStart;
             if (currentRowCount > 1) {
-                for (let i = 1; i < currentRowCount; i++) {
-                    connectNodes(nodes[currentRowCountStart + i - 1], nodes[currentRowCountStart + i]);
-                }
+                connectAdjacentNodesInRow(nodes, currentRowCountStart, currentRowCount);
                 connectNodes(nodes[currentRowCountStart], nodes[nodes.length - 1]);
             }
             nodesBeforePrevRow = currentRowCountStart;
@@ -547,9 +598,7 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
             }
             const currentRowCount = nodes.length - currentRowCountStart;
             if (currentRowCount > 1) {
-                for (let i = 1; i < currentRowCount; i++) {
-                    connectNodes(nodes[currentRowCountStart + i - 1], nodes[currentRowCountStart + i]);
-                }
+                connectAdjacentNodesInRow(nodes, currentRowCountStart, currentRowCount);
             }
             nodesBeforePrevRow = currentRowCountStart;
             prevRowCount = currentRowCount;
@@ -563,30 +612,35 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
         let prevIndex = 0;
 
         if (nodes.length === 0) {
-            throw new Error(
-                `Row ${rowCounter}: start with mr<number> or ch<number> (e.g. mr6 or ch6); optional color lines may come first`
+            throw rowErr(
+                rowCounter,
+                "start with mr<number> or ch<number> (e.g. mr6 or ch6); optional color lines may come first"
             );
         }
 
         {
             const parentWasLoopRound: boolean = prevRowWasLoopRound;
-            const P = prevRowCount;
-            const n = row.length;
+            const parentRowCount = prevRowCount;
+            const rowStitchCount = row.length;
+            const flatRowParentConsumption = parentConsumptionForRow(row, rowCounter);
 
             const isFirstRowAfterChain: boolean =
                 chainFoundationFirstNode !== null && !parentWasLoopRound;
 
             if (isFirstRowAfterChain) {
-                if (n !== P && n !== 2 * (P - 1)) {
-                    throw new Error(
-                        `Row ${rowCounter}: First row after a starting chain must have exactly P (${P}) stitches (flat line) or 2(P-1) (${2 * (P - 1)}) stitches (line to loop); got ${n}`
+                const isFlatFirstRowValid = flatRowParentConsumption === parentRowCount;
+                const isChainToLoopRowValid = rowStitchCount === 2 * (parentRowCount - 1);
+                if (!isFlatFirstRowValid && !isChainToLoopRowValid) {
+                    throw rowErr(
+                        rowCounter,
+                        `First row after a starting chain must consume exactly P (${parentRowCount}) parent stitches (flat line) or have exactly 2(P-1) (${2 * (parentRowCount - 1)}) stitches (line to loop); got ${rowStitchCount} stitches consuming ${flatRowParentConsumption} parents`
                     );
                 }
             }
 
             /** First working row after `ch` with N = 2(P−1) closes the chain into a loop. */
             const isChainToLoopRound: boolean =
-                isFirstRowAfterChain && n === 2 * (P - 1);
+                isFirstRowAfterChain && rowStitchCount === 2 * (parentRowCount - 1);
 
             const lastNodeOfPrevRow = nodes[nodesBeforePrevRow + prevRowCount - 1];
 
@@ -603,14 +657,14 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
                 applyChainToLoopRow(row, {
                     nodes,
                     nodesBeforePrevRow,
-                    P,
+                    parentRowCount,
                     rowCounter,
                     currentColor,
                 });
             } else {
-                const parentSeq = flatLineParentSequence(P, n);
-                if (parentSeq.length !== n) {
-                    throw new Error(`Row ${rowCounter}: invalid line parent sequence`);
+                const parentSeq = flatLineParentSequence(parentRowCount, flatRowParentConsumption);
+                if (parentSeq.length !== flatRowParentConsumption) {
+                    throw rowErr(rowCounter, "invalid line parent sequence");
                 }
                 prevIndex = processFlatLineRow(row, parentSeq, {
                     nodes,
@@ -625,14 +679,16 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
 
             if (parentWasLoopRound) {
                 if (prevIndex !== prevRowCount) {
-                    throw new Error(
-                        `Row ${rowCounter}: Expected to consume ${prevRowCount} parent stitches, but consumed ${prevIndex}`
+                    throw rowErr(
+                        rowCounter,
+                        `Expected to consume ${prevRowCount} parent stitches, but consumed ${prevIndex}`
                     );
                 }
             } else if (!isChainToLoopRound) {
-                if (prevIndex !== n) {
-                    throw new Error(
-                        `Row ${rowCounter}: Expected ${n} stitches in this row, but processed ${prevIndex}`
+                if (prevIndex !== flatRowParentConsumption) {
+                    throw rowErr(
+                        rowCounter,
+                        `Expected to consume ${flatRowParentConsumption} parent stitches in this row, but consumed ${prevIndex}`
                     );
                 }
             }
@@ -641,9 +697,7 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
         const currentRowCount = nodes.length - currentRowCountStart;
 
         if (currentRowCount > 1) {
-            for (let i = 1; i < currentRowCount; i++) {
-                connectNodes(nodes[currentRowCountStart + i - 1], nodes[currentRowCountStart + i]);
-            }
+            connectAdjacentNodesInRow(nodes, currentRowCountStart, currentRowCount);
         }
 
         // Do not connect chain tip C0 to the first sc on flat rows — that edge closes a loop around the foundation.
