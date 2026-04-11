@@ -3,26 +3,37 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { PhysicsNode } from '../pages/TestPageStuff/TestClasses';
 import { useSpringSimulation } from '../pages/TestPageStuff/useSpringSimulation';
+import { NodeConnectionLines } from './NodeConnectionLines';
 import { ThreeModel } from './ThreeModel';
 import { ColoredPoints } from '../utilities/types';
 import { nodesToColoredPoints } from '../utilities/converters';
 import styles from './ThreeCanvas.module.css';
 
+/** Off by default. Set `VITE_DEBUG_PATTERN_VIEW=true` in `.env.local` for graph edges and smaller spheres. */
+const DEBUG_PATTERN_VIEW_DEFAULT = import.meta.env.VITE_DEBUG_PATTERN_VIEW === 'true';
+
 interface PhysicsPatternViewProps {
     nodes: PhysicsNode[];
+    /** Graph edges + small spheres for inspection. */
+    debug?: boolean;
 }
 
 const DEFAULT_SIZE = 50;
 const FOV = 75;
 
 // Component that runs inside Canvas to convert nodes to ColoredPoints on each frame
-const PhysicsPatternModel = ({ nodes }: { nodes: PhysicsNode[] }) => {
+const PhysicsPatternModel = ({
+    nodes,
+    debugPreview,
+}: {
+    nodes: PhysicsNode[];
+    debugPreview: boolean;
+}) => {
     const [points, setPoints] = useState<ColoredPoints[]>(() => {
         return nodesToColoredPoints(nodes);
     });
 
-    // Run physics simulation (faster with increased dt)
-    useSpringSimulation({ nodes, dt: 0.08 });
+    useSpringSimulation({ nodes });
 
     // Update points on each frame
     useFrame(() => {
@@ -30,11 +41,17 @@ const PhysicsPatternModel = ({ nodes }: { nodes: PhysicsNode[] }) => {
     });
     
     return (
-        <ThreeModel transformedPattern={{ patternPoints: points }} />
+        <>
+            {debugPreview ? <NodeConnectionLines nodes={nodes} /> : null}
+            <ThreeModel transformedPattern={{ patternPoints: points }} debugPreview={debugPreview} />
+        </>
     );
 };
 
-export const PhysicsPatternView = ({ nodes }: PhysicsPatternViewProps) => {
+export const PhysicsPatternView = ({
+    nodes,
+    debug = DEBUG_PATTERN_VIEW_DEFAULT,
+}: PhysicsPatternViewProps) => {
     return (
         <div className={styles.canvasContainer}>
             <div className={styles.canvasControls}>
@@ -64,7 +81,7 @@ export const PhysicsPatternView = ({ nodes }: PhysicsPatternViewProps) => {
                 <axesHelper args={[DEFAULT_SIZE]} />
                 
                 {/* Physics simulation and rendering */}
-                <PhysicsPatternModel nodes={nodes} />
+                <PhysicsPatternModel nodes={nodes} debugPreview={debug} />
                 
                 {/* Enhanced camera controls */}
                 <OrbitControls 

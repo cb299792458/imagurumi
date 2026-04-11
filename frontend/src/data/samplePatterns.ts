@@ -27,7 +27,7 @@ export const SAMPLE_PATTERNS: SamplePattern[] = [
     },
     {
         id: "tube",
-        label: "Long Tube",
+        label: "Closed Tube",
         text: `#00FF00
             mr6
             incx6
@@ -104,10 +104,10 @@ export const SAMPLE_PATTERNS: SamplePattern[] = [
     {
         id: "rectangle-spiral",
         label: "Rectangle in Spiral",
-        text: `#000000
+        text: `#AAAAAA
             ch6
             scx4, inc3, scx4, inc3
             (scx4, inc3, sc, inc3) x2
-            (scx8, inc3, sc, inc3) x2`,
+            (scx5, inc3, scx3, inc3, sc) x2`,
     },
 ];

@@ -34,7 +34,7 @@ type LoopRowContext = RowContextBase & {
 
 type FlatLineRowContext = RowContextBase;
 
-type ChainToLoopRowContext = {
+type AlongChainRowContext = {
     nodes: PhysicsNode[];
     nodesBeforePrevRow: number;
     parentRowCount: number;
@@ -309,56 +309,59 @@ function flatLineParentSequence(P: number, n: number): number[] {
 }
 
 /**
- * Line → loop closing round: skip parent 0; go along C1..C_{P-1}, then back C_{P-1}..C1 (N = 2(P-1)).
+ * Flat rectangle along a starting chain: skip C0 on the first pass (C1..C_{P-1}), turn at C_{P-1},
+ * then work back skipping that corner (C_{P-2}..C0). N = 2(P−1) stitches.
  */
-function chainToLoopParentSequence(P: number): number[] {
+function rectangleFlatAlongChainParentSequence(P: number): number[] {
     const seq: number[] = [];
     for (let i = 1; i <= P - 1; i++) {
         seq.push(i);
     }
-    for (let i = P - 1; i >= 1; i--) {
+    for (let i = P - 2; i >= 0; i--) {
         seq.push(i);
     }
     return seq;
 }
 
-/** Line-to-loop skips parent C0; every other chain parent 1..P-1 must appear at least once. */
-function assertChainToLoopConsumesAllParentsExceptSkipped(
-    parentLocal: number[],
-    P: number,
-    rowCounter: number
-): void {
-    for (const idx of parentLocal) {
-        if (idx < 1 || idx >= P) {
-            throw rowErr(
-                rowCounter,
-                `line-to-loop row must only attach to parents 1..${P - 1} (C0 skipped), got ${idx}`
-            );
-        }
+/**
+ * Rows that walk the chain with turns repeat a corner index twice (same foundation stitch on
+ * opposite passes). If the first of two identical parents was an increase, the next stitch must
+ * attach to the neighbor inward — not again into the corner (right turn: P−1 → P−2; left turn at 0 → 1).
+ */
+function adjustParentsAfterCornerIncrease(parentLocal: number[], row: string[], P: number): void {
+    if (P < 2) {
+        return;
     }
-    const used = new Set(parentLocal);
-    for (let p = 1; p <= P - 1; p++) {
-        if (!used.has(p)) {
-            throw rowErr(
-                rowCounter,
-                `line-to-loop row must use every parent stitch from C1 to C${P - 1} (C0 skipped); missing parent index ${p}`
-            );
+    for (let i = 1; i < parentLocal.length; i++) {
+        if (parentLocal[i] !== parentLocal[i - 1]) {
+            continue;
+        }
+        if (parseIncChildCount(row[i - 1]) === null) {
+            continue;
+        }
+        const p = parentLocal[i];
+        if (p === P - 1) {
+            parentLocal[i] = P - 2;
+        } else if (p === 0) {
+            parentLocal[i] = 1;
         }
     }
 }
 
-function applyChainToLoopRow(
+function applyRectangleFlatAlongChainRow(
     row: string[],
-    ctx: ChainToLoopRowContext
+    ctx: AlongChainRowContext
 ): void {
     const n = row.length;
-    const parentLocal = chainToLoopParentSequence(ctx.parentRowCount);
-    if (parentLocal.length !== n) {
+    const baseSequence = rectangleFlatAlongChainParentSequence(ctx.parentRowCount);
+    if (baseSequence.length !== n) {
         throw rowErr(
             ctx.rowCounter,
-            `line-to-loop row must have exactly ${parentLocal.length} stitches (2(P-1)), got ${n}`
+            `flat along-chain row must have exactly ${baseSequence.length} stitches (2(P-1)), got ${n}`
         );
     }
+    const parentLocal = baseSequence.slice();
+    adjustParentsAfterCornerIncrease(parentLocal, row, ctx.parentRowCount);
     const { nodes, nodesBeforePrevRow, rowCounter, currentColor } = ctx;
     const chainTipC0 = nodes[nodesBeforePrevRow];
 
@@ -368,24 +371,9 @@ function applyChainToLoopRow(
 
         const consumedParents = applyScOrIncStitch(row[si], nodes, parentIndex, stitchOpts);
         if (consumedParents === null) {
-            throw rowErr(rowCounter, "dec is not supported in a line-to-loop closing round");
+            throw rowErr(rowCounter, "dec is not supported in a flat along-chain row");
         }
     }
-    assertChainToLoopConsumesAllParentsExceptSkipped(parentLocal, ctx.parentRowCount, rowCounter);
-}
-
-/** True when the row has more than one stitch and its first and last nodes are neighbors (closed ring). */
-export function rowFirstAndLastAreNeighbors(
-    nodes: PhysicsNode[],
-    rowStart: number,
-    stitchCount: number
-): boolean {
-    if (stitchCount <= 1) {
-        return false;
-    }
-    const first = nodes[rowStart];
-    const last = nodes[rowStart + stitchCount - 1];
-    return first.neighbors.includes(last);
 }
 
 function tokenizeStitches(input: string, separator = ","): string[] {
@@ -396,8 +384,9 @@ function tokenizeStitches(input: string, separator = ","): string[] {
         .filter(Boolean);
 }
 
+/** Expects a line already lowercased (see `tokenizeStitches`). */
 function expandRowLine(line: string): string[] {
-    const tokens = line.toLowerCase().match(ROW_TOKEN_RE);
+    const tokens = line.match(ROW_TOKEN_RE);
     if (!tokens || tokens.length === 0) {
         return [];
     }
@@ -548,8 +537,8 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
     const nodes: PhysicsNode[] = [];
 
     const parsedLines = parsePatternLines(pattern);
-    
-    let currentColor: string | undefined = undefined;
+
+    let currentColor: string | undefined;
 
     let prevRowCount = 0;
     let nodesBeforePrevRow = 0;
@@ -558,8 +547,16 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
     let prevRowWasLoopRound: boolean = false;
     /** Index of first chain stitch (C0) after `ch`; cleared after the first stitch row on that chain. */
     let chainFoundationFirstNode: number | null = null;
+    /** After `ch` + flat along-chain row (2(P−1) first row), the next loop round should close (first ↔ last stitch). */
+    let ringCloseFirstLoopAfterChain: boolean = false;
 
-    for (const entry of parsedLines) {
+    const indexOfLastStitchRow = parsedLines.reduce(
+        (last, line, i) => (line.type === "row" ? i : last),
+        -1
+    );
+
+    for (let parsedLineIndex = 0; parsedLineIndex < parsedLines.length; parsedLineIndex++) {
+        const entry = parsedLines[parsedLineIndex];
         if (entry.type === "color") {
             currentColor = entry.value;
             continue;
@@ -610,6 +607,8 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
         const row = entry.stitches;
         const currentRowCountStart = nodes.length;
         let prevIndex = 0;
+        /** Incoming: previous row was worked in the round → this row uses `processLoopRoundRow`. */
+        const rowParentIsLoopRound = prevRowWasLoopRound;
 
         if (nodes.length === 0) {
             throw rowErr(
@@ -627,20 +626,22 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
             const isFirstRowAfterChain: boolean =
                 chainFoundationFirstNode !== null && !parentWasLoopRound;
 
+            const twoPassAlongChainStitchCount = 2 * (parentRowCount - 1);
+
             if (isFirstRowAfterChain) {
                 const isFlatFirstRowValid = flatRowParentConsumption === parentRowCount;
-                const isChainToLoopRowValid = rowStitchCount === 2 * (parentRowCount - 1);
-                if (!isFlatFirstRowValid && !isChainToLoopRowValid) {
+                const isTwoPassAlongChainValid = rowStitchCount === twoPassAlongChainStitchCount;
+                if (!isFlatFirstRowValid && !isTwoPassAlongChainValid) {
                     throw rowErr(
                         rowCounter,
-                        `First row after a starting chain must consume exactly P (${parentRowCount}) parent stitches (flat line) or have exactly 2(P-1) (${2 * (parentRowCount - 1)}) stitches (line to loop); got ${rowStitchCount} stitches consuming ${flatRowParentConsumption} parents`
+                        `First row after a starting chain must consume exactly P (${parentRowCount}) parent stitches (one pass) or have exactly 2(P-1) (${twoPassAlongChainStitchCount}) stitches (flat out-and-back along the chain); got ${rowStitchCount} stitches consuming ${flatRowParentConsumption} parents`
                     );
                 }
             }
 
-            /** First working row after `ch` with N = 2(P−1) closes the chain into a loop. */
-            const isChainToLoopRound: boolean =
-                isFirstRowAfterChain && rowStitchCount === 2 * (parentRowCount - 1);
+            /** First working row after `ch` with 2(P−1) stitches: flat along chain (skip C0 out, skip turn stitch back). */
+            const isRectangleFlatAlongChainRow: boolean =
+                isFirstRowAfterChain && rowStitchCount === twoPassAlongChainStitchCount;
 
             const lastNodeOfPrevRow = nodes[nodesBeforePrevRow + prevRowCount - 1];
 
@@ -653,18 +654,22 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
                     currentColor,
                     lastNodeOfPrevRow,
                 });
-            } else if (isChainToLoopRound) {
-                applyChainToLoopRow(row, {
+            } else if (isRectangleFlatAlongChainRow) {
+                applyRectangleFlatAlongChainRow(row, {
                     nodes,
                     nodesBeforePrevRow,
                     parentRowCount,
                     rowCounter,
                     currentColor,
                 });
+                prevIndex = flatRowParentConsumption;
             } else {
                 const parentSeq = flatLineParentSequence(parentRowCount, flatRowParentConsumption);
                 if (parentSeq.length !== flatRowParentConsumption) {
                     throw rowErr(rowCounter, "invalid line parent sequence");
+                }
+                if (flatRowParentConsumption > parentRowCount) {
+                    adjustParentsAfterCornerIncrease(parentSeq, row, parentRowCount);
                 }
                 prevIndex = processFlatLineRow(row, parentSeq, {
                     nodes,
@@ -675,21 +680,28 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
                 });
             }
 
-            prevRowWasLoopRound = parentWasLoopRound || isChainToLoopRound;
+            prevRowWasLoopRound = parentWasLoopRound || isRectangleFlatAlongChainRow;
 
-            if (parentWasLoopRound) {
-                if (prevIndex !== prevRowCount) {
-                    throw rowErr(
-                        rowCounter,
-                        `Expected to consume ${prevRowCount} parent stitches, but consumed ${prevIndex}`
-                    );
-                }
-            } else if (!isChainToLoopRound) {
-                if (prevIndex !== flatRowParentConsumption) {
-                    throw rowErr(
-                        rowCounter,
-                        `Expected to consume ${flatRowParentConsumption} parent stitches in this row, but consumed ${prevIndex}`
-                    );
+            if (isRectangleFlatAlongChainRow) {
+                ringCloseFirstLoopAfterChain = true;
+            }
+
+            const isLastStitchRow = parsedLineIndex === indexOfLastStitchRow;
+            if (!isLastStitchRow) {
+                if (parentWasLoopRound) {
+                    if (prevIndex !== prevRowCount) {
+                        throw rowErr(
+                            rowCounter,
+                            `Expected to consume ${prevRowCount} parent stitches, but consumed ${prevIndex}`
+                        );
+                    }
+                } else if (!isRectangleFlatAlongChainRow) {
+                    if (prevIndex !== flatRowParentConsumption) {
+                        throw rowErr(
+                            rowCounter,
+                            `Expected to consume ${flatRowParentConsumption} parent stitches in this row, but consumed ${prevIndex}`
+                        );
+                    }
                 }
             }
         }
@@ -698,6 +710,10 @@ export const createParsedGraph = (pattern: string): { nodes: PhysicsNode[]; last
 
         if (currentRowCount > 1) {
             connectAdjacentNodesInRow(nodes, currentRowCountStart, currentRowCount);
+            if (ringCloseFirstLoopAfterChain && rowParentIsLoopRound) {
+                connectNodes(nodes[currentRowCountStart], nodes[nodes.length - 1]);
+                ringCloseFirstLoopAfterChain = false;
+            }
         }
 
         // Do not connect chain tip C0 to the first sc on flat rows — that edge closes a loop around the foundation.
