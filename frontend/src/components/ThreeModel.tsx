@@ -1,11 +1,23 @@
 import * as THREE from 'three'
 import { TransformedPattern } from '../utilities/types';
 
-const SPHERE_RADIUS = 2.50;
+const SPHERE_RADIUS_DEFAULT = 2.5;
+/** Smaller spheres when debug preview is on (dense graphs, inspection). */
+const SPHERE_RADIUS_DEBUG = 0.65;
 const SPHERE_SEGMENTS = 32;
 const SHADOW_SCALE = 1.05;
 
-export const ThreeModel = ({transformedPattern}: {transformedPattern: TransformedPattern}) => {
+type ThreeModelProps = {
+    transformedPattern: TransformedPattern;
+    /** Smaller stitch spheres — enable via pattern preview debug (off by default). */
+    debugPreview?: boolean;
+};
+
+export const ThreeModel = ({
+    transformedPattern,
+    debugPreview = false,
+}: ThreeModelProps) => {
+    const sphereRadius = debugPreview ? SPHERE_RADIUS_DEBUG : SPHERE_RADIUS_DEFAULT;
     const { patternPoints, transform } = transformedPattern;
     const { x, y, z, rotX, rotY, rotZ } = transform || { x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0 };
 
@@ -31,7 +43,7 @@ export const ThreeModel = ({transformedPattern}: {transformedPattern: Transforme
                                 position={new THREE.Vector3(...point)}
                                 receiveShadow
                             >
-                                <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
+                                <sphereGeometry args={[sphereRadius, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
                                 <meshStandardMaterial 
                                     color={color === "black" ? "#2a2a2a" : "#e5e5e5"} 
                                     side={THREE.BackSide}
@@ -47,7 +59,7 @@ export const ThreeModel = ({transformedPattern}: {transformedPattern: Transforme
                                 castShadow
                                 receiveShadow
                             >
-                                <sphereGeometry args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
+                                <sphereGeometry args={[sphereRadius, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
                                 <meshStandardMaterial 
                                     color={color}
                                     roughness={0.85}
