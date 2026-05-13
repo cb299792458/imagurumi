@@ -9,14 +9,37 @@ const resolvers = {
             return await context.prisma.user.findMany();
         },
         allPatterns: async (_parent, _args, context) => {
-            return await context.prisma.pattern.findMany({
-                include: {
-                    points: true,
-                },
-            });
-        },
+            if (context.userId) {
+                return context.prisma.pattern.findMany({
+                    where: { userId: context.userId },
+                    include: { points: true },
+                });
+            }
+
+            if (context.guestId) {
+                return context.prisma.pattern.findMany({
+                    where: { guestId: context.guestId },
+                    include: { points: true },
+                });
+            }
+
+            return [];
+            },
+
         allProjects: async (_parent, _args, context) => {
-            return await context.prisma.project.findMany();
+            if (context.userId) {
+                return context.prisma.project.findMany({
+                    where: { userId: context.userId },
+                });
+            }
+
+            if (context.guestId) {
+                return context.prisma.project.findMany({
+                    where: { guestId: context.guestId },
+                });
+            }
+
+            return [];
         },
         project: async (_parent, { id }, context) => {
             return await context.prisma.project.findUnique({
@@ -27,27 +50,32 @@ const resolvers = {
     },
 
     Mutation: {
-        createProject: async (_parent, { name, description, userId, projectPatterns }, context) => {
-            return await context.prisma.project.create({
-                data: {
-                    name,
-                    description,
-                    user: {
-                        connect: { id: userId },
-                    },
-                    projectPatterns: {
-                        create: projectPatterns.map(pp => ({
-                            pattern: { connect: { id: pp.patternId } },
-                            x: pp.x,
-                            y: pp.y,
-                            z: pp.z,
-                            rotX: pp.rotX,
-                            rotY: pp.rotY,
-                            rotZ: pp.rotZ,
-                        })),
-                    },
+        createProject: async (_parent, { name, description, projectPatterns }, context) => {
+            const data = {
+                name,
+                description,
+                projectPatterns: {
+                    create: projectPatterns.map(pp => ({
+                        pattern: { connect: { id: pp.patternId } },
+                        x: pp.x,
+                        y: pp.y,
+                        z: pp.z,
+                        rotX: pp.rotX,
+                        rotY: pp.rotY,
+                        rotZ: pp.rotZ,
+                    })),
                 },
-            });
+            };
+
+            if (context.userId) {
+                data.user = { connect: { id: context.userId } };
+            } else if (context.guestId) {
+                data.guestId = context.guestId;
+            } else {
+                throw new Error("User must be logged in or provide guestId");
+            }
+
+            return context.prisma.project.create({ data });
         },
         signup: async (_parent, { email, password, username }, context) => {
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -56,27 +84,34 @@ const resolvers = {
                 data: { email, username, password: hashedPassword },
             });
 
-            const token = jwt.sign({ userId: user.id }, JWT_SECRET);
+            const token = jwt.sign({ id: user.id }, JWT_SECRET);
             return { token, user };
         },
-        createPattern: async (_parent, { name, description, text, userId, points }, context) => {
-            return await context.prisma.pattern.create({
-                data: {
-                    name,
-                    description,
-                    text,
-                    user: {
-                        connect: { id: userId },
-                    },
-                    points: {
-                        create: points.map(p => ({
-                            x: p.x,
-                            y: p.y,
-                            z: p.z,
-                            color: p.color,
-                        })),
-                    },
+        createPattern: async (_parent, { name, description, text, points }, context) => {
+            const data = {
+                name,
+                description,
+                text,
+                points: {
+                    create: points.map(p => ({
+                        x: p.x,
+                        y: p.y,
+                        z: p.z,
+                        color: p.color,
+                    })),
                 },
+            };
+
+            if (context.userId) {
+                data.user = { connect: { id: context.userId } };
+            } else if (context.guestId) {
+                data.guestId = context.guestId;
+            } else {
+                throw new Error("Missing user or guestId");
+            }
+
+            return await context.prisma.pattern.create({
+                data,
                 include: {
                     points: true,
                 },
@@ -89,8 +124,28 @@ const resolvers = {
             const valid = await bcrypt.compare(password, user.password);
             if (!valid) throw new Error("Incorrect password");
 
-            const token = jwt.sign({ userId: user.id }, JWT_SECRET);
+            const token = jwt.sign({ id: user.id }, JWT_SECRET);
             return { token, user };
+        },
+        // This links guestId to userId after login/signup
+        claimGuestData: async (_parent, { guestId }, context) => {
+            if (!context.userId) throw new Error("Not authenticated");
+
+            const [projects, patterns] = await Promise.all([
+                context.prisma.project.updateMany({
+                    where: { guestId },
+                    data: { userId: context.userId, guestId: null },
+                }),
+                context.prisma.pattern.updateMany({
+                    where: { guestId },
+                    data: { userId: context.userId, guestId: null },
+                }),
+            ]);
+
+            return {
+                projectsClaimed: projects.count,
+                patternsClaimed: patterns.count,
+            };
         },
     },
     Project: {

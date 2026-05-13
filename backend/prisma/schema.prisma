@@ -21,8 +21,9 @@ model Pattern {
   name              String
   description       String?
   text              String           @db.Text
-  user              User             @relation("UserPatterns", fields: [userId], references: [id])
-  userId            Int
+  user              User?             @relation("UserPatterns", fields: [userId], references: [id])
+  userId            Int?
+  guestId           String?
   points            Point[]
   projectPatterns   ProjectPattern[]
   createdAt         DateTime         @default(now())
@@ -32,9 +33,10 @@ model Project {
   id                Int              @id @default(autoincrement())
   name              String
   description       String?
-  userId            Int
+  userId            Int?
   createdAt         DateTime         @default(now())
-  user              User             @relation("UserProjects", fields: [userId], references: [id])
+  user              User?             @relation("UserProjects", fields: [userId], references: [id])
+  guestId           String?
   projectPatterns   ProjectPattern[]
 }
 

@@ -1,4 +1,5 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useApolloClient } from "@apollo/client";
 import styles from './NavBar.module.css';
 
 const NavBarItem = ({ to, name }: { to: string, name: string }) => {    
@@ -19,13 +20,30 @@ const NavBarItem = ({ to, name }: { to: string, name: string }) => {
 
 const NavBar = () => {
   const navigate = useNavigate();
+  const client = useApolloClient();
+
   const token = localStorage.getItem("imagurumiToken");
 
-  const handleLogout = () => {
+  const user = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      return null;
+    }
+  })();
+
+  const handleLogout = async () => {
     const confirmed = window.confirm("Are you sure you want to log out?");
     if (!confirmed) return;
 
     localStorage.removeItem("imagurumiToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("app_guest_id");
+
+    const newGuestId = crypto.randomUUID();
+    localStorage.setItem("app_guest_id", newGuestId);
+    
+    await client.clearStore();
     navigate("/"); // go back to home after logout
   };
   return (
@@ -38,7 +56,14 @@ const NavBar = () => {
         <NavBarItem to="/project/new" name="Create Project" />
         
         <li className={styles.logLink}>
-          {token ? "Logged in" : "Not logged in"}
+          {token && user ? (
+            <span>Hi {user.username}!</span>
+          ) : (
+            <span>Not logged in</span>
+          )}
+
+          {" "}
+
           {token ? (
             <span onClick={handleLogout} className={styles.navLink}>
               Logout

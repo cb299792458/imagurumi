@@ -47,8 +47,8 @@ export const GET_PROJECT = gql`
 `;
 
 export const CREATE_PATTERN = gql`
-    mutation CreatePattern($name: String!, $description: String, $text: String!, $userId: Int!) {
-        createPattern(name: $name, description: $description, text: $text, userId: $userId) {
+    mutation CreatePattern($name: String!, $description: String, $text: String!) {
+        createPattern(name: $name, description: $description, text: $text) {
             id
             name
         }
@@ -56,8 +56,8 @@ export const CREATE_PATTERN = gql`
 `;
 
 export const CREATE_PROJECT = gql`
-    mutation CreateProject($name: String!, $description: String, $userId: Int!, $projectPatterns: [ProjectPatternInput!]!) {
-        createProject(name: $name, description: $description, userId: $userId, projectPatterns: $projectPatterns) {
+    mutation CreateProject($name: String!, $description: String, $projectPatterns: [ProjectPatternInput!]!) {
+        createProject(name: $name, description: $description, projectPatterns: $projectPatterns) {
             id
             name
         }
@@ -74,8 +74,8 @@ export const LOGIN = gql`
 `;
 
 export const CREATE_PATTERN_WITH_POINTS = gql`
-    mutation CreatePattern($name: String!, $description: String, $text: String!, $userId: Int!, $points: [PointInput!]!) {
-        createPattern(name: $name, description: $description, text: $text, userId: $userId, points: $points) {
+    mutation CreatePattern($name: String!, $description: String, $text: String!, $points: [PointInput!]!) {
+        createPattern(name: $name, description: $description, text: $text, points: $points) {
             id
             name
             points {
@@ -94,6 +94,15 @@ export const SIGNUP = gql`
         signup(username: $username, email: $email, password: $password) {
             token
             user { id username email }
+        }
+    }
+`;
+
+export const CLAIM_GUEST_DATA = gql`
+    mutation ClaimGuestData($guestId: String!) {
+        claimGuestData(guestId: $guestId) {
+            projectsClaimed
+            patternsClaimed
         }
     }
 `;
@@ -159,8 +168,8 @@ export const GET_PROJECT_WITH_PATTERNS = gql`
 `;
 
 export const CREATE_PROJECT_WITH_PATTERNS = gql`
-    mutation CreateProject($name: String!, $description: String, $userId: Int!, $projectPatterns: [ProjectPatternInput!]!) {
-        createProject(name: $name, description: $description, userId: $userId, projectPatterns: $projectPatterns) {
+    mutation CreateProject($name: String!, $description: String, $projectPatterns: [ProjectPatternInput!]!) {
+        createProject(name: $name, description: $description, projectPatterns: $projectPatterns) {
             id
             name
         }
