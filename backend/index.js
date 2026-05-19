@@ -20,20 +20,24 @@ const server = new ApolloServer({
 const { url } = await startStandaloneServer(server, {
   context: async ({ req }) => {
     const authHeader = req.headers.authorization || "";
-    let user = null;
+    let userId = null;
 
     if (authHeader.startsWith("Bearer ")) {
       const token = authHeader.replace("Bearer ", "");
       try {
-        user = jwt.verify(token, process.env.JWT_SECRET);
+        const payload = jwt.verify(token, JWT_SECRET);
+        userId = payload.id ? Number(payload.id) : null;
       } catch (err) {
         console.log("Invalid token");
       }
     }
 
+    const guestId = req.headers["x-guest-id"] || null;
+
     return {
       prisma,
-      user,
+      userId,
+      guestId,
     };
   },
   listen: { port: 4000 },

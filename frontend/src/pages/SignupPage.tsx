@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "./Layout";
 import styles from "./SignupPage.module.css";
-import { SIGNUP } from "../utilities/gql";
-import { useMutation } from "@apollo/client";
+import { SIGNUP, CLAIM_GUEST_DATA } from "../utilities/gql";
+import { useApolloClient, useMutation } from "@apollo/client";
 
 export default function SignupPage() {
   const [username, setUsername] = useState("");
@@ -12,6 +12,8 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const [claimGuestData] = useMutation(CLAIM_GUEST_DATA);
+  const client = useApolloClient();
 
   const [signup, { loading }] = useMutation(SIGNUP);
 
@@ -19,11 +21,27 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
     setSuccess(false);
+    
+    const guestId = localStorage.getItem("app_guest_id");
 
     try {
       const { data } = await signup({ variables: { username, email, password } });
       localStorage.setItem("imagurumiToken", data.signup.token);
+      localStorage.setItem("user", JSON.stringify(data.signup.user));
+
+      try {
+        await claimGuestData({
+          variables: { guestId },
+        });
+        
+        localStorage.removeItem("app_guest_id");
+      } catch (claimErr) {
+        console.error("Failed to claim guest data:", claimErr);
+      }
+
       setSuccess(true);
+      await client.clearStore();
+
       setTimeout(() => navigate("/"), 1000);
     } catch (err: any) {
       setError(err.message || "Signup failed");

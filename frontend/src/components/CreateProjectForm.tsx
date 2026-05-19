@@ -15,7 +15,6 @@ export const CreateProjectForm = ({
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [showErrors, setShowErrors] = useState(false);
-    const userId = 1; // TODO: get userId from context or props
 
     const [createProject, { data, loading, error }] = useMutation(CREATE_PROJECT_WITH_PATTERNS);
 
@@ -53,7 +52,6 @@ export const CreateProjectForm = ({
             variables: {
                 name: name.trim(),
                 description: description.trim() || null,
-                userId,
                 projectPatterns,
             },
         });

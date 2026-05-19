@@ -14,7 +14,6 @@ export const CreatePatternForm = ({ text, nodes }: CreatePatternFormProps) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [showErrors, setShowErrors] = useState(false);
-    const userId = 1; // TODO: get userId from context or props
 
     const [createPattern, { data, loading, error }] = useMutation(CREATE_PATTERN_WITH_POINTS);
 
@@ -49,7 +48,6 @@ export const CreatePatternForm = ({ text, nodes }: CreatePatternFormProps) => {
                 name,
                 description: description.trim() || null,
                 text,
-                userId,
                 points
             }
         });

@@ -27,7 +27,6 @@ export const typeDefs = `#graphql
         createProject(
             name: String!,
             description: String,
-            userId: Int!,
             projectPatterns: [ProjectPatternInput!]!
         ): Project
 
@@ -46,16 +45,25 @@ export const typeDefs = `#graphql
             name: String!,
             description: String,
             text: String!,
-            userId: Int!,
             points: [PointInput!]!
         ): Pattern
+
+        claimGuestData(
+            guestId: String!
+        ): ClaimResponse!
+    }
+
+    type ClaimResponse {
+        projectsClaimed: Int!
+        patternsClaimed: Int!
     }
 
     type Project {
         id: Int!
         name: String!
         description: String
-        userId: Int!
+        userId: Int
+        guestId: String
         projectPatterns: [ProjectPattern!]!
     }
 
@@ -90,8 +98,9 @@ export const typeDefs = `#graphql
         name: String!
         description: String
         text: String!
-        userId: Int!
-        user: User!
+        userId: Int
+        guestId: String
+        user: User
         points: [Point!]!
         createdAt: String!
     }

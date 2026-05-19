@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Layout from "./Layout";
 import styles from "./LoginPage.module.css";
-import { LOGIN } from "../utilities/gql";
-import { useMutation } from "@apollo/client";
-    
+import { LOGIN, CLAIM_GUEST_DATA } from "../utilities/gql";
+import { useApolloClient, useMutation } from "@apollo/client";
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -13,6 +12,8 @@ export default function LoginPage() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [login] = useMutation(LOGIN);
+    const [claimGuestData] = useMutation(CLAIM_GUEST_DATA);
+    const client = useApolloClient();
 
     useEffect(() => {
         const token = localStorage.getItem("imagurumiToken");
@@ -31,7 +32,24 @@ export default function LoginPage() {
                 variables: { email, password },
             });
 
+            const guestId = localStorage.getItem("app_guest_id"); 
+
             localStorage.setItem("imagurumiToken", data.login.token);
+            localStorage.setItem("user", JSON.stringify(data.login.user));
+            
+            if (guestId) {
+                try {
+                    await claimGuestData({
+                        variables: { guestId },
+                    });
+
+                    localStorage.removeItem("app_guest_id");
+                } catch (claimErr) {
+                    console.error("Failed to claim guest data:", claimErr);
+                }
+            }
+            await client.clearStore();
+
             navigate("/");
         } catch (err: any) {
             setError(err.message || "Login failed");
@@ -69,6 +87,12 @@ export default function LoginPage() {
                         <button type="submit" disabled={loading} className={styles.submitBtn}>
                             {loading ? "Logging in..." : "Login"}
                         </button>
+                        <p style={{ marginTop: "10px" }}>
+                            Forgot password?{" "}
+                            <a href="mailto:brianrlam@gmail.com">
+                                Contact administrator
+                            </a>
+                        </p>
                     </form>
 
                     <div className={styles.signupRow}>
