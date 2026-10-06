@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import Layout from './Layout';
 import { CreatePatternForm } from '../components/CreatePatternForm';
@@ -7,6 +7,7 @@ import { PhysicsNode } from '../pages/TestPageStuff/TestClasses';
 import { createParsedGraph } from '../utilities/parser';
 import { toggleCommentAtSelection } from '../utilities/patternTextComments';
 import { SAMPLE_PATTERNS } from '../data/samplePatterns';
+import { StitchChips, StitchChip } from '../components/StitchChips';
 import styles from './PatternPage.module.css';
 
 function normalizeSampleTextForEditor(text: string): string {
@@ -21,6 +22,8 @@ const PatternPage: React.FC = () => {
     const [text, setText] = useState<string>('');
     const [nodes, setNodes] = useState<PhysicsNode[]>([]);
     const [parseError, setParseError] = useState<string>('');
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const pendingCaretRef = useRef<number | null>(null);
 
     // Parse text and create nodes whenever text changes
     useEffect(() => {
@@ -40,6 +43,60 @@ const PatternPage: React.FC = () => {
             setNodes([]);
         }
     }, [text]);
+
+    useEffect(() => {
+        const restoreCaret = () => {
+            const textarea = textareaRef.current;
+            const caret = pendingCaretRef.current;
+            if (!textarea || caret === null) {
+                return;
+            }
+            pendingCaretRef.current = null;
+            textarea.focus();
+            textarea.setSelectionRange(caret, caret);
+        };
+        window.addEventListener('focus', restoreCaret);
+        return () => window.removeEventListener('focus', restoreCaret);
+    }, []);
+
+    const handleInsertChip = (chip: StitchChip) => {
+        const textarea = textareaRef.current;
+        if (!textarea) {
+            return;
+        }
+
+        const { value, selectionStart, selectionEnd } = textarea;
+        const before = value.slice(0, selectionStart);
+        const after = value.slice(selectionEnd);
+        const atLineStart = before === '' || before.endsWith('\n');
+
+        let insertion: string;
+        let caret: number;
+
+        if (chip.ownLine) {
+            const openLine = atLineStart ? '' : '\n';
+            const closeLine = after.startsWith('\n') ? '' : '\n';
+            insertion = openLine + chip.snippet + closeLine;
+            caret = selectionStart + insertion.length + (closeLine ? 0 : 1);
+        } else {
+            const separator = !atLineStart && !/[\s,([]$/.test(before) ? ', ' : '';
+            insertion = separator + chip.snippet;
+            caret = selectionStart + insertion.length;
+        }
+
+        flushSync(() => {
+            setText(before + insertion + after);
+        });
+
+        pendingCaretRef.current = caret;
+        requestAnimationFrame(() => {
+            textarea.focus();
+            textarea.setSelectionRange(caret, caret);
+            if (document.activeElement === textarea) {
+                pendingCaretRef.current = null;
+            }
+        });
+    };
 
     const handleSamplePatternChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const id = e.target.value;
@@ -102,8 +159,15 @@ const PatternPage: React.FC = () => {
                                     </select>
                                 </div>
                             </div>
+                            <StitchChips
+                                onInsert={handleInsertChip}
+                                onPickColor={(hex) =>
+                                    handleInsertChip({ label: hex, snippet: hex, hint: '', ownLine: true })
+                                }
+                            />
                             <textarea
                                 id="pattern-text"
+                                ref={textareaRef}
                                 className={styles.textarea}
                                 placeholder="Type or paste your pattern text here..."
                                 rows={8}
