@@ -6,12 +6,47 @@ function connectNodes(n1: PhysicsNode, n2: PhysicsNode) {
 }
 
 const INC_STITCH_RE = /^inc(\d+)$/;
-const ROW_TOKEN_RE = /\(|\)|,|[a-zA-Z]+x\d+|inc\d+|x|\d+|[a-zA-Z]+/g;
+const ROW_TOKEN_RE = /\(|\)|\[|\]|,|[a-zA-Z]+x\d+|inc\d+|x|\d+|[a-zA-Z]+/g;
 const UNEXPECTED_NUMBER_RE = /^\d+$/;
 const SINGLE_STITCH_WITH_MULTIPLIER_RE = /^([a-zA-Z]+)x(\d+)$/;
 const COLOR_LINE_RE = /^([a-zA-Z]+|#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))$/;
 const MAGIC_RING_RE = /^\s*mr\s*(\d+)\s*$/i;
 const CHAIN_RE = /^\s*ch\s*(\d+)\s*$/i;
+const ROW_LABEL_RE = /^(?:rnd|round|row)\s*\d*\s*:\s*/i;
+const TRAILING_COUNT_RE = /[([{](\d+)[)\]}]\s*$/;
+
+export type RowAnnotations = {
+    body: string;
+    declaredCount: number | null;
+};
+
+export function stripRowAnnotations(line: string): RowAnnotations {
+    let body = line.replace(ROW_LABEL_RE, "").trim();
+    let declaredCount: number | null = null;
+
+    const match = body.match(TRAILING_COUNT_RE);
+    if (match && /[a-z]/i.test(body.slice(0, match.index))) {
+        declaredCount = parseInt(match[1], 10);
+        body = body.slice(0, match.index).trim();
+    }
+
+    return { body, declaredCount };
+}
+
+export function rowOutputCount(stitches: string[]): number {
+    let total = 0;
+    for (const stitch of stitches) {
+        const incMatch = stitch.match(INC_STITCH_RE);
+        if (stitch === "inc") {
+            total += 2;
+        } else if (incMatch) {
+            total += parseInt(incMatch[1], 10);
+        } else {
+            total += 1;
+        }
+    }
+    return total;
+}
 
 type StitchAttachmentOpts = {
     firstStitchInRow: boolean;
@@ -403,13 +438,13 @@ function expandRowLine(line: string): string[] {
             continue;
         }
 
-        if (token === "(") {
+        if (token === "(" || token === "[") {
             groupStarts.push(stitches.length);
             lastSingleStitchIndex = null;
             continue;
         }
 
-        if (token === ")") {
+        if (token === ")" || token === "]") {
             if (groupStarts.length === 0) {
                 throw new Error("Unmatched closing parenthesis in row");
             }
@@ -492,8 +527,15 @@ function parsePatternLines(pattern: string): ParsedLine[] {
     const lines = tokenizeStitches(pattern, "\n");
     const result: ParsedLine[] = [];
 
-    for (const line of lines) {
-        if (line.trimStart().startsWith("//")) {
+    let rowCounter = 0;
+
+    for (const rawLine of lines) {
+        if (rawLine.trimStart().startsWith("//")) {
+            continue;
+        }
+
+        const { body: line, declaredCount } = stripRowAnnotations(rawLine);
+        if (!line) {
             continue;
         }
 
@@ -527,6 +569,16 @@ function parsePatternLines(pattern: string): ParsedLine[] {
 
         const stitches = expandRowLine(line);
         if (stitches.length > 0) {
+            rowCounter++;
+            if (declaredCount !== null) {
+                const actualCount = rowOutputCount(stitches);
+                if (actualCount !== declaredCount) {
+                    throw rowErr(
+                        rowCounter,
+                        `pattern says (${declaredCount}) stitches but this row makes ${actualCount}`
+                    );
+                }
+            }
             result.push({ type: "row", stitches });
         }
     }
